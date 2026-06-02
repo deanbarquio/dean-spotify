@@ -1,0 +1,153 @@
+---
+// ExperienceSection.astro — Styled as a Spotify Podcast Episode Feed
+const experiences = [
+  {
+    role: 'Software Engineer / Frontend Developer',
+    company: 'N-Compass TV',
+    location: 'Cebu City, Cebu',
+    period: 'June 2025 – Present',
+    duration: 'Ongoing · 10 months',
+    current: true,
+    progress: '70%',
+    timeLeft: 'Ongoing',
+    description: 'Developed frontend applications using Angular and Svelte with Auth0, WebSockets, Filestack, and TailwindCSS. Designed UI standards for team scalability and mentored junior interns.',
+    tags: ['Angular', 'Svelte', 'TypeScript', 'TailwindCSS', 'Auth0'],
+    accent: '#1DB954',
+  },
+  {
+    role: 'Full-Stack Developer Intern',
+    company: 'N-Compass TV',
+    location: 'Cebu City, Cebu',
+    period: 'March 2025 – May 2025',
+    duration: '3 months · Completed',
+    current: false,
+    progress: '100%',
+    timeLeft: 'Completed',
+    description: 'Built internal Control Panel and Company Dashboard solo. Integrated Elasticsearch/OpenSearch for search, Next.js for SSR, TanStack Query, and Docker.',
+    tags: ['Next.js', 'NestJS', 'Elasticsearch', 'Docker', 'Prisma'],
+    accent: '#3B82F6',
+  },
+  {
+    role: 'Quality Assurance Intern',
+    company: 'N-Compass TV',
+    location: 'Cebu City, Cebu',
+    period: 'January 2025 – March 2025',
+    duration: '3 months · Completed',
+    current: false,
+    progress: '100%',
+    timeLeft: 'Completed',
+    description: 'Executed manual testing and UAT validation. Logged reproduction steps and automated cross-browser test suites using Selenium WebDriver.',
+    tags: ['Selenium', 'QA Testing', 'UAT', 'Bug Reporting'],
+    accent: '#8B5CF6',
+  },
+];
+---
+
+<section id="experience" style="padding:60px 32px;background:linear-gradient(180deg,transparent 0%,rgba(18,18,18,0.5) 100%);">
+  
+  <!-- Header -->
+  <div class="reveal" style="margin-bottom:32px;">
+    <p style="font-size:0.72rem;font-weight:700;color:var(--sp-green);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Episodes</p>
+    <h2 style="font-size:2rem;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:4px;">Listening History</h2>
+    <p style="font-size:0.875rem;color:var(--sp-text);">Professional timeline as podcast episodes</p>
+  </div>
+
+  <!-- Feed List -->
+  <div style="display:flex;flex-direction:column;gap:1px;background:var(--sp-border);border-radius:8px;overflow:hidden;" class="reveal">
+    {experiences.map((exp, i) => (
+      <div 
+        class="episode-row" 
+        style="background:var(--sp-surface);padding:24px;border-bottom:1px solid var(--sp-border);transition:background 0.2s;"
+        onmouseover="this.style.background='var(--sp-elevated)'"
+        onmouseout="this.style.background='var(--sp-surface)'"
+      >
+        <div style="display:flex;gap:20px;align-items:flex-start;" class="episode-content">
+          
+          <!-- Left: Episode Cover Art -->
+          <div style={`width:80px;height:80px;border-radius:8px;background:linear-gradient(135deg,#121212 0%,${exp.accent}15 100%);border:1px solid ${exp.accent}20;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;`} class="episode-art">
+            <svg viewBox="0 0 24 24" fill={exp.accent} width="28" height="28" style="opacity:0.85;">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5zm4 4h-2v-5h2v5zm0-7h-2V7h2v2z"/>
+            </svg>
+            <div style="position:absolute;bottom:4px;right:4px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;">
+              <span style={`width:6px;height:6px;border-radius:50%;background:${exp.current?'var(--sp-green)':'var(--sp-text-dim)'};`}></span>
+            </div>
+          </div>
+
+          <!-- Right: Details -->
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+              <span style="font-size:0.72rem;color:var(--sp-text-dim);font-weight:600;">{exp.period}</span>
+              <span style="color:var(--sp-text-dim);font-size:0.75rem;">·</span>
+              <span style="font-size:0.72rem;color:var(--sp-text-dim);">{exp.duration}</span>
+            </div>
+            
+            <h3 style="font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:2px;letter-spacing:-0.01em;">
+              {exp.role}
+            </h3>
+            
+            <p style={`font-size:0.8rem;font-weight:700;color:${exp.accent};margin-bottom:12px;`}>
+              {exp.company} · <span style="font-weight:500;color:var(--sp-text-dim);">{exp.location}</span>
+            </p>
+
+            <p style="font-size:0.82rem;color:var(--sp-text);line-height:1.6;margin-bottom:16px;max-width:720px;">
+              {exp.description}
+            </p>
+
+            <!-- Control row + tags -->
+            <div style="display:flex;align-items:center;justify-content:between;flex-wrap:wrap;gap:16px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <!-- Play Button -->
+                <button style="width:36px;height:36px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.1s;"
+                  onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                  <svg viewBox="0 0 24 24" fill="black" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                
+                <!-- Share Button -->
+                <button style="background:none;border:none;color:var(--sp-text);cursor:pointer;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--sp-text)'">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
+                </button>
+              </div>
+
+              <!-- Tags list -->
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-left:auto;" class="tag-list">
+                {exp.tags.map(t => (
+                  <span style={`font-size:0.68rem;font-weight:700;padding:4px 10px;border-radius:4px;background:${exp.accent}12;color:${exp.accent};border:1px solid ${exp.accent}20;`}>
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <!-- Progress bar representing time elapsed in job -->
+            <div style="margin-top:20px;display:flex;align-items:center;gap:12px;max-width:400px;">
+              <span style="font-size:0.65rem;color:var(--sp-text-dim);">0:00</span>
+              <div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.1);position:relative;">
+                <div style={`position:absolute;left:0;top:0;bottom:0;width:${exp.progress};background:${exp.accent};border-radius:2px;`}></div>
+              </div>
+              <span style="font-size:0.65rem;color:var(--sp-text-dim);">{exp.timeLeft}</span>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    ))}
+  </div>
+
+</section>
+
+<style>
+  @media (max-width: 600px) {
+    .episode-content {
+      flex-direction: column !important;
+    }
+    .episode-art {
+      width: 48px !important;
+      height: 48px !important;
+    }
+    .tag-list {
+      margin-left: 0 !important;
+      margin-top: 8px;
+    }
+  }
+</style>

@@ -1,0 +1,102 @@
+---
+// Sidebar.astro — Spotify-style navigation sidebar
+const mainNav = [
+  {
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33a2 2 0 0 1 1 1.732V21a1 1 0 0 1-1 1H14a1 1 0 0 1-1-1v-6h-2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7.577a2 2 0 0 1 1-1.732l7.5-4.33z"/></svg>`,
+    label: 'Home',
+    href: '#home',
+  },
+  {
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.279 7.407-7.279s7.407 3.273 7.407 7.279-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.279z"/></svg>`,
+    label: 'Skills',
+    href: '#skills',
+  },
+  {
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6.464a1 1 0 0 0-.5-.866l-6-3.464zM9 2a1 1 0 0 0-1 1v18a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1z"/></svg>`,
+    label: 'Projects',
+    href: '#projects',
+  },
+];
+
+const sections = [
+  { label: 'About Me', href: '#about', accent: '#1DB954' },
+  { label: 'Experience', href: '#experience', accent: '#F6A800' },
+  { label: 'Projects', href: '#projects', accent: '#3B82F6' },
+  { label: 'Skills', href: '#skills', accent: '#8B5CF6' },
+  { label: 'Education', href: '#education', accent: '#10B981' },
+  { label: 'Contact', href: '#contact', accent: '#F97316' },
+];
+---
+
+<aside class="sidebar" id="sidebar">
+
+  <!-- Logo -->
+  <a href="#home" style="display:flex;align-items:center;gap:10px;padding:4px 8px 20px;text-decoration:none;">
+    <div style="width:34px;height:34px;background:var(--sp-green);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg viewBox="0 0 24 24" fill="black" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+    </div>
+    <span style="font-size:0.95rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">Dean.dev</span>
+  </a>
+
+  <!-- Primary nav -->
+  <nav style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
+    {mainNav.map(item => (
+      <a href={item.href} class="sb-nav-link"
+        style="display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:8px;text-decoration:none;color:var(--sp-text);font-size:0.875rem;font-weight:600;transition:color 0.15s,background 0.15s;"
+        onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.07)'"
+        onmouseout="this.style.color='var(--sp-text)';this.style.background='transparent'">
+        <span set:html={item.icon} />
+        {item.label}
+      </a>
+    ))}
+  </nav>
+
+  <!-- Library card -->
+  <div style="background:var(--sp-elevated);border-radius:10px;padding:16px;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;color:var(--sp-text);">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6.464a1 1 0 0 0-.5-.866l-6-3.464zM9 2a1 1 0 0 0-1 1v18a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1z"/></svg>
+        <span style="font-size:0.8rem;font-weight:700;">Your Library</span>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      {sections.map(s => (
+        <a href={s.href}
+          style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:6px;text-decoration:none;transition:background 0.15s;"
+          onmouseover="this.style.background='rgba(255,255,255,0.06)'"
+          onmouseout="this.style.background='transparent'">
+          <div style={`width:36px;height:36px;border-radius:6px;background:${s.accent}18;border:1px solid ${s.accent}25;display:flex;align-items:center;justify-content:center;flex-shrink:0;`}>
+            <div style={`width:8px;height:8px;border-radius:50%;background:${s.accent};`}></div>
+          </div>
+          <div>
+            <p style="font-size:0.78rem;font-weight:600;color:#fff;">{s.label}</p>
+            <p style="font-size:0.65rem;color:var(--sp-text-dim);">Section</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <!-- Profile chip -->
+  <div style="margin-top:auto;padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;display:flex;align-items:center;gap:10px;border:1px solid var(--sp-border);">
+    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1DB954,#0d7a3a);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:#000;">DB</div>
+    <div style="flex:1;min-width:0;">
+      <p style="font-size:0.75rem;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Dean Barquio</p>
+      <div style="display:flex;align-items:center;gap:5px;margin-top:1px;">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--sp-green);box-shadow:0 0 6px var(--sp-green);animation:pulse 2s ease infinite;flex-shrink:0;"></span>
+        <p style="font-size:0.65rem;color:var(--sp-green);font-weight:600;">Available</p>
+      </div>
+    </div>
+    <a href="mailto:deanbarquio@gmail.com" style="color:var(--sp-text);transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--sp-text)'">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+    </a>
+  </div>
+</aside>
+
+<style>
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.4); }
+  }
+</style>

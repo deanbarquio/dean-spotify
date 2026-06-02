@@ -1,0 +1,294 @@
+---
+// DashboardSection.astro — Spotify Home Dashboard
+const madeForYou = [
+  {
+    mixNum: '1',
+    title: 'Daily Mix 1',
+    sub: 'React, NestJS, Firebase, Google Cloud',
+    accent: '#FFB6C1', // Light pink
+    bgColor: '#f9cbd3',
+    waveColor: '#ff6b8b',
+    iconColor: '#d64c6d'
+  },
+  {
+    mixNum: '2',
+    title: 'Daily Mix 2',
+    sub: 'Next.js, Elasticsearch, Docker, TailwindCSS',
+    accent: '#B0E0E6', // Light blue
+    bgColor: '#b8ebd0',
+    waveColor: '#4bc383',
+    iconColor: '#2b965c'
+  },
+  {
+    mixNum: '3',
+    title: 'Daily Mix 3',
+    sub: 'Angular, Svelte, TypeScript, Verdaccio',
+    accent: '#E6E6FA', // Lavender
+    bgColor: '#e3beeb',
+    waveColor: '#aa55d4',
+    iconColor: '#7b2e9e'
+  },
+  {
+    mixNum: '4',
+    title: 'Daily Mix 4',
+    sub: 'Prisma, MySQL, PostgreSQL, TanStack Query',
+    accent: '#FFE4E1', // Misty Rose
+    bgColor: '#ffdead',
+    waveColor: '#ffa07a',
+    iconColor: '#cd853f'
+  },
+  {
+    mixNum: '5',
+    title: 'Daily Mix 5',
+    sub: 'Flutter, Kotlin, MapLibre, OpenStreetMap',
+    accent: '#FFF0F5', // Lavender Blush
+    bgColor: '#ffd1a9',
+    waveColor: '#ff7f50',
+    iconColor: '#d2691e'
+  },
+];
+
+const topSkills = [
+  { title: 'Angular', sub: 'Web Framework', accent: '#DD0031', bg: 'linear-gradient(160deg,#2d0008,#1a0005)' },
+  { title: 'React / Next.js', sub: 'UI Library', accent: '#61DAFB', bg: 'linear-gradient(160deg,#001d26,#000f14)' },
+  { title: 'NestJS', sub: 'Backend Framework', accent: '#E0234E', bg: 'linear-gradient(160deg,#2d001a,#1a000f)' },
+  { title: 'TailwindCSS', sub: 'Styling', accent: '#38BDF8', bg: 'linear-gradient(160deg,#001826,#000c14)' },
+  { title: 'Docker', sub: 'DevOps', accent: '#2496ED', bg: 'linear-gradient(160deg,#001226,#000814)' },
+];
+
+const recentWork = [
+  { name: 'Manpower Costing Module', project: 'Constrack', plays: '315k', accent: '#F6A800' },
+  { name: 'Search & Filter Engine', project: 'Control Panel', plays: '215k', accent: '#3B82F6' },
+  { name: 'Live GPS Tracker', project: 'Hikemate', plays: '180k', accent: '#F97316' },
+  { name: 'Data Table Component', project: 'Component Pantry', plays: '142k', accent: '#8B5CF6' },
+];
+---
+
+<section id="dashboard" style="padding-bottom:40px;">
+
+  <div style="padding:0 32px;">
+
+    <!-- ① NATIVE SPOTIFY GREETING HEADER -->
+    <h2 id="greeting-text" style="font-size:1.8rem;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:8px;padding-top:24px;">Good evening</h2>
+
+    <!-- ② QUICK ACCESS PILLS -->
+    <div style="display:flex;flex-wrap:wrap;gap:8px;padding:24px 0 8px;">
+      {['All', 'Music', 'Projects', 'Skills', 'Podcasts'].map((t, i) => (
+        <button class="pill-btn" data-active={i===0}
+          style={`padding:7px 16px;border-radius:500px;border:none;cursor:pointer;font-size:0.78rem;font-weight:700;transition:background 0.15s,color 0.15s;background:${i===0?'#fff':'rgba(255,255,255,0.1)'};color:${i===0?'#000':'#fff'};`}
+          onclick="document.querySelectorAll('.pill-btn').forEach(b=>{b.style.background='rgba(255,255,255,0.1)';b.style.color='#fff'});this.style.background='#fff';this.style.color='#000'">
+          {t}
+        </button>
+      ))}
+    </div>
+
+    <!-- ③ GOOD EVENING QUICK LINKS (2x3 grid) -->
+    <div style="margin:24px 0;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;" class="quick-grid">
+        {[
+          { title:'About Me', sub:'Software Engineer · Cebu', href:'#about', accent:'#1DB954' },
+          { title:'Constrack', sub:'Full-Stack · React+NestJS', href:'#projects', accent:'#F6A800' },
+          { title:'Control Panel', sub:'Next.js · Elasticsearch', href:'#projects', accent:'#3B82F6' },
+          { title:'Experience', sub:'1yr+ at N-Compass TV', href:'#experience', accent:'#8B5CF6' },
+          { title:'Skills', sub:'Angular · React · NestJS', href:'#skills', accent:'#F97316' },
+          { title:'Contact', sub:'Open to opportunities', href:'#contact', accent:'#10B981' },
+        ].map(item => (
+          <a href={item.href}
+            style="display:flex;align-items:center;gap:0;background:var(--sp-elevated);border-radius:6px;overflow:hidden;text-decoration:none;transition:background 0.15s,transform 0.1s;border:1px solid rgba(255,255,255,0.04);"
+            onmouseover="this.style.background='rgba(255,255,255,0.14)';this.style.transform='translateY(-1px)'"
+            onmouseout="this.style.background='var(--sp-elevated)';this.style.transform='translateY(0)'">
+            <div style={`width:56px;height:56px;background:${item.accent};display:flex;align-items:center;justify-content:center;flex-shrink:0;`}>
+              <div style="width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.3);"></div>
+            </div>
+            <div style="padding:10px 14px;flex:1;min-width:0;">
+              <p style="font-size:0.8rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{item.title}</p>
+              <p style="font-size:0.65rem;color:var(--sp-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{item.sub}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <!-- ④ MADE FOR YOU — horizontal scroll -->
+    <div style="margin-bottom:40px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">Made For You</h2>
+        <a href="#projects" style="font-size:0.72rem;font-weight:700;color:var(--sp-text);text-decoration:none;text-transform:uppercase;letter-spacing:0.08em;transition:color 0.15s;"
+          onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--sp-text)'">Show all</a>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;" class="mfy-grid">
+        {madeForYou.map(card => (
+          <div class="sp-card" onclick="document.getElementById('projects').scrollIntoView({behavior:'smooth'})"
+            style="cursor:pointer;background:#181818;padding:16px;border-radius:8px;transition:background 0.2s;"
+            onmouseover="this.style.background='#282828'"
+            onmouseout="this.style.background='#181818'">
+            <!-- Square art precisely matching Spotify Daily Mix -->
+            <div style={`width:100%;aspect-ratio:1/1;border-radius:6px;background:${card.bgColor};position:relative;overflow:hidden;margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,0.4);`}
+              class="sp-card-art">
+              
+              <!-- Wave shapes mimicking the wavy design in Daily Mixes -->
+              <div style={`position:absolute;bottom:0;left:0;right:0;height:70%;background:${card.waveColor};clip-path:ellipse(90% 60% at 30% 100%);`}></div>
+              <div style={`position:absolute;bottom:0;left:-20%;right:-20%;height:45%;background:#fff;clip-path:ellipse(80% 50% at 60% 100%);`}></div>
+              
+              <!-- Spotify tiny logo top-left -->
+              <div style="position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:4px;z-index:2;opacity:0.9;">
+                <svg viewBox="0 0 24 24" fill="#000" width="16" height="16"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-1.022-.336.073-.668-.142-.74-.477-.074-.335.14-.667.476-.74 3.845-.878 7.14-.505 9.81 1.13.295.18.387.564.207.862zm1.226-2.724c-.226.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.076-1.183-.412.125-.845-.107-.97-.52-.126-.412.107-.845.52-.97 3.668-1.112 8.243-.574 11.34 1.33.367.227.487.708.26 1.075zm.106-2.834C14.39 8.718 8.563 8.525 5.176 9.553c-.52.158-1.07-.14-1.227-.66-.158-.52.14-1.07.66-1.228 3.896-1.182 10.334-.96 14.385 1.447.47.28.623.89.344 1.36-.28.47-.89.622-1.36.343z"/></svg>
+              </div>
+
+              <!-- Text block on cover matching screenshot exactly -->
+              <div style="position:absolute;bottom:14px;left:0;right:0;text-align:center;z-index:3;pointer-events:none;">
+                <p style="font-family:'Circular Std',sans-serif;font-size:1.05rem;font-weight:900;color:#000;letter-spacing:-0.03em;margin:0;text-transform:uppercase;">Daily Mix</p>
+                <p style={`font-family:'Circular Std',sans-serif;font-size:3.2rem;font-weight:900;color:${card.iconColor};line-height:0.8;margin:-2px 0 0;`}>{card.mixNum}</p>
+              </div>
+
+              <!-- Play btn overlay -->
+              <div class="sp-play-btn" style="position:absolute;bottom:8px;right:8px;width:40px;height:40px;background:var(--sp-green);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(6px);transition:opacity 0.2s,transform 0.2s;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:4;">
+                <svg viewBox="0 0 24 24" fill="black" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+            <p style="font-size:0.84rem;font-weight:700;color:#fff;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{card.title}</p>
+            <p style="font-size:0.72rem;color:var(--sp-text);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;">{card.sub}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- ⑤ SPLIT ROW: "What You Work With" + "Track of the Week" -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px;" class="split-grid">
+
+      <!-- Left: Top Skills (album grid) -->
+      <div style="background:var(--sp-surface);border-radius:10px;padding:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 style="font-size:1rem;font-weight:800;color:#fff;">What You Work With</h3>
+          <a href="#skills" style="font-size:0.7rem;color:var(--sp-text);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;transition:color 0.15s;"
+            onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--sp-text)'">see more</a>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          {topSkills.slice(0,3).map(s => (
+            <div style={`aspect-ratio:1/1;border-radius:8px;background:${s.bg};border:1px solid ${s.accent}20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:transform 0.15s;`}
+              onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+              <div style={`width:28px;height:28px;border-radius:50%;background:${s.accent}30;border:2px solid ${s.accent};`}></div>
+              <p style="font-size:0.68rem;font-weight:700;color:#fff;text-align:center;padding:0 4px;">{s.title}</p>
+            </div>
+          ))}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+          {topSkills.slice(3).map(s => (
+            <div style={`height:56px;border-radius:8px;background:${s.bg};border:1px solid ${s.accent}20;display:flex;align-items:center;gap:10px;padding:0 12px;cursor:pointer;transition:background 0.15s;`}
+              onmouseover={`this.style.background='${s.accent}15'`} onmouseout={`this.style.background='${s.bg}'`}>
+              <div style={`width:22px;height:22px;border-radius:50%;background:${s.accent}30;border:2px solid ${s.accent};flex-shrink:0;`}></div>
+              <p style="font-size:0.72rem;font-weight:700;color:#fff;">{s.title}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Right: Track of the Week (recent work list) -->
+      <div style="background:var(--sp-surface);border-radius:10px;padding:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 style="font-size:1rem;font-weight:800;color:#fff;">Track of the Week</h3>
+          <a href="#projects" style="font-size:0.7rem;color:var(--sp-text);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;transition:color 0.15s;"
+            onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--sp-text)'">see more</a>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          {recentWork.map(item => (
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 6px;border-radius:6px;cursor:pointer;transition:background 0.15s;"
+              onmouseover="this.style.background='var(--sp-elevated)';this.querySelector('.rw-play').style.display='flex'"
+              onmouseout="this.style.background='transparent';this.querySelector('.rw-play').style.display='none'">
+              <div style={`width:44px;height:44px;border-radius:6px;background:linear-gradient(135deg,${item.accent}25,${item.accent}08);border:1px solid ${item.accent}20;flex-shrink:0;display:flex;align-items:center;justify-content:center;`}>
+                <div style={`width:16px;height:16px;border-radius:50%;background:${item.accent}50;`}></div>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <p style="font-size:0.82rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{item.name}</p>
+                <p style="font-size:0.7rem;color:var(--sp-text);">{item.project}</p>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+                <div style="display:flex;align-items:center;gap:4px;color:var(--sp-text-dim);">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M12 3v9.28a4 4 0 1 0 2 0V3h-2z"/></svg>
+                  <span style="font-size:0.7rem;">{item.plays}</span>
+                </div>
+                <div class="rw-play" style="display:none;width:32px;height:32px;border-radius:50%;background:var(--sp-green);align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg viewBox="0 0 24 24" fill="black" width="12" height="12"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑥ ABOUT — Artist profile card -->
+    <div id="about" style="margin-bottom:8px;">
+      <h2 style="font-size:1.3rem;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:16px;">About the Artist</h2>
+      <div style="background:var(--sp-surface);border-radius:12px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;" class="about-grid">
+
+        <!-- Left text -->
+        <div style="padding:32px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(29,185,84,0.08),transparent 70%);pointer-events:none;"></div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+            <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#1DB954,#0a4a25);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:#000;border:2px solid rgba(29,185,84,0.4);flex-shrink:0;">DB</div>
+            <div>
+              <p style="font-size:1rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">Dean Lourence P. Barquio</p>
+              <p style="font-size:0.75rem;color:var(--sp-green);font-weight:600;margin-top:2px;">Software Engineer · Frontend Developer</p>
+              <p style="font-size:0.68rem;color:var(--sp-text-dim);margin-top:3px;">📍 Consolacion, Cebu · 🎓 Magna Cum Laude</p>
+            </div>
+          </div>
+          <p style="font-size:0.84rem;color:var(--sp-text);line-height:1.75;margin-bottom:14px;">
+            Full-Stack Developer specializing in <strong style="color:#fff;">Angular, React & NestJS</strong>. Went from QA intern → Full-Stack Developer → Software Engineer at the same company in under 6 months.
+          </p>
+          <p style="font-size:0.82rem;color:var(--sp-text);line-height:1.75;margin-bottom:20px;">
+            I ship scalable frontends with AI-assisted workflows using Claude, Synk, and Cursor. Available for full-time, freelance, or contract roles.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <a href="mailto:deanbarquio@gmail.com" class="btn-primary" style="text-decoration:none;font-size:0.76rem;padding:9px 22px;">
+              <span style="display:flex;align-items:center;gap:6px;">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                Hire Me
+              </span>
+            </a>
+            <a href="https://github.com/deanbarquio" target="_blank" rel="noopener" class="btn-outline" style="text-decoration:none;font-size:0.76rem;padding:9px 22px;">GitHub</a>
+          </div>
+        </div>
+
+        <!-- Right stats -->
+        <div style="padding:32px;background:rgba(255,255,255,0.02);border-left:1px solid var(--sp-border);display:flex;flex-direction:column;gap:12px;">
+          <p style="font-size:0.68rem;font-weight:700;color:var(--sp-text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Career Stats</p>
+          {[
+            { value:'5+', label:'Projects Shipped', accent:'#1DB954' },
+            { value:'1yr+', label:'Professional Experience', accent:'#F6A800' },
+            { value:'10+', label:'Technologies Mastered', accent:'#3B82F6' },
+            { value:'3', label:'Roles at N-Compass TV', accent:'#8B5CF6' },
+          ].map(s => (
+            <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--sp-elevated);border-radius:8px;">
+              <p style={`font-size:1.6rem;font-weight:800;color:${s.accent};letter-spacing:-0.03em;line-height:1;min-width:52px;`}>{s.value}</p>
+              <p style="font-size:0.78rem;color:var(--sp-text);">{s.label}</p>
+            </div>
+          ))}
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(29,185,84,0.08);border-radius:8px;border:1px solid rgba(29,185,84,0.2);margin-top:4px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--sp-green);box-shadow:0 0 8px var(--sp-green);animation:sp-pulse 2s ease infinite;flex-shrink:0;"></span>
+            <p style="font-size:0.78rem;font-weight:600;color:#fff;">Available for new opportunities</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /padding wrapper -->
+</section>
+
+<style>
+  @keyframes sp-pulse {
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:.5;transform:scale(1.4)}
+  }
+  .sp-card:hover .sp-play-btn { opacity:1!important;transform:translateY(0)!important; }
+  .sp-card:hover .sp-card-art { box-shadow:0 12px 40px rgba(0,0,0,0.6)!important; }
+  @media(max-width:900px){
+    .quick-grid{grid-template-columns:repeat(2,1fr)!important;}
+    .mfy-grid{grid-template-columns:repeat(3,1fr)!important;}
+    .split-grid{grid-template-columns:1fr!important;}
+    .about-grid{grid-template-columns:1fr!important;}
+  }
+  @media(max-width:600px){
+    .quick-grid,.mfy-grid{grid-template-columns:repeat(2,1fr)!important;}
+  }
+</style>

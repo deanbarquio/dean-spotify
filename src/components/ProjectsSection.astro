@@ -1,0 +1,352 @@
+---
+// ProjectsSection.astro — True Spotify Album grid with detail modal
+const projects = [
+  {
+    id: 'constrack',
+    title: 'Constrack',
+    artist: 'Dean Barquio · Full-Stack',
+    type: 'Full-Stack App',
+    year: '2025',
+    duration: '6 months',
+    accent: '#F6A800',
+    gradient: 'linear-gradient(135deg,#3d2800,#1a1200)',
+    description: 'A cross-platform project management system for construction tracking. Covers tasks, milestones, manpower costing, and workflow management with AI-assisted optimization.',
+    longDesc: 'Built end-to-end with React on the frontend and NestJS for the API layer. Features real-time updates, AI-assisted task generation, gantt-style milestone tracking, and Firebase-backed cloud infrastructure on Google Cloud.',
+    tags: ['React', 'NestJS', 'Firebase', 'Google Cloud', 'Prisma', 'TailwindCSS'],
+    tracks: [
+      { name: 'Project Dashboard', duration: '1:24' },
+      { name: 'Milestone Tracker', duration: '2:10' },
+      { name: 'Manpower Costing Module', duration: '3:45' },
+      { name: 'AI Workflow Optimizer', duration: '2:58' },
+      { name: 'Team Management', duration: '1:33' },
+    ],
+  },
+  {
+    id: 'control-panel',
+    title: 'Control Panel',
+    artist: 'Dean Barquio · Internal Tool',
+    type: 'Internal Tool',
+    year: '2025',
+    duration: '3 months',
+    accent: '#3B82F6',
+    gradient: 'linear-gradient(135deg,#001830,#000d1a)',
+    description: 'Internal control system for N-Compass to manage application features and operations with advanced search and analytics.',
+    longDesc: 'Built solo as the sole developer during internship. Leverages Elasticsearch/OpenSearch for blazing-fast search, Next.js App Router, TanStack Query for server state, and Docker for deployment.',
+    tags: ['NestJS', 'Next.js', 'Prisma', 'Elasticsearch', 'Docker', 'TanStack Query'],
+    tracks: [
+      { name: 'Company Dashboard', duration: '0:58' },
+      { name: 'Feature Flag Manager', duration: '1:44' },
+      { name: 'Search & Filter Engine', duration: '2:22' },
+      { name: 'Analytics Overview', duration: '1:10' },
+    ],
+  },
+  {
+    id: 'component-pantry',
+    title: 'Component Pantry',
+    artist: 'Dean Barquio · UI Library',
+    type: 'Component Library',
+    year: '2025',
+    duration: '4 months',
+    accent: '#8B5CF6',
+    gradient: 'linear-gradient(135deg,#1a0a33,#0d0520)',
+    description: 'In-house reusable component library to speed up frontend development across projects with consistent design standards.',
+    longDesc: 'Published to an internal Verdaccio registry. Features 50+ Angular components including charts (ApexCharts), form controls, data tables, and design tokens. Reduced dev time by ~40% across teams.',
+    tags: ['Angular', 'Verdaccio', 'TailwindCSS', 'ApexCharts', 'npm'],
+    tracks: [
+      { name: 'Button & Form Controls', duration: '0:45' },
+      { name: 'Data Table Component', duration: '2:01' },
+      { name: 'Chart Integration', duration: '1:38' },
+      { name: 'Design Token System', duration: '0:55' },
+      { name: 'npm Package Pipeline', duration: '1:20' },
+    ],
+  },
+  {
+    id: 'ntv-dashboard',
+    title: 'NTV Dashboard',
+    artist: 'Dean Barquio · HR System',
+    type: 'HR Tracking',
+    year: '2025',
+    duration: '2 months',
+    accent: '#10B981',
+    gradient: 'linear-gradient(135deg,#002918,#001510)',
+    description: 'HR-focused system for tracking inventory and manpower efficiently with real-time data updates.',
+    longDesc: 'Built with NestJS backend and Next.js frontend using Prisma ORM. Tracks employee records, inventory movements, and generates automated reports for management.',
+    tags: ['NestJS', 'Next.js', 'Prisma', 'MySQL'],
+    tracks: [
+      { name: 'Employee Registry', duration: '1:05' },
+      { name: 'Inventory Tracker', duration: '1:50' },
+      { name: 'Report Generator', duration: '0:48' },
+      { name: 'Management Dashboard', duration: '1:12' },
+    ],
+  },
+  {
+    id: 'hikemate',
+    title: 'Hikemate',
+    artist: 'Dean Barquio · Mobile App',
+    type: 'Mobile App',
+    year: '2024',
+    duration: '3 months',
+    accent: '#F97316',
+    gradient: 'linear-gradient(135deg,#2d1000,#190800)',
+    description: 'Mobile hiking app with real-time tracking for pace, elevation, and distance using map integration.',
+    longDesc: 'Built in Flutter with OpenStreetMap via MapLibre for offline-capable trail maps. Features live GPS tracking, elevation profiles, pace calculations, and route recording.',
+    tags: ['Flutter', 'Kotlin', 'OpenStreetMap', 'MapLibre', 'GPS'],
+    tracks: [
+      { name: 'Trail Map View', duration: '1:33' },
+      { name: 'Live GPS Tracker', duration: '2:44' },
+      { name: 'Elevation Profiler', duration: '1:15' },
+      { name: 'Pace Calculator', duration: '0:52' },
+      { name: 'Route Recorder', duration: '1:08' },
+    ],
+  },
+];
+---
+
+<section id="projects" style="padding:48px 32px 80px;">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;">
+    <div>
+      <p style="font-size:0.72rem;font-weight:700;color:var(--sp-green);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Discography</p>
+      <h2 style="font-size:2rem;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:4px;">Albums</h2>
+      <p style="font-size:0.875rem;color:var(--sp-text);">Every project tells a story</p>
+    </div>
+    <a href="https://github.com/deanbarquio" target="_blank" rel="noopener"
+      style="font-size:0.78rem;font-weight:700;color:var(--sp-text);text-decoration:none;text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid var(--sp-border);padding-bottom:2px;transition:color 0.15s,border-color 0.15s;"
+      onmouseover="this.style.color='#fff';this.style.borderColor='#fff'"
+      onmouseout="this.style.color='var(--sp-text)';this.style.borderColor='var(--sp-border)'"
+    >Show all on GitHub →</a>
+  </div>
+
+  <!-- Album grid -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;margin-bottom:64px;" class="album-grid">
+    {projects.map((p) => (
+      <div
+        class="album-card"
+        data-id={p.id}
+        style="cursor:pointer;position:relative;"
+        onclick={`openAlbum('${p.id}')`}
+      >
+        <!-- Album cover placeholder -->
+        <div style={`width:100%;aspect-ratio:1/1;border-radius:8px;background:${p.gradient};border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;overflow:hidden;transition:box-shadow 0.2s;`}
+          class="album-art">
+          <!-- Inner art design -->
+          <div style={`position:absolute;inset:0;background:repeating-conic-gradient(${p.accent}08 0deg,transparent 5deg,transparent 30deg);`}></div>
+          <div style={`width:72px;height:72px;border-radius:50%;background:${p.gradient};border:3px solid ${p.accent}40;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;box-shadow:0 0 40px ${p.accent}20;`}>
+            <div style={`width:36px;height:36px;border-radius:50%;background:${p.accent}30;border:2px solid ${p.accent};display:flex;align-items:center;justify-content:center;`}>
+              <div style={`width:10px;height:10px;border-radius:50%;background:${p.accent};`}></div>
+            </div>
+          </div>
+          <!-- Vinyl ring -->
+          <div style={`position:absolute;width:120%;height:120%;border-radius:50%;border:1px solid ${p.accent}08;top:-10%;left:-10%;`}></div>
+          <!-- Play button overlay -->
+          <div class="album-play-btn" style="position:absolute;bottom:12px;right:12px;width:48px;height:48px;background:var(--sp-green);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(8px);transition:opacity 0.2s,transform 0.2s;box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+            <svg viewBox="0 0 24 24" fill="black" width="20" height="20"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+
+        <!-- Info -->
+        <p style="font-size:0.88rem;font-weight:700;color:#fff;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{p.title}</p>
+        <p style="font-size:0.75rem;color:var(--sp-text);line-height:1.4;">{p.type} · {p.year}</p>
+      </div>
+    ))}
+  </div>
+
+  <!-- Album Detail Modal -->
+  <div id="album-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);overflow-y:auto;" onclick="if(event.target===this)closeAlbum()">
+    <div id="album-modal-inner" style="max-width:800px;margin:40px auto;border-radius:16px;overflow:hidden;background:var(--sp-bg);position:relative;">
+
+      <!-- Modal header with gradient -->
+      <div id="modal-header" style="padding:48px 40px 32px;position:relative;overflow:hidden;">
+        <div id="modal-glow" style="position:absolute;inset:0;pointer-events:none;"></div>
+        <button onclick="closeAlbum()" style="position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.5);border:none;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;z-index:2;transition:background 0.15s;"
+          onmouseover="this.style.background='rgba(0,0,0,0.8)'" onmouseout="this.style.background='rgba(0,0,0,0.5)'">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+
+        <div style="display:flex;align-items:flex-end;gap:24px;position:relative;z-index:1;">
+          <!-- Album art -->
+          <div id="modal-art" style="width:160px;height:160px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 16px 48px rgba(0,0,0,0.6);">
+            <div style="width:70px;height:70px;border-radius:50%;border:3px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;">
+              <div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.3);"></div>
+            </div>
+          </div>
+
+          <div>
+            <p style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Album</p>
+            <h2 id="modal-title" style="font-size:2.2rem;font-weight:800;color:#fff;letter-spacing:-0.03em;margin-bottom:8px;line-height:1.1;"></h2>
+            <p id="modal-artist" style="font-size:0.88rem;color:rgba(255,255,255,0.8);font-weight:600;margin-bottom:4px;"></p>
+            <p id="modal-meta" style="font-size:0.78rem;color:rgba(255,255,255,0.5);"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="padding:20px 40px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--sp-border);">
+        <button id="modal-play-btn" style="width:56px;height:56px;border-radius:50%;background:var(--sp-green);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.1s,background 0.15s;"
+          onmouseover="this.style.background='#1ed760';this.style.transform='scale(1.06)'"
+          onmouseout="this.style.background='var(--sp-green)';this.style.transform='scale(1)'">
+          <svg viewBox="0 0 24 24" fill="black" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button style="background:none;border:1px solid rgba(255,255,255,0.3);border-radius:500px;padding:8px 20px;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;transition:border-color 0.15s;"
+          onmouseover="this.style.borderColor='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.3)'">Follow</button>
+      </div>
+
+      <!-- Description -->
+      <div style="padding:24px 40px 0;">
+        <p id="modal-desc" style="font-size:0.88rem;color:var(--sp-text);line-height:1.7;margin-bottom:8px;"></p>
+        <p id="modal-long-desc" style="font-size:0.82rem;color:var(--sp-text-dim);line-height:1.7;margin-bottom:20px;"></p>
+        <div id="modal-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;"></div>
+      </div>
+
+      <!-- Tracklist -->
+      <div style="padding:0 40px 40px;">
+        <p style="font-size:0.72rem;font-weight:700;color:var(--sp-text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--sp-border);">Tracklist</p>
+        <div id="modal-tracks" style="display:flex;flex-direction:column;gap:2px;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .album-card:hover .album-play-btn {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+  .album-card:hover .album-art {
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6) !important;
+  }
+</style>
+
+<script>
+  const projects = [
+    {
+      id: 'constrack', title: 'Constrack', artist: 'Dean Barquio · Full-Stack', type: 'Full-Stack App', year: '2025', duration: '6 months',
+      accent: '#F6A800', gradient: 'linear-gradient(135deg,#3d2800,#1a1200)',
+      description: 'A cross-platform project management system for construction tracking.',
+      longDesc: 'Built end-to-end with React on the frontend and NestJS for the API layer. Features real-time updates, AI-assisted task generation, gantt-style milestone tracking, and Firebase-backed cloud infrastructure.',
+      tags: ['React', 'NestJS', 'Firebase', 'Google Cloud', 'Prisma', 'TailwindCSS'],
+      tracks: [
+        { name: 'Project Dashboard', duration: '1:24' },
+        { name: 'Milestone Tracker', duration: '2:10' },
+        { name: 'Manpower Costing Module', duration: '3:45' },
+        { name: 'AI Workflow Optimizer', duration: '2:58' },
+        { name: 'Team Management', duration: '1:33' },
+      ],
+    },
+    {
+      id: 'control-panel', title: 'Control Panel', artist: 'Dean Barquio · Internal Tool', type: 'Internal Tool', year: '2025', duration: '3 months',
+      accent: '#3B82F6', gradient: 'linear-gradient(135deg,#001830,#000d1a)',
+      description: 'Internal control system for N-Compass managing app features and operations.',
+      longDesc: 'Built solo during internship with Next.js App Router, TanStack Query for server state, and Docker for deployment.',
+      tags: ['NestJS', 'Next.js', 'Prisma', 'Elasticsearch', 'Docker', 'TanStack Query'],
+      tracks: [
+        { name: 'Company Dashboard', duration: '0:58' },
+        { name: 'Feature Flag Manager', duration: '1:44' },
+        { name: 'Search & Filter Engine', duration: '2:22' },
+        { name: 'Analytics Overview', duration: '1:10' },
+      ],
+    },
+    {
+      id: 'component-pantry', title: 'Component Pantry', artist: 'Dean Barquio · UI Library', type: 'Component Library', year: '2025', duration: '4 months',
+      accent: '#8B5CF6', gradient: 'linear-gradient(135deg,#1a0a33,#0d0520)',
+      description: 'In-house reusable Angular component library published to internal registry.',
+      longDesc: 'Features 50+ components including charts, form controls, data tables. Reduced dev time by ~40% across teams.',
+      tags: ['Angular', 'Verdaccio', 'TailwindCSS', 'ApexCharts', 'npm'],
+      tracks: [
+        { name: 'Button & Form Controls', duration: '0:45' },
+        { name: 'Data Table Component', duration: '2:01' },
+        { name: 'Chart Integration', duration: '1:38' },
+        { name: 'Design Token System', duration: '0:55' },
+        { name: 'npm Package Pipeline', duration: '1:20' },
+      ],
+    },
+    {
+      id: 'ntv-dashboard', title: 'NTV Dashboard', artist: 'Dean Barquio · HR System', type: 'HR Tracking', year: '2025', duration: '2 months',
+      accent: '#10B981', gradient: 'linear-gradient(135deg,#002918,#001510)',
+      description: 'HR-focused tracking system for inventory and manpower with real-time updates.',
+      longDesc: 'Built with NestJS backend and Next.js frontend. Tracks employee records, inventory movements, and generates automated reports.',
+      tags: ['NestJS', 'Next.js', 'Prisma', 'MySQL'],
+      tracks: [
+        { name: 'Employee Registry', duration: '1:05' },
+        { name: 'Inventory Tracker', duration: '1:50' },
+        { name: 'Report Generator', duration: '0:48' },
+        { name: 'Management Dashboard', duration: '1:12' },
+      ],
+    },
+    {
+      id: 'hikemate', title: 'Hikemate', artist: 'Dean Barquio · Mobile App', type: 'Mobile App', year: '2024', duration: '3 months',
+      accent: '#F97316', gradient: 'linear-gradient(135deg,#2d1000,#190800)',
+      description: 'Mobile hiking app with real-time GPS tracking, pace, and elevation data.',
+      longDesc: 'Built in Flutter with OpenStreetMap via MapLibre for offline-capable trail maps. Features live GPS, elevation profiles, and route recording.',
+      tags: ['Flutter', 'Kotlin', 'OpenStreetMap', 'MapLibre', 'GPS'],
+      tracks: [
+        { name: 'Trail Map View', duration: '1:33' },
+        { name: 'Live GPS Tracker', duration: '2:44' },
+        { name: 'Elevation Profiler', duration: '1:15' },
+        { name: 'Pace Calculator', duration: '0:52' },
+        { name: 'Route Recorder', duration: '1:08' },
+      ],
+    },
+  ];
+
+  function openAlbum(id: string) {
+    const p = projects.find(x => x.id === id);
+    if (!p) return;
+
+    const modal = document.getElementById('album-modal')!;
+    const header = document.getElementById('modal-header')!;
+    const art = document.getElementById('modal-art')!;
+    const glow = document.getElementById('modal-glow')!;
+
+    // Set gradient
+    header.style.background = p.gradient;
+    art.style.background = p.gradient;
+    art.style.border = `1px solid ${p.accent}30`;
+    glow.style.background = `radial-gradient(ellipse at 0% 0%, ${p.accent}20, transparent 60%)`;
+
+    // Set content
+    document.getElementById('modal-title')!.textContent = p.title;
+    document.getElementById('modal-artist')!.textContent = p.artist;
+    document.getElementById('modal-meta')!.textContent = `${p.type} · ${p.year} · ${p.duration}`;
+    document.getElementById('modal-desc')!.textContent = p.description;
+    document.getElementById('modal-long-desc')!.textContent = p.longDesc;
+
+    // Tags
+    const tagsEl = document.getElementById('modal-tags')!;
+    tagsEl.innerHTML = p.tags.map(t =>
+      `<span style="font-size:0.72rem;padding:4px 10px;border-radius:6px;background:${p.accent}15;color:${p.accent};font-weight:600;border:1px solid ${p.accent}25;">${t}</span>`
+    ).join('');
+
+    // Tracks
+    const tracksEl = document.getElementById('modal-tracks')!;
+    tracksEl.innerHTML = p.tracks.map((t, i) => `
+      <div style="display:grid;grid-template-columns:40px 1fr auto;gap:12px;padding:10px 8px;border-radius:6px;align-items:center;cursor:pointer;transition:background 0.15s;"
+        onmouseover="this.style.background='var(--sp-elevated)';this.querySelector('.tn').style.display='none';this.querySelector('.tp').style.display='flex'"
+        onmouseout="this.style.background='transparent';this.querySelector('.tn').style.display='block';this.querySelector('.tp').style.display='none'">
+        <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+          <span class="tn" style="font-size:0.85rem;color:${i===0?p.accent:'var(--sp-text)'};">${String(i+1).padStart(2,'0')}</span>
+          <span class="tp" style="display:none;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" fill="white" width="14" height="14"><path d="M8 5v14l11-7z"/></svg></span>
+        </div>
+        <p style="font-size:0.85rem;font-weight:600;color:#fff;">${t.name}</p>
+        <p style="font-size:0.78rem;color:var(--sp-text);">${t.duration}</p>
+      </div>
+    `).join('');
+
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAlbum() {
+    const modal = document.getElementById('album-modal')!;
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // Make functions global
+  (window as any).openAlbum = openAlbum;
+  (window as any).closeAlbum = closeAlbum;
+
+  // ESC to close
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAlbum(); });
+</script>

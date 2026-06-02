@@ -1,0 +1,158 @@
+---
+// HeroSection.astro — "Now Playing" hero with Three.js particle background
+---
+
+<section id="home" style="position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;">
+
+  <!-- Three.js canvas -->
+  <canvas id="hero-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.6;"></canvas>
+
+  <!-- Gradient overlay -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%, rgba(29,185,84,0.08) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(29,100,200,0.05) 0%, transparent 60%);pointer-events:none;"></div>
+
+  <!-- Hero Content -->
+  <div style="position:relative;z-index:1;padding:80px 48px 60px;max-width:700px;" class="reveal" id="hero-content">
+
+    <!-- Now Playing badge -->
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(29,185,84,0.1);border:1px solid rgba(29,185,84,0.25);border-radius:500px;padding:6px 16px;margin-bottom:32px;">
+      <span style="display:flex;gap:2px;align-items:flex-end;height:14px;">
+        <span class="eq-bar" style="width:3px;background:var(--sp-green);border-radius:1px;height:8px;"></span>
+        <span class="eq-bar" style="width:3px;background:var(--sp-green);border-radius:1px;height:14px;"></span>
+        <span class="eq-bar" style="width:3px;background:var(--sp-green);border-radius:1px;height:5px;"></span>
+        <span class="eq-bar" style="width:3px;background:var(--sp-green);border-radius:1px;height:11px;"></span>
+      </span>
+      <span style="font-size:0.72rem;font-weight:700;color:var(--sp-green);text-transform:uppercase;letter-spacing:0.1em;">Now Playing</span>
+    </div>
+
+    <!-- Name -->
+    <h1 style="font-size:clamp(2.5rem, 6vw, 4.5rem);font-weight:800;line-height:1.05;letter-spacing:-0.03em;color:var(--sp-white);margin-bottom:16px;">
+      Dean Lourence<br/>
+      <span class="gradient-text">P. Barquio</span>
+    </h1>
+
+    <!-- Role -->
+    <p style="font-size:1.125rem;color:var(--sp-text);font-weight:400;margin-bottom:8px;line-height:1.6;">
+      <span style="color:var(--sp-green);font-weight:600;">Software Engineer</span> &amp; Frontend Developer
+    </p>
+
+    <!-- Location + contact -->
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:40px;flex-wrap:wrap;">
+      <span style="font-size:0.8rem;color:var(--sp-text-dim);display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        Consolacion, Cebu
+      </span>
+      <span style="font-size:0.8rem;color:var(--sp-text-dim);">·</span>
+      <a href="mailto:deanbarquio@gmail.com" style="font-size:0.8rem;color:var(--sp-text-dim);text-decoration:none;transition:color 0.15s;" onmouseover="this.style.color='var(--sp-green)'" onmouseout="this.style.color='var(--sp-text-dim)'">deanbarquio@gmail.com</a>
+      <span style="font-size:0.8rem;color:var(--sp-text-dim);">·</span>
+      <span style="font-size:0.8rem;color:var(--sp-text-dim);">+63 948 008 0380</span>
+    </div>
+
+    <!-- CTA buttons -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="#projects" class="btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" fill="black" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
+        View Projects
+      </a>
+      <a href="#contact" class="btn-outline" style="text-decoration:none;">Get in Touch</a>
+    </div>
+
+    <!-- Stats row -->
+    <div style="display:flex;gap:32px;margin-top:56px;padding-top:32px;border-top:1px solid var(--sp-border);">
+      {[
+        { num: '5+', label: 'Projects Built' },
+        { num: '1yr+', label: 'Experience' },
+        { num: '10+', label: 'Tech Stack' },
+        { num: 'Magna', label: 'Cum Laude' },
+      ].map(s => (
+        <div>
+          <p style="font-size:1.5rem;font-weight:800;color:var(--sp-white);letter-spacing:-0.02em;">{s.num}</p>
+          <p style="font-size:0.72rem;color:var(--sp-text-dim);font-weight:500;margin-top:2px;">{s.label}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .eq-bar {
+    animation: eq 0.8s ease-in-out infinite alternate;
+    transform-origin: bottom;
+  }
+  .eq-bar:nth-child(1) { animation-delay: 0s; }
+  .eq-bar:nth-child(2) { animation-delay: 0.2s; }
+  .eq-bar:nth-child(3) { animation-delay: 0.15s; }
+  .eq-bar:nth-child(4) { animation-delay: 0.35s; }
+
+  @keyframes eq {
+    from { transform: scaleY(0.3); }
+    to { transform: scaleY(1); }
+  }
+</style>
+
+<script>
+  import * as THREE from 'three';
+
+  const canvas = document.getElementById('hero-canvas') as HTMLCanvasElement;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, canvas.offsetWidth / canvas.offsetHeight, 0.1, 100);
+  camera.position.z = 4;
+
+  // Create particle field
+  const count = 2000;
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+
+  for (let i = 0; i < count; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 12;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 8;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 6;
+
+    // Mix green and white particles
+    const isGreen = Math.random() > 0.7;
+    colors[i * 3] = isGreen ? 0.11 : 0.5;
+    colors[i * 3 + 1] = isGreen ? 0.73 : 0.5;
+    colors[i * 3 + 2] = isGreen ? 0.33 : 0.5;
+  }
+
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  const mat = new THREE.PointsMaterial({
+    size: 0.025,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.7,
+  });
+
+  const particles = new THREE.Points(geo, mat);
+  scene.add(particles);
+
+  // Mouse parallax
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 0.5;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 0.5;
+  });
+
+  // Resize
+  window.addEventListener('resize', () => {
+    renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+    camera.aspect = canvas.offsetWidth / canvas.offsetHeight;
+    camera.updateProjectionMatrix();
+  });
+
+  let frame = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    frame += 0.001;
+    particles.rotation.y = frame + mouseX * 0.3;
+    particles.rotation.x = mouseY * 0.2;
+    renderer.render(scene, camera);
+  }
+  animate();
+</script>

@@ -1,0 +1,128 @@
+---
+// SkillsSection.astro — Spotify playlist style skills
+const skillGroups = [
+  {
+    category: 'Web',
+    icon: '🌐',
+    items: ['Angular', 'React', 'Next.js', 'Svelte', 'Node.js', 'NestJS', 'HTML', 'CSS', 'TailwindCSS', 'Auth0'],
+    accent: '#3B82F6',
+  },
+  {
+    category: 'Mobile',
+    icon: '📱',
+    items: ['Flutter', 'Kotlin'],
+    accent: '#06B6D4',
+  },
+  {
+    category: 'Databases',
+    icon: '🗄️',
+    items: ['MySQL', 'MongoDB', 'Prisma', 'Firebase', 'Elasticsearch', 'OpenSearch'],
+    accent: '#F97316',
+  },
+  {
+    category: 'Cloud & DevOps',
+    icon: '☁️',
+    items: ['GCP', 'Docker', 'Terraform', 'CI/CD'],
+    accent: '#8B5CF6',
+  },
+  {
+    category: 'APIs & Data',
+    icon: '⚡',
+    items: ['REST APIs', 'WebSockets', 'TanStack Query'],
+    accent: '#1DB954',
+  },
+];
+
+// Proficiency bars for key skills
+const proficiency = [
+  { skill: 'Angular', pct: 90, accent: '#DD0031' },
+  { skill: 'React / Next.js', pct: 85, accent: '#61DAFB' },
+  { skill: 'NestJS', pct: 82, accent: '#E0234E' },
+  { skill: 'TailwindCSS', pct: 95, accent: '#38BDF8' },
+  { skill: 'TypeScript', pct: 88, accent: '#3178C6' },
+  { skill: 'Flutter', pct: 72, accent: '#54C5F8' },
+  { skill: 'Docker', pct: 70, accent: '#2496ED' },
+  { skill: 'Prisma / MySQL', pct: 80, accent: '#2D3748' },
+];
+---
+
+<section id="skills" class="section">
+  <div class="reveal">
+    <p style="font-size:0.72rem;font-weight:700;color:var(--sp-green);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Your Playlist</p>
+    <h2 class="section-title" style="font-size:2rem;margin-bottom:4px;">Skills</h2>
+    <p class="section-subtitle">Technologies I work with daily</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;" class="skills-grid">
+    <!-- Left: Category chips -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      {skillGroups.map((group, i) => (
+        <div class="reveal card" data-delay={i * 80} style="border-left:3px solid transparent;transition:border-color 0.2s,background 0.2s;"
+          onmouseover={`this.style.borderColor='${group.accent}';this.style.background='var(--sp-elevated)'`}
+          onmouseout="this.style.borderColor='transparent';this.style.background='var(--sp-surface)'"
+        >
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <span style="font-size:1.1rem;">{group.icon}</span>
+            <span style={`font-size:0.8rem;font-weight:700;color:${group.accent};text-transform:uppercase;letter-spacing:0.08em;`}>{group.category}</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            {group.items.map(item => (
+              <span style={`font-size:0.75rem;padding:4px 10px;border-radius:6px;background:${group.accent}14;color:${group.accent};font-weight:500;border:1px solid ${group.accent}25;`}>{item}</span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Right: Proficiency bars (Spotify track popularity style) -->
+    <div class="reveal" data-delay={100}>
+      <p style="font-size:0.8rem;font-weight:700;color:var(--sp-text);margin-bottom:20px;text-transform:uppercase;letter-spacing:0.06em;">Top Tracks · Proficiency</p>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        {proficiency.map((p, i) => (
+          <div class="prof-row" data-pct={p.pct} data-accent={p.accent}>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:0.82rem;font-weight:600;color:var(--sp-white);">
+                <span style="font-size:0.65rem;color:var(--sp-text-dim);margin-right:10px;font-weight:400;">{String(i + 1).padStart(2,'0')}</span>
+                {p.skill}
+              </span>
+              <span style="font-size:0.72rem;color:var(--sp-text-dim);">{p.pct}%</span>
+            </div>
+            <div style="height:3px;background:var(--sp-border);border-radius:2px;overflow:hidden;">
+              <div class="prof-fill" style={`height:100%;width:0%;background:${p.accent};border-radius:2px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);`}
+                data-target={p.pct + '%'}
+              ></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @media (max-width: 768px) {
+    .skills-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+
+<script>
+  // Animate proficiency bars when in view
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const fills = entry.target.querySelectorAll('.prof-fill');
+        fills.forEach((fill: Element) => {
+          const el = fill as HTMLElement;
+          const target = el.getAttribute('data-target') || '0%';
+          setTimeout(() => { el.style.width = target; }, 200);
+        });
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  const skillSection = document.getElementById('skills');
+  if (skillSection) observer.observe(skillSection);
+</script>
