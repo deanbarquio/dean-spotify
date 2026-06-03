@@ -9,6 +9,7 @@ const projects = [
     year: '2025',
     duration: '6 months',
     accent: '#F6A800',
+    image: '/constrack-web.png',
     gradient: 'linear-gradient(135deg,#3d2800,#1a1200)',
     description: 'A cross-platform project management system for construction tracking. Covers tasks, milestones, manpower costing, and workflow management with AI-assisted optimization.',
     longDesc: 'Built end-to-end with React on the frontend and NestJS for the API layer. Features real-time updates, AI-assisted task generation, gantt-style milestone tracking, and Firebase-backed cloud infrastructure on Google Cloud.',
@@ -38,6 +39,7 @@ const projects = [
     year: '2025',
     duration: '3 months',
     accent: '#3B82F6',
+    image: '/control_panel.png',
     gradient: 'linear-gradient(135deg,#001830,#000d1a)',
     description: 'Internal control system for N-Compass to manage application features and operations with advanced search and analytics.',
     longDesc: 'Built solo as the sole developer during internship. Leverages Elasticsearch/OpenSearch for blazing-fast search, Next.js App Router, TanStack Query for server state, and Docker for deployment.',
@@ -123,6 +125,7 @@ const projects = [
     year: '2024',
     duration: '4 months',
     accent: '#EF4444',
+    image: '/psits_website.png',
     gradient: 'linear-gradient(135deg,#3c0f0f,#160505)',
     description: 'Automating student organization membership workflow and merchandise sales portal.',
     longDesc: 'Designed to handle students admissions, automated receipt validation, dynamic membership cards generation, and event registration with built-in financial reporting.',
@@ -151,6 +154,7 @@ const projects = [
     year: '2024',
     duration: '5 months',
     accent: '#EAB308',
+    image: '/buildIt_mobile.png',
     gradient: 'linear-gradient(135deg,#362b00,#171200)',
     description: 'Mobile platform pairing skilled construction workers directly with community service requests.',
     longDesc: 'A community oriented mobile app allowing users to find specialized construction services. Solves employment gaps for independent laborers with custom bookings and feedback loop.',
@@ -179,6 +183,7 @@ const projects = [
     year: '2024',
     duration: '2 months',
     accent: '#06B6D4',
+    image: '/meeting_room1.png',
     gradient: 'linear-gradient(135deg,#002c33,#00141a)',
     description: 'Bespoke corporate booking scheduler built to streamline conference room allocations and prevent scheduling overlaps.',
     longDesc: 'Enforces custom business rules, features interactive calendars, user authorization tiers, automated calendar invitations, and analytics for room utilization rate.',
@@ -206,6 +211,7 @@ const projects = [
     year: '2024',
     duration: '3 months',
     accent: '#F97316',
+    image: '/hikemate_1.jpeg',
     gradient: 'linear-gradient(135deg,#2d1000,#190800)',
     description: 'Mobile hiking companion showing topographic trails, elevation details, and offline maps.',
     longDesc: 'Built in Flutter with MapLibre integrations and custom geolocated pace metrics. Supports route recording and trail search.',
@@ -259,210 +265,13 @@ const projects = [
       >
         <!-- Album cover wrapper -->
         <div style="width:100%;aspect-ratio:1/1;border-radius:6px;position:relative;overflow:hidden;margin-bottom:12px;box-shadow:0 8px 20px rgba(0,0,0,0.4);" class="album-art-wrap">
-          
-          {p.id === 'constrack' && (
-            <!-- Constrack Cover -->
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block;">
-              <defs>
-                <linearGradient id="g-constrack" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#3d2800" />
-                  <stop offset="100%" stop-color="#120c00" />
-                </linearGradient>
-                <pattern id="grid-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#F6A800" stroke-width="0.15" opacity="0.25" />
-                </pattern>
-              </defs>
-              <rect width="100" height="100" fill="url(#g-constrack)" />
-              <rect width="100" height="100" fill="url(#grid-pattern)" />
-              <!-- Graphic shapes -->
-              <circle cx="50" cy="50" r="30" fill="none" stroke="#F6A800" stroke-width="0.8" opacity="0.3" stroke-dasharray="2 1" />
-              <circle cx="50" cy="50" r="20" fill="none" stroke="#F6A800" stroke-width="1.5" opacity="0.5" />
-              <path d="M20 50 L80 50 M50 20 L50 80" stroke="#F6A800" stroke-width="0.4" opacity="0.2" />
-              <!-- Geometric accents -->
-              <rect x="35" y="35" width="30" height="30" fill="none" stroke="#F6A800" stroke-width="1.2" opacity="0.8" transform="rotate(45 50 50)" />
-              <polygon points="50,42 58,55 42,55" fill="#F6A800" opacity="0.9" />
-              <!-- Label -->
-              <text x="50" y="86" font-family="'Circular Std', sans-serif" font-weight="900" font-size="7.5" fill="#FFF" text-anchor="middle" letter-spacing="1">CONSTRACK</text>
-              <text x="50" y="93" font-family="'Circular Std', sans-serif" font-weight="700" font-size="4" fill="#F6A800" text-anchor="middle" letter-spacing="0.5">TRACK 01</text>
-            </svg>
-          )}
-
-          {p.id === 'control-panel' && (
-            <!-- Control Panel Cover -->
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block;">
-              <defs>
-                <linearGradient id="g-control" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#001a35" />
-                  <stop offset="100%" stop-color="#000914" />
-                </linearGradient>
-              </defs>
-              <rect width="100" height="100" fill="url(#g-control)" />
-              <!-- Waveform / Equalizer lines representing Admin features -->
-              <g opacity="0.4">
-                <line x1="15" y1="50" x2="15" y2="70" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="25" y1="50" x2="25" y2="80" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="35" y1="50" x2="35" y2="60" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="45" y1="50" x2="45" y2="85" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="55" y1="50" x2="55" y2="75" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="65" y1="50" x2="65" y2="65" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="75" y1="50" x2="75" y2="80" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="85" y1="50" x2="85" y2="60" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-              </g>
-              <g opacity="0.4" transform="scale(1, -1) translate(0, -100)">
-                <line x1="15" y1="50" x2="15" y2="65" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="25" y1="50" x2="25" y2="75" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="35" y1="50" x2="35" y2="80" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="45" y1="50" x2="45" y2="60" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="55" y1="50" x2="55" y2="80" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="65" y1="50" x2="65" y2="70" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="75" y1="50" x2="75" y2="60" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-                <line x1="85" y1="50" x2="85" y2="75" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
-              </g>
-              <!-- Target ring -->
-              <circle cx="50" cy="50" r="16" fill="none" stroke="#FFF" stroke-width="1" opacity="0.2" />
-              <circle cx="50" cy="50" r="8" fill="#FFF" opacity="0.85" />
-              <!-- Title -->
-              <text x="50" y="24" font-family="'Circular Std', sans-serif" font-weight="900" font-size="8" fill="#FFF" text-anchor="middle" letter-spacing="1.5">CONTROL PANEL</text>
-              <text x="50" y="32" font-family="'Circular Std', sans-serif" font-weight="700" font-size="4" fill="#3B82F6" text-anchor="middle" letter-spacing="0.5">INTERNAL SYSTEM</text>
-            </svg>
-          )}
-
-          {p.id === 'component-pantry' && (
-            <!-- Component Pantry Cover -->
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block;">
-              <defs>
-                <linearGradient id="g-pantry" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#240c46" />
-                  <stop offset="100%" stop-color="#0a0318" />
-                </linearGradient>
-              </defs>
-              <rect width="100" height="100" fill="url(#g-pantry)" />
-              <!-- Abstract layered components -->
-              <rect x="20" y="25" width="40" height="12" rx="4" fill="#8B5CF6" opacity="0.25" />
-              <rect x="40" y="42" width="40" height="12" rx="4" fill="#8B5CF6" opacity="0.4" />
-              <rect x="30" y="59" width="45" height="12" rx="4" fill="#8B5CF6" opacity="0.65" />
-              <!-- Dots in grid representing npm imports -->
-              <circle cx="28" cy="31" r="2.5" fill="#FFF" opacity="0.7" />
-              <circle cx="72" cy="48" r="2.5" fill="#FFF" opacity="0.9" />
-              <circle cx="38" cy="65" r="2.5" fill="#8B5CF6" />
-              <circle cx="68" cy="65" r="2" fill="#FFF" opacity="0.5" />
-              <!-- Title -->
-              <text x="50" y="84" font-family="'Circular Std', sans-serif" font-weight="900" font-size="7" fill="#FFF" text-anchor="middle" letter-spacing="1">UI PANTRY</text>
-              <text x="50" y="90" font-family="'Circular Std', sans-serif" font-weight="700" font-size="3.5" fill="#8B5CF6" text-anchor="middle" letter-spacing="0.5">LIBRARY VOL. 3</text>
-            </svg>
-          )}
-
-          {p.id === 'ntv-dashboard' && (
-            <!-- NTV Dashboard Cover -->
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block;">
-              <defs>
-                <linearGradient id="g-ntv" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#002d1a" />
-                  <stop offset="100%" stop-color="#000e08" />
-                </linearGradient>
-              </defs>
-              <rect width="100" height="100" fill="url(#g-ntv)" />
-              <!-- Styled graphic: stats grid -->
-              <rect x="15" y="20" width="32" height="24" rx="3" fill="none" stroke="#10B981" stroke-width="1" opacity="0.5" />
-              <path d="M22 36 L28 30 L34 33 L40 26" fill="none" stroke="#10B981" stroke-width="1.5" />
-              <circle cx="40" cy="26" r="1.5" fill="#10B981" />
-              
-              <rect x="53" y="20" width="32" height="24" rx="3" fill="none" stroke="#10B981" stroke-width="1" opacity="0.5" />
-              <rect x="59" y="32" width="20" height="4" rx="2" fill="#10B981" opacity="0.7" />
-              <circle cx="63" cy="27" r="2" fill="#10B981" />
-              
-              <!-- Bottom track visualizer -->
-              <rect x="15" y="54" width="70" height="12" rx="3" fill="none" stroke="#10B981" stroke-width="1.2" />
-              <line x1="22" y1="60" x2="60" y2="60" stroke="#10B981" stroke-width="3" opacity="0.75" />
-              <line x1="60" y1="60" x2="78" y2="60" stroke="#FFF" stroke-width="3" opacity="0.2" />
-              <!-- Title -->
-              <text x="50" y="82" font-family="'Circular Std', sans-serif" font-weight="900" font-size="7" fill="#FFF" text-anchor="middle" letter-spacing="1.2">NTV DASHBOARD</text>
-              <text x="50" y="89" font-family="'Circular Std', sans-serif" font-weight="700" font-size="3.5" fill="#10B981" text-anchor="middle" letter-spacing="0.5">HR TRACKING</text>
-            </svg>
-          )}
-
-          {p.id === 'psits' && (
-            <!-- PSITS Website Cover -->
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block;">
-              <defs>
-                <linearGradient id="g-psits" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#3c0f0f" />
-                  <stop offset="100%" stop-color="#160505" />
-                </linearGradient>
-              </defs>
-              <rect width="100" height="100" fill="url(#g-psits)" />
-              <path d="M20 30 L80 30 M20 50 L80 50 M20 70 L80 70" stroke="#EF4444" stroke-width="1.5" opacity="0.3" />
-              <circle cx="50" cy="50" r="24" fill="none" stroke="#EF4444" stroke-width="1.2" opacity="0.6" />
-              <polygon points="50,38 58,48 42,48" fill="#FFF" opacity="0.8" />
-              <text x="50" y="82" font-family="'Circular Std', sans-serif" font-weight="900" font-size="7.5" fill="#FFF" text-anchor="middle" letter-spacing="1.2">PSITS PORTAL</text>
-              <text x="50" y="89" font-family="'Circular Std', sans-serif" font-weight="700" font-size="3.5" fill="#EF4444" text-anchor="middle" letter-spacing="0.5">ORGANIZATION</text>
-            </svg>
-          )}
-
-          {p.id === 'buildit' && (
-            <!-- BuildIT Cover -->
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block;">
-              <defs>
-                <linearGradient id="g-buildit" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#362b00" />
-                  <stop offset="100%" stop-color="#171200" />
-                </linearGradient>
-              </defs>
-              <rect width="100" height="100" fill="url(#g-buildit)" />
-              <rect x="25" y="25" width="50" height="50" rx="4" fill="none" stroke="#EAB308" stroke-width="1.5" opacity="0.5" transform="rotate(45 50 50)" />
-              <circle cx="50" cy="50" r="10" fill="#EAB308" opacity="0.9" />
-              <path d="M50 43 L50 57 M43 50 L57 50" stroke="#000" stroke-width="2" />
-              <text x="50" y="84" font-family="'Circular Std', sans-serif" font-weight="900" font-size="7.5" fill="#FFF" text-anchor="middle" letter-spacing="1.2">BUILDIT</text>
-              <text x="50" y="90" font-family="'Circular Std', sans-serif" font-weight="700" font-size="3.5" fill="#EAB308" text-anchor="middle" letter-spacing="0.5">COMMUNITY APP</text>
-            </svg>
-          )}
-
-          {p.id === 'meeting-room' && (
-            <!-- Meeting Room Booking Cover -->
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block;">
-              <defs>
-                <linearGradient id="g-meeting" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#002c33" />
-                  <stop offset="100%" stop-color="#00141a" />
-                </linearGradient>
-              </defs>
-              <rect width="100" height="100" fill="url(#g-meeting)" />
-              <rect x="20" y="20" width="60" height="60" rx="6" fill="none" stroke="#06B6D4" stroke-width="1.5" opacity="0.5" />
-              <line x1="20" y1="40" x2="80" y2="40" stroke="#06B6D4" stroke-width="1.2" opacity="0.5" />
-              <line x1="40" y1="20" x2="40" y2="80" stroke="#06B6D4" stroke-width="1.2" opacity="0.5" />
-              <circle cx="30" cy="30" r="3" fill="#06B6D4" />
-              <circle cx="50" cy="50" r="3" fill="#FFF" />
-              <circle cx="70" cy="70" r="3" fill="#06B6D4" />
-              <text x="50" y="84" font-family="'Circular Std', sans-serif" font-weight="900" font-size="7" fill="#FFF" text-anchor="middle" letter-spacing="1">MEETING ROOM</text>
-              <text x="50" y="90" font-family="'Circular Std', sans-serif" font-weight="700" font-size="3.5" fill="#06B6D4" text-anchor="middle" letter-spacing="0.5">SCHEDULER</text>
-            </svg>
-          )}
-
-          {p.id === 'hikemate' && (
-            <!-- Hikemate Cover -->
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block;">
-              <defs>
-                <linearGradient id="g-hikemate" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#2d1300" />
-                  <stop offset="100%" stop-color="#0f0600" />
-                </linearGradient>
-              </defs>
-              <rect width="100" height="100" fill="url(#g-hikemate)" />
-              <!-- Topographic wave lines -->
-              <path d="M-10 40 Q20 20, 50 45 T110 30" fill="none" stroke="#F97316" stroke-width="0.8" opacity="0.25" />
-              <path d="M-10 50 Q20 30, 50 55 T110 40" fill="none" stroke="#F97316" stroke-width="0.8" opacity="0.35" />
-              <path d="M-10 60 Q20 40, 50 65 T110 50" fill="none" stroke="#F97316" stroke-width="1.2" opacity="0.5" />
-              <path d="M-10 70 Q20 50, 50 75 T110 60" fill="none" stroke="#F97316" stroke-width="0.8" opacity="0.3" />
-              <!-- Compass star -->
-              <polygon points="76,20 79,28 87,31 79,34 76,42 73,34 65,31 73,28" fill="#F97316" opacity="0.8" />
-              <circle cx="76" cy="31" r="8" fill="none" stroke="#FFF" stroke-width="0.8" opacity="0.4" />
-              <!-- Location pin on path -->
-              <path d="M48 57 C48 54, 52 51, 52 48 C52 45, 48 45, 48 45 C48 45, 44 45, 44 48 C44 51, 48 54, 48 57 Z" fill="#FFF" />
-              <circle cx="48" cy="48" r="1.5" fill="#F97316" />
-              <!-- Title -->
-              <text x="50" y="84" font-family="'Circular Std', sans-serif" font-weight="900" font-size="7.5" fill="#FFF" text-anchor="middle" letter-spacing="1">HIKEMATE</text>
-              <text x="50" y="90" font-family="'Circular Std', sans-serif" font-weight="700" font-size="3.5" fill="#F97316" text-anchor="middle" letter-spacing="0.5">OUTDOOR AUDIO</text>
-            </svg>
+          {p.image ? (
+            <img src={p.image} alt={p.title} style="width:100%;height:100%;object-fit:cover;border-radius:6px;" />
+          ) : (
+            <!-- Fallback: gradient with accent -->
+            <div style="width:100%;height:100%;background:linear-gradient(135deg, {p.gradient.split(',')[0].replace('linear-gradient(135deg,','')}, {p.gradient.split(',').pop()?.replace(')','') || '#000'});display:flex;align-items:center;justify-content:center;border-radius:6px;">
+              <span style="font-size:3rem;font-weight:900;color:rgba(255,255,255,0.1);letter-spacing:2px;">{p.title[0]}</span>
+            </div>
           )}
 
           <!-- Play button overlay: transitions precisely on hover -->
@@ -495,9 +304,20 @@ const projects = [
       </button>
 
       <div style="display:flex;align-items:flex-end;gap:32px;position:relative;z-index:1;" class="modal-header-content">
-        <!-- Album cover art -->
-        <div id="modal-art" style="width:232px;height:232px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 24px 50px rgba(0,0,0,0.6);position:relative;overflow:hidden;background:#121212;">
-          <!-- Custom SVG cover copies in here -->
+        <!-- Disc player -->
+        <div id="modal-art" style="width:232px;height:232px;border-radius:50%;flex-shrink:0;position:relative;box-shadow:0 24px 50px rgba(0,0,0,0.6);overflow:hidden;" title="Click to play / pause">
+          <div id="disc-rotator" class="disc-rotator">
+            <div class="disc-vinyl">
+              <div class="disc-groove"></div>
+              <div class="disc-groove"></div>
+              <div class="disc-groove"></div>
+              <div class="disc-groove"></div>
+              <div class="disc-groove"></div>
+              <div class="disc-art-center" id="disc-art-center"></div>
+              <div class="disc-spindle"></div>
+              <div class="disc-shine"></div>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -544,6 +364,19 @@ const projects = [
       </div>
     </div>
 
+    <!-- Progress Bar -->
+    <div style="padding:8px 40px 0;display:flex;align-items:center;gap:12px;">
+      <div class="progress-wrap">
+        <span class="progress-time" id="progress-elapsed">0:00</span>
+        <div class="progress-track" id="progress-track">
+          <div class="progress-fill" id="album-progress-fill">
+            <div class="progress-thumb"></div>
+          </div>
+        </div>
+        <span class="progress-time" id="progress-total">0:00</span>
+      </div>
+    </div>
+
     <!-- Tracks and Info Block -->
     <div style="padding:32px 40px 24px;display:flex;flex-direction:column;gap:32px;">
       <!-- Tracklist Table -->
@@ -580,25 +413,21 @@ const projects = [
     <!-- Lyrics & Credits Section -->
     <div style="display:grid;grid-template-columns:1.25fr 0.75fr;gap:24px;padding:24px 40px 80px;" class="edu-layout reveal">
       
-      <!-- Left: Lyrics Screen (colored card matching Spotify Lyrics screen) -->
-      <div id="modal-lyrics-card" style="background:#a63d1e;border-radius:12px;padding:40px;position:relative;overflow:hidden;min-height:500px;display:flex;flex-direction:column;box-shadow:0 16px 40px rgba(166,61,30,0.15);" class="lyrics-card">
-        <!-- Ambient light effect -->
-        <div id="modal-lyrics-glow" style="position:absolute;inset:0;background:radial-gradient(circle at 10% 20%,rgba(255,255,255,0.08),transparent 80%);pointer-events:none;z-index:1;"></div>
-        
-        <!-- Tiny top indicators -->
+      <!-- Left: Lyrics Screen (same structure & behavior as EducationSection) -->
+      <div id="modal-lyrics-card" class="lyrics-card" style="border-radius:12px;padding:40px;position:relative;overflow:hidden;min-height:500px;display:flex;flex-direction:column;">
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at 10% 20%,rgba(255,255,255,0.08),transparent 80%);pointer-events:none;z-index:1;"></div>
+
         <div style="display:flex;align-items:center;gap:12px;opacity:0.85;margin-bottom:24px;z-index:2;">
           <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-          <span style="font-size:0.7rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.08em;">Synced Project Lyrics</span>
+          <span id="modal-lyrics-label" style="font-size:0.7rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.08em;">Project Lyrics</span>
         </div>
 
-        <!-- Large lyrics lines container -->
-        <div id="modal-lyrics-container" style="flex:1;overflow-y:auto;position:relative;z-index:2;display:flex;flex-direction:column;gap:20px;padding-right:10px;padding-top:20px;padding-bottom:120px;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none;">
+        <div id="modal-lyrics-container" class="lyrics-container" style="flex:1;overflow-y:auto;position:relative;z-index:2;display:flex;flex-direction:column;gap:20px;padding-right:10px;padding-top:40px;padding-bottom:120px;scroll-behavior:smooth;">
           <!-- Rendered dynamically -->
         </div>
 
-        <!-- Sharing footer -->
         <div style="position:absolute;bottom:24px;right:40px;opacity:0.85;z-index:3;">
-          <button style="background:rgba(255,255,255,0.15);border:none;border-radius:500px;padding:8px 16px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;"
+          <button type="button" id="album-share-lyrics-btn" style="background:rgba(255,255,255,0.15);border:none;border-radius:500px;padding:8px 16px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;"
             onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
             <svg viewBox="0 0 24 24" fill="white" width="12" height="12"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
             Share Lyrics
@@ -656,38 +485,34 @@ const projects = [
   }
   
 
-  /* Inline detail view lyrics */
-  #modal-lyrics-container::-webkit-scrollbar {
+  /* Album lyrics — identical rules to EducationSection, scoped to album card */
+  #modal-lyrics-card .lyrics-container::-webkit-scrollbar {
     display: none;
   }
-  
-  .modal-lyric-line {
-    font-size: clamp(1.3rem, 2.5vw, 1.8rem);
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.35);
-    margin: 0;
-    line-height: 1.35;
-    letter-spacing: -0.02em;
-    cursor: pointer;
-    transition: color 0.25s, transform 0.25s, opacity 0.25s;
-    transform-origin: left;
-  }
-  
-  .modal-lyric-line.active {
-    color: #ffffff !important;
-  }
-  
-  #modal-lyrics-container:hover .modal-lyric-line {
-    color: rgba(255, 255, 255, 0.25) !important;
+
+  #modal-lyrics-card .lyrics-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    max-height: 380px;
   }
 
-  #modal-lyrics-container:hover .modal-lyric-line.active {
-    color: #ffffff !important;
+  #modal-lyrics-card .lyrics-container:hover .lyric-line {
+    color: rgba(0, 0, 0, 0.25) !important;
   }
-  
-  #modal-lyrics-container .modal-lyric-line:hover {
+
+  #modal-lyrics-card .lyrics-container .lyric-line:hover {
     color: #ffffff !important;
     transform: scale(1.02);
+  }
+
+  @media (max-width: 900px) {
+    .edu-layout {
+      grid-template-columns: 1fr !important;
+    }
+    #modal-lyrics-card.lyrics-card {
+      min-height: auto !important;
+      padding: 32px 24px !important;
+    }
   }
 
   @media (max-width: 1024px) {
@@ -695,11 +520,141 @@ const projects = [
       grid-template-columns: 1fr !important;
       gap: 32px !important;
     }
-    #modal-lyrics-card {
-      position: relative !important;
-      top: 0 !important;
-      max-height: 400px !important;
-    }
+  }
+
+  /* ── Disc Player ── */
+  @keyframes disc-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .disc-rotator {
+    width: 100%;
+    height: 100%;
+    animation: disc-spin 6s linear infinite;
+    animation-play-state: paused;
+    will-change: transform;
+  }
+
+  .disc-rotator.playing {
+    animation-play-state: running;
+  }
+
+  .disc-vinyl {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #2a2a2a 0%, #111 25%, #0a0a0a 45%, #151515 70%, #0d0d0d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: inset 0 -4px 20px rgba(0,0,0,0.6), inset 0 4px 20px rgba(255,255,255,0.03);
+  }
+
+  .disc-groove {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.015);
+    pointer-events: none;
+  }
+
+  .disc-groove:nth-child(1) { inset: 12px; }
+  .disc-groove:nth-child(2) { inset: 20px; }
+  .disc-groove:nth-child(3) { inset: 28px; }
+  .disc-groove:nth-child(4) { inset: 36px; }
+  .disc-groove:nth-child(5) { inset: 44px; border-color: rgba(255,255,255,0.025); }
+
+  .disc-art-center {
+    width: 46%;
+    height: 46%;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  }
+
+  .disc-art-center img {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .disc-spindle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #555, #222);
+    z-index: 3;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  }
+
+  .disc-shine {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.015) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── Progress Bar ── */
+  .progress-wrap {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  .progress-time {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--sp-text-dim);
+    font-variant-numeric: tabular-nums;
+    min-width: 36px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .progress-track:hover { height: 6px; }
+
+  .progress-fill {
+    height: 100%;
+    background: #fff;
+    border-radius: 4px;
+    width: 0%;
+    position: relative;
+    transition: width 0.3s linear;
+  }
+
+  .progress-track:hover .progress-fill {
+    background: var(--sp-green);
+  }
+
+  .progress-thumb {
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.15s;
+  }
+
+  .progress-track:hover .progress-thumb {
+    transform: translateY(-50%) scale(1);
   }
 
   @media (max-width: 768px) {
@@ -722,10 +677,18 @@ const projects = [
 </style>
 
 <script>
+  import {
+    renderLyricLines,
+    initLyricsPanel,
+    activateLyricLine,
+    syncLyricsFromFraction,
+    lyricIndexFromFraction,
+  } from '../lib/lyrics-panel';
+
   const projects = [
     {
       id: 'constrack', title: 'Constrack', artist: 'Dean Barquio · Full-Stack', type: 'Full-Stack App', year: '2025', duration: '6 months',
-      accent: '#F6A800', gradient: 'linear-gradient(135deg,#3d2800,#1a1200)',
+      accent: '#F6A800', image: '/constrack-web.png', gradient: 'linear-gradient(135deg,#3d2800,#1a1200)',
       description: 'A cross-platform project management system for construction tracking.',
       longDesc: 'Built end-to-end with React on the frontend and NestJS for the API layer. Features real-time updates, AI-assisted task generation, gantt-style milestone tracking, and Firebase-backed cloud infrastructure.',
       tags: ['React', 'NestJS', 'Firebase', 'Google Cloud', 'Prisma', 'TailwindCSS'],
@@ -748,7 +711,7 @@ const projects = [
     },
     {
       id: 'control-panel', title: 'Control Panel', artist: 'Dean Barquio · Internal Tool', type: 'Internal Tool', year: '2025', duration: '3 months',
-      accent: '#3B82F6', gradient: 'linear-gradient(135deg,#001830,#000d1a)',
+      accent: '#3B82F6', image: '/control_panel.png', gradient: 'linear-gradient(135deg,#001830,#000d1a)',
       description: 'Internal control system for N-Compass managing app features and operations.',
       longDesc: 'Built solo during internship with Next.js App Router, TanStack Query for server state, and Docker for deployment.',
       tags: ['NestJS', 'Next.js', 'Prisma', 'Elasticsearch', 'Docker', 'TanStack Query'],
@@ -815,7 +778,7 @@ const projects = [
     },
     {
       id: 'psits', title: 'PSITS Website', artist: 'Dean Barquio · Organization Portal', type: 'Web Portal', year: '2024', duration: '4 months',
-      accent: '#EF4444', gradient: 'linear-gradient(135deg,#3c0f0f,#160505)',
+      accent: '#EF4444', image: '/psits_website.png', gradient: 'linear-gradient(135deg,#3c0f0f,#160505)',
       description: 'Automating student organization membership workflow and merchandise sales portal.',
       longDesc: 'Designed to handle students admissions, automated receipt validation, dynamic membership cards generation, and event registration with built-in financial reporting.',
       tags: ['React', 'Node.js', 'MongoDB', 'TailwindCSS'],
@@ -837,7 +800,7 @@ const projects = [
     },
     {
       id: 'buildit', title: 'BuildIT', artist: 'Dean Barquio · Mobile App', type: 'Mobile App', year: '2024', duration: '5 months',
-      accent: '#EAB308', gradient: 'linear-gradient(135deg,#362b00,#171200)',
+      accent: '#EAB308', image: '/buildIt_mobile.png', gradient: 'linear-gradient(135deg,#362b00,#171200)',
       description: 'Mobile platform pairing skilled construction workers directly with community service requests.',
       longDesc: 'A community oriented mobile app allowing users to find specialized construction services. Solves employment gaps for independent laborers with custom bookings and feedback loop.',
       tags: ['Flutter', 'Node.js', 'PostgreSQL', 'Socket.io'],
@@ -859,7 +822,7 @@ const projects = [
     },
     {
       id: 'meeting-room', title: 'Meeting Room Booking', artist: 'Dean Barquio · Scheduler', type: 'Scheduler App', year: '2024', duration: '2 months',
-      accent: '#06B6D4', gradient: 'linear-gradient(135deg,#002c33,#00141a)',
+      accent: '#06B6D4', image: '/meeting_room1.png', gradient: 'linear-gradient(135deg,#002c33,#00141a)',
       description: 'Bespoke corporate booking scheduler built to streamline conference room allocations and prevent scheduling overlaps.',
       longDesc: 'Enforces custom business rules, features interactive calendars, user authorization tiers, automated calendar invitations, and analytics for room utilization rate.',
       tags: ['React', 'Express', 'SQLite', 'TailwindCSS'],
@@ -880,7 +843,7 @@ const projects = [
     },
     {
       id: 'hikemate', title: 'Hikemate', artist: 'Dean Barquio · Mobile App', type: 'Mobile App', year: '2024', duration: '3 months',
-      accent: '#F97316', gradient: 'linear-gradient(135deg,#2d1000,#190800)',
+      accent: '#F97316', image: '/hikemate_1.jpeg', gradient: 'linear-gradient(135deg,#2d1000,#190800)',
       description: 'Mobile hiking companion showing topographic trails, elevation details, and offline maps.',
       longDesc: 'Built in Flutter with MapLibre integrations and custom geolocated pace metrics. Supports route recording and trail search.',
       tags: ['Flutter', 'Kotlin', 'OpenStreetMap', 'MapLibre', 'GPS'],
@@ -912,31 +875,26 @@ const projects = [
     const art = document.getElementById('modal-art')!;
     const glow = document.getElementById('modal-glow')!;
     const lyricsCard = document.getElementById('modal-lyrics-card')!;
+    const discCenter = document.getElementById('disc-art-center')!;
+    const rotator = document.getElementById('disc-rotator')!;
+
+    stopLyricTimer();
+    albumPlaying = false;
+    window.albumPlaying = false;
+    rotator.classList.remove('playing');
 
     // Set gradient
     header.style.background = p.gradient;
-    art.style.background = p.gradient;
-    art.style.border = `1px solid ${p.accent}30`;
     glow.style.background = `radial-gradient(ellipse at 0% 0%, ${p.accent}20, transparent 60%)`;
-    
-    // Set specialized gradient for lyrics card reflecting the theme
-    lyricsCard.style.background = `linear-gradient(180deg, ${p.accent}22 0%, #121212 100%)`;
 
-    // Copy custom cover SVG if available
-    const card = document.querySelector(`.album-card[data-id="${id}"]`);
-    let svg: SVGElement | null = null;
-    if (card) {
-      svg = card.querySelector('svg');
-      if (svg) {
-        art.innerHTML = svg.outerHTML;
-        // Make the svg fill the container correctly
-        const modalSvg = art.querySelector('svg');
-        if (modalSvg) {
-          modalSvg.style.width = '100%';
-          modalSvg.style.height = '100%';
-          modalSvg.style.borderRadius = '6px';
-        }
-      }
+    lyricsCard.style.background = p.accent;
+    lyricsCard.style.boxShadow = `0 16px 40px ${p.accent}26`;
+
+    // Set disc center image from project image field
+    if (p.image) {
+      discCenter.innerHTML = `<img src="${p.image}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+    } else {
+      discCenter.innerHTML = '<div style="width:100%;height:100%;background:rgba(0,0,0,0.4);border-radius:50%;"></div>';
     }
 
     // Set content
@@ -990,12 +948,50 @@ const projects = [
       `;
     }).join('');
 
-    // Render dynamic lyrics
+    const lyricsLabel = document.getElementById('modal-lyrics-label');
+    if (lyricsLabel) lyricsLabel.textContent = `${p.title} Lyrics`;
+
+    const lyricsRoot = document.getElementById('modal-lyrics-card')!;
     const lyricsEl = document.getElementById('modal-lyrics-container')!;
-    lyricsEl.innerHTML = p.lyrics.map((line, idx) => `
-      <p class="modal-lyric-line ${idx === 0 ? 'active' : ''}" data-index="${idx}" onclick="window.seekToLyric(${idx})">${line}</p>
-    `).join('');
+    lyricsEl.innerHTML = renderLyricLines(p.lyrics);
     lyricsEl.scrollTop = 0;
+    initLyricsPanel(lyricsRoot, (idx) => {
+      currentLyricIdx = idx;
+      syncAlbumProgressFromLyricIndex(idx);
+    });
+
+    const creditsEl = document.getElementById('modal-credits-container')!;
+    const stackLine = p.tags.join(', ');
+    creditsEl.innerHTML = [
+      { label: 'Performers', name: 'Dean Lourence P. Barquio', role: p.artist },
+      { label: 'Writers / Stack', name: p.title, role: stackLine },
+      { label: 'Producers / Type', name: `${p.type} · ${p.year}`, role: p.duration },
+      { label: 'Publishers / Release', name: 'Dean Barquio Portfolio', role: p.description },
+    ]
+      .map(
+        (item) => `
+        <div style="border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:14px;">
+          <p style="font-size:0.68rem;font-weight:700;color:var(--sp-text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${item.label}</p>
+          <p style="font-size:0.86rem;font-weight:700;color:#fff;margin-bottom:2px;">${item.name}</p>
+          <p style="font-size:0.72rem;color:var(--sp-text);line-height:1.4;">${item.role}</p>
+        </div>`
+      )
+      .join('');
+
+    currentLyricIdx = 0;
+
+    // Calculate total duration from track times
+    const totalSecs = p.tracks.reduce((sum: number, t: { duration: string }) => {
+      const [m, s] = t.duration.split(':').map(Number);
+      return sum + m * 60 + s;
+    }, 0);
+    window.albumTotalSecs = totalSecs;
+    const fill = document.getElementById('album-progress-fill');
+    const elapsed = document.getElementById('progress-elapsed');
+    const total = document.getElementById('progress-total');
+    if (fill) fill.style.width = '0%';
+    if (elapsed) elapsed.textContent = '0:00';
+    if (total) total.textContent = `${Math.floor(totalSecs / 60)}:${String(totalSecs % 60).padStart(2, '0')}`;
 
     // Show detailed view & trigger routing class
     document.body.classList.add('album-view-active');
@@ -1011,66 +1007,146 @@ const projects = [
     }
   }
 
-  function closeAlbum() {
+  function closeAlbum(options: { scrollToProjects?: boolean } = {}) {
+    const { scrollToProjects = true } = options;
+    stopLyricTimer();
+    albumPlaying = false;
     const detailView = document.getElementById('album-detail-view')!;
     document.body.classList.remove('album-view-active');
     detailView.style.display = 'none';
 
-    // scroll back to projects section
-    document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+    if (scrollToProjects) {
+      const scroller = document.getElementById('main-scroll');
+      const projects = document.getElementById('projects');
+      if (scroller && projects) {
+        const top =
+          projects.getBoundingClientRect().top -
+          scroller.getBoundingClientRect().top +
+          scroller.scrollTop -
+          56;
+        scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      }
+    }
 
-    // dispatch global event to reset scroll indicators
     if (typeof (window as any).updateProgress === 'function') {
       (window as any).updateProgress();
     }
   }
 
-  // Interactive lyrics sync seek function
-  (window as any).seekToLyric = function(index: number) {
-    const lines = document.querySelectorAll('.modal-lyric-line');
-    if (!lines.length) return;
-    const fraction = (index + 0.2) / lines.length;
-    
-    const scroller = document.getElementById('main-scroll')!;
-    const isAlbumActive = document.body.classList.contains('album-view-active');
-    const baseOffset = isAlbumActive ? 0 : document.getElementById('projects')!.offsetTop;
-    const scrollHeight = scroller.scrollHeight - scroller.clientHeight;
-    
-    scroller.scrollTo({
-      top: baseOffset + (fraction * (scrollHeight - baseOffset)),
-      behavior: 'smooth'
-    });
+  let albumPlaying = false;
+  let currentLyricIdx = 0;
+  let lyricTimer: ReturnType<typeof setInterval> | null = null;
+
+  function getAlbumLyricsRoot() {
+    return document.getElementById('modal-lyrics-card');
+  }
+
+  function getAlbumLyricsElements() {
+    const root = getAlbumLyricsRoot();
+    const container = root?.querySelector('.lyrics-container') as HTMLElement | null;
+    const lines = container?.querySelectorAll('.lyric-line') as NodeListOf<HTMLElement> | undefined;
+    return { root, container, lines };
+  }
+
+  function syncAlbumProgressFromLyricIndex(idx: number) {
+    const { lines } = getAlbumLyricsElements();
+    if (!lines?.length) return;
+
+    const fill = document.getElementById('album-progress-fill');
+    const elapsed = document.getElementById('progress-elapsed');
+    const total = document.getElementById('progress-total');
+    if (!fill || !elapsed || !total) return;
+
+    const pct = lines.length > 1 ? idx / (lines.length - 1) : 0;
+    fill.style.width = `${pct * 100}%`;
+    const totalSecs = (window as any).albumTotalSecs || lines.length * 4;
+    const elapsedSecs = Math.floor(pct * totalSecs);
+    elapsed.textContent = `${Math.floor(elapsedSecs / 60)}:${String(elapsedSecs % 60).padStart(2, '0')}`;
+    total.textContent = `${Math.floor(totalSecs / 60)}:${String(totalSecs % 60).padStart(2, '0')}`;
+  }
+
+  function setAlbumLyricIndex(idx: number) {
+    const { container, lines } = getAlbumLyricsElements();
+    if (!container || !lines?.length) return;
+    currentLyricIdx = idx;
+    activateLyricLine(container, lines, lines[idx] as HTMLElement);
+    syncAlbumProgressFromLyricIndex(idx);
+  }
+
+  function stopLyricTimer() {
+    if (lyricTimer) {
+      clearInterval(lyricTimer);
+      lyricTimer = null;
+    }
+  }
+
+  function startLyricTimer() {
+    stopLyricTimer();
+    const { lines } = getAlbumLyricsElements();
+    if (!lines?.length) return;
+
+    lyricTimer = setInterval(() => {
+      currentLyricIdx++;
+      if (currentLyricIdx >= lines.length) currentLyricIdx = 0;
+      setAlbumLyricIndex(currentLyricIdx);
+    }, 4000);
+  }
+
+  (window as any).updateModalLyrics = function (fraction: number) {
+    const root = getAlbumLyricsRoot();
+    if (!root) return;
+    const idx = syncLyricsFromFraction(root, fraction);
+    currentLyricIdx = idx;
+    syncAlbumProgressFromLyricIndex(idx);
   };
 
-  // Sync scroll positioning of active lyric lines based on overall modal scroll
-  (window as any).updateModalLyrics = function(fraction: number) {
-    const lines = document.querySelectorAll('.modal-lyric-line');
-    if (!lines.length) return;
-    
-    const activeIndex = Math.max(0, Math.min(lines.length - 1, Math.floor(fraction * lines.length)));
-    
-    lines.forEach((line, idx) => {
-      const lineEl = line as HTMLElement;
-      if (idx === activeIndex) {
-        if (!lineEl.classList.contains('active')) {
-          lineEl.classList.add('active');
-          const container = document.getElementById('modal-lyrics-container')!;
-          container.scrollTo({
-            top: lineEl.offsetTop - (container.clientHeight / 2) + (lineEl.clientHeight / 2),
-            behavior: 'smooth'
-          });
-        }
-      } else {
-        lineEl.classList.remove('active');
-      }
-    });
+  (window as any).seekToLyric = function (index: number) {
+    setAlbumLyricIndex(index);
+    if (albumPlaying) startLyricTimer();
   };
 
-  // Close album view if sidebar navigation links or logo are clicked
+  function togglePlay() {
+    const rotator = document.getElementById('disc-rotator');
+    const btn = document.getElementById('modal-play-btn');
+    const { lines } = getAlbumLyricsElements();
+    if (!rotator || !lines?.length) return;
+
+    albumPlaying = !albumPlaying;
+
+    if (albumPlaying) {
+      rotator.classList.add('playing');
+      if (btn) btn.innerHTML = '<svg viewBox="0 0 24 24" fill="black" width="24" height="24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+      if (currentLyricIdx >= lines.length) currentLyricIdx = 0;
+      setAlbumLyricIndex(currentLyricIdx);
+      startLyricTimer();
+    } else {
+      rotator.classList.remove('playing');
+      if (btn) btn.innerHTML = '<svg viewBox="0 0 24 24" fill="black" width="24" height="24"><path d="M8 5v14l11-7z"/></svg>';
+      stopLyricTimer();
+    }
+  }
+
+  // ── Play button toggle ──
+  document.getElementById('modal-play-btn')?.addEventListener('click', togglePlay);
+  document.getElementById('modal-art')?.addEventListener('click', togglePlay);
+
+  // ── Progress bar seek ──
+  const progressTrack = document.getElementById('progress-track');
+  progressTrack?.addEventListener('click', function(e) {
+    const rect = this.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const { lines } = getAlbumLyricsElements();
+    if (!lines?.length) return;
+    const idx = lyricIndexFromFraction(lines.length, pct);
+    (window as any).seekToLyric(idx);
+  });
+
+  // Close album overlay when navigating elsewhere (do not hijack scroll target)
   document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.sb-nav-link, .sb-lib-item, #sb-home-link').forEach(link => {
+    document.querySelectorAll('.sb-nav-link, .sb-lib-item, #sb-home-link').forEach((link) => {
       link.addEventListener('click', () => {
-        closeAlbum();
+        if (!document.body.classList.contains('album-view-active')) return;
+        closeAlbum({ scrollToProjects: false });
       });
     });
   });
@@ -1080,5 +1156,24 @@ const projects = [
   (window as any).closeAlbum = closeAlbum;
 
   // ESC to close
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAlbum(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      stopLyricTimer();
+      albumPlaying = false;
+      closeAlbum();
+    }
+  });
+
+  document.getElementById('album-share-lyrics-btn')?.addEventListener('click', async () => {
+    const { container } = getAlbumLyricsElements();
+    if (!container) return;
+    const text = Array.from(container.querySelectorAll('.lyric-line'))
+      .map((l) => l.textContent)
+      .join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      /* clipboard unavailable */
+    }
+  });
 </script>

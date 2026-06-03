@@ -10,11 +10,12 @@ const mainNav = [
     icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.279 7.407-7.279s7.407 3.273 7.407 7.279-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.279z"/></svg>`,
     label: 'Search',
     href: '#skills',
+    isSearch: true,
   },
   {
     icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6.464a1 1 0 0 0-.5-.866l-6-3.464zM9 2a1 1 0 0 0-1 1v18a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1z"/></svg>`,
     label: 'Your Library',
-    href: '#projects',
+    href: '#dashboard',
     isLibrary: true,
   },
 ];
@@ -95,9 +96,9 @@ const sections = [
         <span class="sb-nav-icon" set:html={item.icon} />
         <span class="sb-nav-label">{item.label}</span>
         {item.isLibrary && (
-          <span class="sb-lib-add" title="Add section">
+          <button class="sb-lib-add" title="Add section" data-action="add">
             <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-          </span>
+          </button>
         )}
       </a>
     ))}
@@ -117,6 +118,11 @@ const sections = [
         <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
       </button>
     </div>
+  </div>
+
+  <!-- Search box -->
+  <div class="sb-search-box" id="sb-search-box" style="display:none;">
+    <input type="text" id="sb-search-input" class="sb-search-input" placeholder="Search in library..." />
   </div>
 
   <!-- Library items -->
@@ -193,8 +199,6 @@ const sections = [
     z-index: 99;
     backdrop-filter: blur(2px);
   }
-  .sb-overlay.visible { display: block; }
-
   /* ── Logo ── */
   .sb-logo {
     display: flex;
@@ -267,6 +271,10 @@ const sections = [
     color: var(--sp-text);
     transition: color 0.15s, background 0.15s;
     flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
   }
   .sb-nav-link:hover .sb-lib-add {
     color: #fff;
@@ -465,8 +473,50 @@ const sections = [
     50% { opacity: 0.5; transform: scale(1.4); }
   }
 
+  /* ── Search box ── */
+  .sb-search-box {
+    padding: 0 12px 8px;
+  }
+  .sb-search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 500px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 0.78rem;
+    outline: none;
+    transition: background 0.15s;
+    box-sizing: border-box;
+  }
+  .sb-search-input::placeholder {
+    color: var(--sp-text-dim);
+  }
+  .sb-search-input:focus {
+    background: rgba(255,255,255,0.15);
+  }
+
+  /* ── Grid view ── */
+  .sb-library.sb-grid-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .sb-library.sb-grid-view .sb-lib-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+  }
+  .sb-library.sb-grid-view .sb-lib-art {
+    width: 100%;
+    aspect-ratio: 1;
+    height: auto;
+    border-radius: 8px;
+  }
+
   /* ── Responsive ── */
   @media (max-width: 860px) {
+    .sb-overlay.visible { display: block; }
     .sb-toggle { display: flex; }
     .sidebar {
       position: fixed !important;
@@ -509,14 +559,59 @@ const sections = [
   });
   overlay?.addEventListener('click', closeSidebar);
 
-  // Close on nav link click (mobile)
-  document.querySelectorAll('.sb-nav-link, .sb-lib-item').forEach(link => {
+  // Close mobile drawer on nav (library items navigate normally)
+  document.querySelectorAll('.sb-nav-link, .sb-lib-item, #sb-home-link').forEach((link) => {
     link.addEventListener('click', () => {
       if (window.innerWidth <= 860) closeSidebar();
     });
   });
 
-  // Active nav highlight based on scroll
+  // ── Search toggle (nav + icon button) ──
+  const searchBox = document.getElementById('sb-search-box');
+  const searchInput = document.getElementById('sb-search-input');
+  const searchNav = document.getElementById('sb-nav-1');
+  const searchIconBtn = document.querySelector('.sb-lib-actions .sb-icon-btn:first-child');
+
+  function toggleSearch(e?: Event) {
+    e?.preventDefault();
+    e?.stopPropagation();
+    if (!searchBox) return;
+    const isOpen = searchBox.style.display !== 'none';
+    searchBox.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) searchInput?.focus();
+    else { searchInput && (searchInput.value = ''); filterLibrary(); }
+  }
+
+  searchNav?.addEventListener('click', toggleSearch);
+  searchIconBtn?.addEventListener('click', toggleSearch);
+
+  // ── Search filter ──
+  function filterLibrary() {
+    const q = (searchInput?.value || '').toLowerCase();
+    document.querySelectorAll('.sb-lib-item').forEach(item => {
+      const name = item.querySelector('.sb-lib-name')?.textContent?.toLowerCase() || '';
+      item.style.display = name.includes(q) ? '' : 'none';
+    });
+  }
+  searchInput?.addEventListener('input', filterLibrary);
+
+  // ── "+" add button — scroll to contact ──
+  document.querySelector('.sb-lib-add')?.addEventListener('click', async function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const { scrollToSection } = await import('../lib/scroll-to-section');
+    scrollToSection('#contact');
+    if (window.innerWidth <= 860) closeSidebar();
+  });
+
+  // ── List view toggle ──
+  const listViewBtn = document.querySelector('.sb-lib-actions .sb-icon-btn:last-child');
+  const library = document.querySelector('.sb-library');
+  listViewBtn?.addEventListener('click', () => {
+    library?.classList.toggle('sb-grid-view');
+  });
+
+  // ── Active nav highlight based on scroll ──
   const sections = document.querySelectorAll('section[id], div[id]');
   const navLinks = document.querySelectorAll('.sb-nav-link');
   const mainScroll = document.getElementById('main-scroll');
@@ -524,7 +619,7 @@ const sections = [
   function updateActiveNav() {
     let current = '';
     sections.forEach(sec => {
-      const top = (sec as HTMLElement).offsetTop;
+      const top = sec.offsetTop;
       if ((mainScroll?.scrollTop ?? 0) >= top - 120) current = sec.id;
     });
     navLinks.forEach(link => {

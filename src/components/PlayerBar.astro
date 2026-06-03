@@ -42,10 +42,10 @@
     </div>
     <!-- Progress bar -->
     <div style="width:100%;display:flex;align-items:center;gap:8px;">
-      <span style="font-size:0.65rem;color:var(--sp-text);width:30px;text-align:right;" id="prog-time">0:00</span>
-      <div style="flex:1;height:4px;background:var(--sp-border);border-radius:2px;position:relative;cursor:pointer;" id="progress-bar">
-        <div id="progress-fill" style="width:0%;height:100%;background:var(--sp-white);border-radius:2px;position:relative;transition:background 0.15s;">
-          <div style="width:12px;height:12px;background:var(--sp-white);border-radius:50%;position:absolute;right:-6px;top:50%;transform:translateY(-50%) scale(0);transition:transform 0.15s;" id="progress-knob"></div>
+      <span style="font-size:0.65rem;color:var(--sp-text);width:30px;text-align:right;" id="player-prog-time">0:00</span>
+      <div style="flex:1;height:4px;background:var(--sp-border);border-radius:2px;position:relative;cursor:pointer;" id="player-progress-bar">
+        <div id="player-progress-fill" style="width:0%;height:100%;background:var(--sp-white);border-radius:2px;position:relative;transition:background 0.15s;">
+          <div style="width:12px;height:12px;background:var(--sp-white);border-radius:50%;position:absolute;right:-6px;top:50%;transform:translateY(-50%) scale(0);transition:transform 0.15s;" id="player-progress-knob"></div>
         </div>
       </div>
       <span style="font-size:0.65rem;color:var(--sp-text);width:30px;">3:58</span>
@@ -71,11 +71,11 @@
 </div>
 
 <script>
-  // Interactive progress bar animation mapped to scroll indicator
-  const bar = document.getElementById('progress-bar');
-  const fill = document.getElementById('progress-fill');
-  const knob = document.getElementById('progress-knob');
-  const timeEl = document.getElementById('prog-time');
+  // Interactive progress bar mapped to #main-scroll (scoped IDs avoid album modal collision)
+  const bar = document.getElementById('player-progress-bar');
+  const fill = document.getElementById('player-progress-fill');
+  const knob = document.getElementById('player-progress-knob');
+  const timeEl = document.getElementById('player-prog-time');
   const playBtn = document.getElementById('play-btn');
 
   bar?.addEventListener('mouseenter', () => {
@@ -126,18 +126,21 @@
     }
   }
 
-  // Bind scroll listeners
-  window.addEventListener('resize', updateProgress, { passive: true });
-  
-  // Bind scroll listener to main-scroll once DOM is ready
-  document.addEventListener('DOMContentLoaded', () => {
+  function bindScrollProgress() {
     const scroller = document.getElementById('main-scroll');
-    if (scroller) {
-      scroller.addEventListener('scroll', updateProgress, { passive: true });
-    }
-    // Initialize progress bar position
+    if (!scroller || scroller.dataset.playerScrollBound === 'true') return;
+    scroller.dataset.playerScrollBound = 'true';
+    scroller.addEventListener('scroll', updateProgress, { passive: true });
     updateProgress();
-  });
+  }
+
+  window.addEventListener('resize', updateProgress, { passive: true });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindScrollProgress);
+  } else {
+    bindScrollProgress();
+  }
 
   // Expose updateProgress globally so opening/closing album detail view triggers updates
   (window as any).updateProgress = updateProgress;

@@ -83,46 +83,12 @@ import ContactSection from '../components/ContactSection.astro';
 </Layout>
 
 <script>
-  import gsap from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  gsap.registerPlugin(ScrollTrigger);
+  import { initGsapApp } from '../lib/gsap-app';
 
-  const scroller = document.getElementById('main-scroll')!;
+  initGsapApp();
 
-  // Entrance animations
-  gsap.from('#sidebar', { x: -24, opacity: 0, duration: 0.7, ease: 'power2.out', delay: 0.1 });
-  gsap.from('#player-bar', { y: 20, opacity: 0, duration: 0.7, ease: 'power2.out', delay: 0.4 });
-  gsap.from('#dash-banner', { opacity: 0, y: 20, duration: 0.9, ease: 'power2.out', delay: 0.2 });
-
-  // Reveal all .reveal elements natively listening to main-scroll
-  document.querySelectorAll('.reveal').forEach((el) => {
-    const delay = parseFloat((el as HTMLElement).dataset.delay || '0') / 1000;
-    gsap.fromTo(el,
-      { y: 28, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.65,
-        delay,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: el,
-          scroller: '#main-scroll',
-          start: 'top 92%',
-          toggleActions: 'play none none none',
-        },
-      }
-    );
-  });
-
-  // Update greeting dynamically
   const h = new Date().getHours();
   const greet = h < 12 ? 'Good morning 👋' : h < 17 ? 'Good afternoon 👋' : 'Good evening 👋';
   const greetEl = document.getElementById('greeting-text');
   if (greetEl) greetEl.textContent = greet;
-
-  // Refresh triggers on resize
-  window.addEventListener('resize', () => {
-    ScrollTrigger.refresh();
-  });
 </script>

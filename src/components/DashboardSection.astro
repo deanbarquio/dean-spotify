@@ -2,60 +2,73 @@
 // DashboardSection.astro — Spotify Home Dashboard
 const madeForYou = [
   {
-    mixNum: '1',
-    title: 'Daily Mix 1',
-    sub: 'React, NestJS, Firebase, Google Cloud',
-    accent: '#FFB6C1', // Light pink
-    bgColor: '#f9cbd3',
-    waveColor: '#ff6b8b',
-    iconColor: '#d64c6d'
+    stationName: 'REACT',
+    meta: 'With NestJS, Firebase, Google Cloud and more',
+    bgColor: '#c8f5dc',
+    circles: [
+      { bg: 'linear-gradient(135deg,#61dafb,#149eca)', label: 'R' },
+      { bg: 'linear-gradient(135deg,#e0234e,#9b1c3f)', label: 'N' },
+      { bg: 'linear-gradient(135deg,#f6a800,#c47f00)', label: 'F' },
+    ],
   },
   {
-    mixNum: '2',
-    title: 'Daily Mix 2',
-    sub: 'Next.js, Elasticsearch, Docker, TailwindCSS',
-    accent: '#B0E0E6', // Light blue
-    bgColor: '#b8ebd0',
-    waveColor: '#4bc383',
-    iconColor: '#2b965c'
+    stationName: 'NEXT.JS',
+    meta: 'With Elasticsearch, Docker, TailwindCSS and more',
+    bgColor: '#ffd4c4',
+    circles: [
+      { bg: 'linear-gradient(135deg,#111,#333)', label: 'Nx' },
+      { bg: 'linear-gradient(135deg,#005571,#00b8db)', label: 'Es' },
+      { bg: 'linear-gradient(135deg,#2496ed,#1d6fa5)', label: 'D' },
+    ],
   },
   {
-    mixNum: '3',
-    title: 'Daily Mix 3',
-    sub: 'Angular, Svelte, TypeScript, Verdaccio',
-    accent: '#E6E6FA', // Lavender
-    bgColor: '#e3beeb',
-    waveColor: '#aa55d4',
-    iconColor: '#7b2e9e'
+    stationName: 'ANGULAR',
+    meta: 'With Svelte, TypeScript, Verdaccio and more',
+    bgColor: '#e8d4f8',
+    circles: [
+      { bg: 'linear-gradient(135deg,#dd0031,#7d0019)', label: 'A' },
+      { bg: 'linear-gradient(135deg,#ff3e00,#c92d00)', label: 'S' },
+      { bg: 'linear-gradient(135deg,#3178c6,#1e4f8a)', label: 'Ts' },
+    ],
   },
   {
-    mixNum: '4',
-    title: 'Daily Mix 4',
-    sub: 'Prisma, MySQL, PostgreSQL, TanStack Query',
-    accent: '#FFE4E1', // Misty Rose
-    bgColor: '#ffdead',
-    waveColor: '#ffa07a',
-    iconColor: '#cd853f'
+    stationName: 'PRISMA',
+    meta: 'With MySQL, PostgreSQL, TanStack Query and more',
+    bgColor: '#ffe9b8',
+    circles: [
+      { bg: 'linear-gradient(135deg,#2d3748,#0d9488)', label: 'P' },
+      { bg: 'linear-gradient(135deg,#00758f,#003545)', label: 'My' },
+      { bg: 'linear-gradient(135deg,#336791,#1e3a5f)', label: 'Pg' },
+    ],
   },
   {
-    mixNum: '5',
-    title: 'Daily Mix 5',
-    sub: 'Flutter, Kotlin, MapLibre, OpenStreetMap',
-    accent: '#FFF0F5', // Lavender Blush
-    bgColor: '#ffd1a9',
-    waveColor: '#ff7f50',
-    iconColor: '#d2691e'
+    stationName: 'FLUTTER',
+    meta: 'With Kotlin, MapLibre, OpenStreetMap and more',
+    bgColor: '#c8e8ff',
+    circles: [
+      { bg: 'linear-gradient(135deg,#54c5f8,#01579b)', label: 'Fl' },
+      { bg: 'linear-gradient(135deg,#7f52ff,#4527a0)', label: 'K' },
+      { bg: 'linear-gradient(135deg,#10b981,#047857)', label: 'M' },
+    ],
+  },
+  {
+    stationName: 'NESTJS',
+    meta: 'By Dean Barquio · Full-stack radio',
+    bgColor: '#f5d0e8',
+    circles: [
+      { bg: 'linear-gradient(135deg,#e0234e,#9b1c3f)', label: 'N' },
+      { bg: 'linear-gradient(135deg,#1db954,#0d5c2e)', label: 'D' },
+      { bg: 'linear-gradient(135deg,#8b5cf6,#5b21b6)', label: 'B' },
+    ],
   },
 ];
 
 const recentWork = [
-  { name: 'Manpower Costing Module', project: 'Constrack', plays: '315k', accent: '#F6A800' },
-  { name: 'Search & Filter Engine', project: 'Control Panel', plays: '215k', accent: '#3B82F6' },
-  { name: 'Live GPS Tracker', project: 'Hikemate', plays: '180k', accent: '#F97316' },
-  { name: 'Data Table Component', project: 'Component Pantry', plays: '142k', accent: '#8B5CF6' },
+  { name: 'Manpower Costing Module', project: 'Constrack', plays: 315321, duration: '3:45', accent: '#F6A800', initial: 'M' },
+  { name: 'Search & Filter Engine', project: 'Control Panel', plays: 215884, duration: '2:22', accent: '#3B82F6', initial: 'S' },
+  { name: 'Live GPS Tracker', project: 'Hikemate', plays: 180412, duration: '2:44', accent: '#F97316', initial: 'G' },
+  { name: 'Data Table Component', project: 'Component Pantry', plays: 142097, duration: '2:01', accent: '#8B5CF6', initial: 'D' },
 ];
-
-const featuredBuild = recentWork[0];
 
 const topSkillCards = [
   {
@@ -144,49 +157,43 @@ const otherSkillCards = [
       </div>
     </div>
 
-    <!-- ④ MADE FOR YOU — horizontal scroll -->
-    <div style="margin-bottom:40px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <h2 style="font-size:1.3rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">Made For You</h2>
-        <a href="#projects" style="font-size:0.72rem;font-weight:700;color:var(--sp-text);text-decoration:none;text-transform:uppercase;letter-spacing:0.08em;transition:color 0.15s;"
-          onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--sp-text)'">Show all</a>
+    <!-- ④ MADE FOR YOU — Spotify-style recommended stations row -->
+    <section class="mfy-section" aria-label="Made For You">
+      <div class="mfy-section-header">
+        <h2 class="mfy-section-title">Made For You</h2>
+        <a href="#projects" class="mfy-show-all">Show all</a>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;" class="mfy-grid">
-        {madeForYou.map(card => (
-          <div class="sp-card" onclick="document.getElementById('projects').scrollIntoView({behavior:'smooth'})"
-            style="cursor:pointer;background:#181818;padding:16px;border-radius:8px;transition:background 0.2s;"
-            onmouseover="this.style.background='#282828'"
-            onmouseout="this.style.background='#181818'">
-            <!-- Square art precisely matching Spotify Daily Mix -->
-            <div style={`width:100%;aspect-ratio:1/1;border-radius:6px;background:${card.bgColor};position:relative;overflow:hidden;margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,0.4);`}
-              class="sp-card-art">
-              
-              <!-- Wave shapes mimicking the wavy design in Daily Mixes -->
-              <div style={`position:absolute;bottom:0;left:0;right:0;height:70%;background:${card.waveColor};clip-path:ellipse(90% 60% at 30% 100%);`}></div>
-              <div style={`position:absolute;bottom:0;left:-20%;right:-20%;height:45%;background:#fff;clip-path:ellipse(80% 50% at 60% 100%);`}></div>
-              
-              <!-- Spotify tiny logo top-left -->
-              <div style="position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:4px;z-index:2;opacity:0.9;">
-                <svg viewBox="0 0 24 24" fill="#000" width="16" height="16"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-1.022-.336.073-.668-.142-.74-.477-.074-.335.14-.667.476-.74 3.845-.878 7.14-.505 9.81 1.13.295.18.387.564.207.862zm1.226-2.724c-.226.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.076-1.183-.412.125-.845-.107-.97-.52-.126-.412.107-.845.52-.97 3.668-1.112 8.243-.574 11.34 1.33.367.227.487.708.26 1.075zm.106-2.834C14.39 8.718 8.563 8.525 5.176 9.553c-.52.158-1.07-.14-1.227-.66-.158-.52.14-1.07.66-1.228 3.896-1.182 10.334-.96 14.385 1.447.47.28.623.89.344 1.36-.28.47-.89.622-1.36.343z"/></svg>
+      <div class="mfy-scroll" role="list">
+        {madeForYou.map((card) => (
+          <a href="#projects" class="mfy-station" role="listitem">
+            <div class="mfy-station-art" style={`background:${card.bgColor};`}>
+              <div class="mfy-station-badges">
+                <span class="mfy-spotify-mark" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="#121212" width="14" height="14"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-1.022-.336.073-.668-.142-.74-.477-.074-.335.14-.667.476-.74 3.845-.878 7.14-.505 9.81 1.13.295.18.387.564.207.862zm1.226-2.724c-.226.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.076-1.183-.412.125-.845-.107-.97-.52-.126-.412.107-.845.52-.97 3.668-1.112 8.243-.574 11.34 1.33.367.227.487.708.26 1.075zm.106-2.834C14.39 8.718 8.563 8.525 5.176 9.553c-.52.158-1.07-.14-1.227-.66-.158-.52.14-1.07.66-1.228 3.896-1.182 10.334-.96 14.385 1.447.47.28.623.89.344 1.36-.28.47-.89.622-1.36.343z"/></svg>
+                </span>
+                <span class="mfy-radio-tag">Radio</span>
               </div>
-
-              <!-- Text block on cover matching screenshot exactly -->
-              <div style="position:absolute;bottom:14px;left:0;right:0;text-align:center;z-index:3;pointer-events:none;">
-                <p style="font-family:'Circular Std',sans-serif;font-size:1.05rem;font-weight:900;color:#000;letter-spacing:-0.03em;margin:0;text-transform:uppercase;">Daily Mix</p>
-                <p style={`font-family:'Circular Std',sans-serif;font-size:3.2rem;font-weight:900;color:${card.iconColor};line-height:0.8;margin:-2px 0 0;`}>{card.mixNum}</p>
+              <div class="mfy-avatars" aria-hidden="true">
+                <div class="mfy-avatar mfy-avatar--side" style={`background:${card.circles[0].bg};`}>
+                  <span>{card.circles[0].label}</span>
+                </div>
+                <div class="mfy-avatar mfy-avatar--center" style={`background:${card.circles[1].bg};`}>
+                  <span>{card.circles[1].label}</span>
+                </div>
+                <div class="mfy-avatar mfy-avatar--side mfy-avatar--right" style={`background:${card.circles[2].bg};`}>
+                  <span>{card.circles[2].label}</span>
+                </div>
               </div>
-
-              <!-- Play btn overlay -->
-              <div class="sp-play-btn" style="position:absolute;bottom:8px;right:8px;width:40px;height:40px;background:var(--sp-green);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(6px);transition:opacity 0.2s,transform 0.2s;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:4;">
-                <svg viewBox="0 0 24 24" fill="black" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
-              </div>
+              <p class="mfy-station-name">{card.stationName}</p>
+              <span class="mfy-station-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7z"/></svg>
+              </span>
             </div>
-            <p style="font-size:0.84rem;font-weight:700;color:#fff;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{card.title}</p>
-            <p style="font-size:0.72rem;color:var(--sp-text);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;">{card.sub}</p>
-          </div>
+            <p class="mfy-station-meta">{card.meta}</p>
+          </a>
         ))}
       </div>
-    </div>
+    </section>
 
     <!-- ⑤ SPLIT ROW: "What You Work With" + "Now Playing" hero -->
     <div class="split-grid dash-split">
@@ -242,31 +249,44 @@ const otherSkillCards = [
       <!-- Right: Now Playing — golden hero card + track list -->
       <div class="np-column">
 
-        <div class="np-tracks-panel">
-          <div class="wyw-header np-tracks-header">
-            <h3 class="wyw-title">Track of the Week</h3>
-            <a href="#projects" class="wyw-link">see more</a>
+        <section class="np-tracks-panel" id="track-of-week" aria-label="Track of the Week">
+          <div class="np-tracks-header">
+            <h3 class="np-tracks-title">Track of the Week</h3>
+            <a href="#projects" class="np-tracks-show-all">Show all</a>
           </div>
-          <div class="np-tracks-list">
-            {recentWork.map((item, i) => (
-              <a href="#projects" class="np-track-row" style={`--track-accent:${item.accent};`}>
-                <span class="np-track-border" aria-hidden="true"></span>
-                <span class="np-track-rank">{String(i + 1).padStart(2, '0')}</span>
-                <div class="np-track-icon">
-                  <span class="np-track-dot"></span>
-                </div>
-                <div class="np-track-meta">
-                  <p class="np-track-name">{item.name}</p>
-                  <p class="np-track-project">{item.project}</p>
-                </div>
-                <span class="np-track-plays">{item.plays}</span>
-                <span class="np-track-play" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="black" width="10" height="10"><path d="M8 5v14l11-7z"/></svg>
-                </span>
-              </a>
-            ))}
+          <div class="np-tracks-table" role="table">
+            <div class="np-tracks-colhead" role="row">
+              <span class="np-col np-col--index" role="columnheader">#</span>
+              <span class="np-col np-col--thumb" role="columnheader" aria-hidden="true"></span>
+              <span class="np-col np-col--title" role="columnheader">Title</span>
+              <span class="np-col np-col--plays" role="columnheader">Plays</span>
+              <span class="np-col np-col--time" role="columnheader">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-6l5.25 3.15-.75 1.23L11 11.5v5z"/></svg>
+              </span>
+            </div>
+            <div class="np-tracks-list" role="rowgroup">
+              {recentWork.map((item, i) => (
+                <a href="#projects" class="np-track-row" style={`--track-accent:${item.accent};`} role="row">
+                  <span class="np-col np-col--index">
+                    <span class="np-track-num">{i + 1}</span>
+                    <span class="np-track-play-hover" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M8 5v14l11-7z"/></svg>
+                    </span>
+                  </span>
+                  <div class="np-track-thumb" style={`background:linear-gradient(135deg, ${item.accent} 0%, color-mix(in srgb, ${item.accent} 55%, #121212) 100%);`}>
+                    <span>{item.initial}</span>
+                  </div>
+                  <div class="np-col np-col--title">
+                    <p class="np-track-name">{item.name}</p>
+                    <p class="np-track-artist">{item.project}</p>
+                  </div>
+                  <span class="np-col np-col--plays js-track-plays" data-plays={item.plays}>0</span>
+                  <span class="np-col np-col--time">{item.duration}</span>
+                </a>
+              ))}
+            </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
 
@@ -333,8 +353,214 @@ const otherSkillCards = [
     0%,100%{opacity:1;transform:scale(1)}
     50%{opacity:.5;transform:scale(1.4)}
   }
-  .sp-card:hover .sp-play-btn { opacity:1!important;transform:translateY(0)!important; }
-  .sp-card:hover .sp-card-art { box-shadow:0 12px 40px rgba(0,0,0,0.6)!important; }
+  /* ── Made For You — Spotify recommended stations row ── */
+  .mfy-section {
+    margin-bottom: 40px;
+  }
+
+  .mfy-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-right: 4px;
+  }
+
+  .mfy-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+  }
+
+  .mfy-show-all {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--sp-text);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: color 0.15s, text-decoration-color 0.15s;
+  }
+  .mfy-show-all:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .mfy-scroll {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 8px;
+    margin: 0 -4px;
+    padding-left: 4px;
+    padding-right: 4px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .mfy-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mfy-station {
+    flex: 0 0 168px;
+    width: 168px;
+    text-decoration: none;
+    color: inherit;
+    scroll-snap-align: start;
+    cursor: pointer;
+    will-change: transform, opacity;
+  }
+
+  .mfy-station-art {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+  }
+  .mfy-station:hover .mfy-station-art {
+    transform: none;
+  }
+
+  .mfy-station-badges {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .mfy-spotify-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.85;
+  }
+
+  .mfy-radio-tag {
+    font-size: 0.5625rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: rgba(0, 0, 0, 0.55);
+    text-transform: uppercase;
+  }
+
+  .mfy-avatars {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .mfy-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+
+  .mfy-avatar--side {
+    width: 52px;
+    height: 52px;
+    margin-right: -14px;
+    z-index: 1;
+    transform: translateY(6px);
+  }
+
+  .mfy-avatar--right {
+    margin-right: 0;
+    margin-left: -14px;
+  }
+
+  .mfy-avatar--center {
+    width: 68px;
+    height: 68px;
+    z-index: 3;
+    font-size: 0.75rem;
+    border-width: 4px;
+  }
+
+  .mfy-station-name {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: #121212;
+    text-transform: uppercase;
+    z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mfy-station-play {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--sp-green);
+    color: #121212;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(6px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 4;
+  }
+  .mfy-station:hover .mfy-station-play {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .mfy-station-meta {
+    margin: 8px 0 0;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--sp-text);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.7em;
+  }
+  .mfy-station:hover .mfy-station-meta {
+    color: #fff;
+  }
 
   /* ── Split row: skills + Now Playing ── */
   .dash-split {
@@ -696,153 +922,214 @@ const otherSkillCards = [
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
   }
 
+  /* Track of the Week — Spotify tracklist */
   .np-tracks-panel {
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border-radius: 16px;
-    padding: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 4px 0 0;
   }
 
-  .np-tracks-header { margin-bottom: 12px; }
+  .np-tracks-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+  }
+
+  .np-tracks-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+  }
+
+  .np-tracks-show-all {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--sp-text);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: color 0.15s;
+  }
+  .np-tracks-show-all:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .np-tracks-table {
+    width: 100%;
+  }
+
+  .np-tracks-colhead,
+  .np-track-row {
+    display: grid;
+    grid-template-columns: 28px 40px minmax(0, 1fr) 72px 44px;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px;
+  }
+
+  .np-tracks-colhead {
+    height: 32px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--sp-text-dim);
+    font-size: 0.6875rem;
+    font-weight: 500;
+  }
+
+  .np-col--index {
+    text-align: center;
+    justify-self: center;
+  }
+
+  .np-col--plays,
+  .np-col--time {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .np-col--time {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    color: var(--sp-text-dim);
+  }
 
   .np-tracks-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
   }
 
   .np-track-row {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border-radius: 12px;
     text-decoration: none;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    overflow: hidden;
-    transition:
-      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-      background 0.3s,
-      border-color 0.3s;
-  }
-  .np-track-row:hover {
-    transform: translateX(4px);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
-    border-color: color-mix(in srgb, var(--track-accent) 35%, rgba(255, 255, 255, 0.1));
-  }
-  .np-track-row:hover .np-track-border { opacity: 1; }
-  .np-track-row:hover .np-track-play {
-    opacity: 1;
-    transform: scale(1);
-  }
-  .np-track-row:hover .np-track-rank { color: var(--track-accent); }
-
-  .np-track-border {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(90deg, color-mix(in srgb, var(--track-accent) 60%, transparent), transparent 70%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
+    color: inherit;
+    border-radius: 4px;
+    min-height: 52px;
+    margin: 0 4px;
+    padding: 6px 8px;
+    will-change: transform, opacity;
   }
 
-  .np-track-rank {
-    font-size: 0.65rem;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    color: var(--sp-text-dim);
-    letter-spacing: 0.05em;
-    min-width: 1.25rem;
-    transition: color 0.3s;
-  }
-
-  .np-track-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: linear-gradient(145deg, color-mix(in srgb, var(--track-accent) 28%, transparent), rgba(0, 0, 0, 0.2));
-    border: 1px solid color-mix(in srgb, var(--track-accent) 35%, transparent);
+  .np-col--index {
+    position: relative;
+    width: 28px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .np-track-num {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--sp-text-dim);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .np-track-play-hover {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    opacity: 0;
+    transform: scale(0.7);
+    will-change: transform, opacity;
+  }
+
+  .np-track-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
     flex-shrink: 0;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 20px color-mix(in srgb, var(--track-accent) 15%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: rgba(0, 0, 0, 0.65);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    will-change: transform;
   }
 
-  .np-track-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--track-accent);
-    box-shadow: 0 0 14px var(--track-accent);
-  }
-
-  .np-track-meta {
-    flex: 1;
+  .np-col--title {
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .np-track-name {
-    font-size: 0.78rem;
-    font-weight: 600;
+    font-size: 0.9375rem;
+    font-weight: 400;
     color: #fff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.3;
   }
 
-  .np-track-project {
-    font-size: 0.68rem;
+  .np-track-artist {
+    font-size: 0.8125rem;
+    color: var(--sp-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  .np-track-row:hover .np-track-name {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .np-col--plays {
+    font-size: 0.8125rem;
     color: var(--sp-text);
   }
 
-  .np-track-plays {
-    font-size: 0.68rem;
+  .np-col--time {
+    font-size: 0.8125rem;
     color: var(--sp-text-dim);
-    flex-shrink: 0;
   }
 
-  .np-track-play {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--sp-green);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    opacity: 0;
-    transform: scale(0.85);
-    box-shadow: 0 4px 16px rgba(29, 185, 84, 0.35);
-    transition: opacity 0.25s, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  .np-track-row--active .np-track-name,
+  .np-track-row:hover .np-track-name {
+    color: var(--track-accent, #fff);
+  }
+
+  @media (max-width: 640px) {
+    .np-tracks-colhead .np-col--plays,
+    .np-track-row .np-col--plays {
+      display: none;
+    }
+    .np-tracks-colhead,
+    .np-track-row {
+      grid-template-columns: 28px 40px minmax(0, 1fr) 44px;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .mono-card,
     .np-hero,
-    .np-track-row,
-    .np-stack-art { transition: none; animation: none; }
+    .np-stack-art,
+    .mfy-station,
+    .np-track-row { transition: none; animation: none; }
     .mono-card:hover,
-    .np-hero:hover,
-    .np-track-row:hover { transform: none; }
+    .np-hero:hover { transform: none; }
+    .np-track-play-hover { display: none; }
+    .np-track-num { opacity: 1 !important; }
   }
 
   @media (max-width: 900px) {
     .quick-grid { grid-template-columns: repeat(2, 1fr) !important; }
-    .mfy-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    .mfy-station { flex: 0 0 152px; width: 152px; }
     .dash-split { grid-template-columns: 1fr !important; }
     .about-grid { grid-template-columns: 1fr !important; }
     .np-hero { min-height: 220px; }
@@ -851,8 +1138,9 @@ const otherSkillCards = [
   }
 
   @media (max-width: 600px) {
-    .quick-grid,
-    .mfy-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .quick-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .mfy-station { flex: 0 0 140px; width: 140px; }
+    .mfy-section-title { font-size: 1.25rem; }
     .np-stack-art { width: min(72%, 280px); right: -12px; }
     .np-hero-title { font-size: 1.15rem; }
   }
