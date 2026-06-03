@@ -1,102 +1,538 @@
 ---
-// Sidebar.astro — Spotify-style navigation sidebar
+// Sidebar.astro — Spotify-style navigation sidebar (enhanced)
 const mainNav = [
   {
-    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33a2 2 0 0 1 1 1.732V21a1 1 0 0 1-1 1H14a1 1 0 0 1-1-1v-6h-2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7.577a2 2 0 0 1 1-1.732l7.5-4.33z"/></svg>`,
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33a2 2 0 0 1 1 1.732V21a1 1 0 0 1-1 1H14a1 1 0 0 1-1-1v-6h-2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7.577a2 2 0 0 1 1-1.732l7.5-4.33z"/></svg>`,
     label: 'Home',
     href: '#home',
   },
   {
-    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.279 7.407-7.279s7.407 3.273 7.407 7.279-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.279z"/></svg>`,
-    label: 'Skills',
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.279 7.407-7.279s7.407 3.273 7.407 7.279-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.279z"/></svg>`,
+    label: 'Search',
     href: '#skills',
   },
   {
-    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6.464a1 1 0 0 0-.5-.866l-6-3.464zM9 2a1 1 0 0 0-1 1v18a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1z"/></svg>`,
-    label: 'Projects',
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6.464a1 1 0 0 0-.5-.866l-6-3.464zM9 2a1 1 0 0 0-1 1v18a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1z"/></svg>`,
+    label: 'Your Library',
     href: '#projects',
+    isLibrary: true,
   },
 ];
 
 const sections = [
-  { label: 'About Me', href: '#about', accent: '#1DB954' },
-  { label: 'Experience', href: '#experience', accent: '#F6A800' },
-  { label: 'Projects', href: '#projects', accent: '#3B82F6' },
-  { label: 'Skills', href: '#skills', accent: '#8B5CF6' },
-  { label: 'Education', href: '#education', accent: '#10B981' },
-  { label: 'Contact', href: '#contact', accent: '#F97316' },
+  {
+    label: 'About Me',
+    href: '#about',
+    accent: '#1DB954',
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`,
+    bgGradient: 'linear-gradient(135deg,#0d3b1f,#1a6b38)',
+    type: 'Profile',
+  },
+  {
+    label: 'Experience',
+    href: '#experience',
+    accent: '#F6A800',
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M20 6h-2.18c.07-.44.18-.86.18-1.3C18 2.12 15.88 0 13.3 0c-1.3 0-2.4.5-3.2 1.6l-.1.1-.1-.1C9.1.5 8 0 6.7 0 4.12 0 2 2.12 2 4.7c0 .44.11.86.18 1.3H0v14a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zM13.3 2c1.47 0 2.7 1.23 2.7 2.7 0 1.47-1.23 2.7-2.7 2.7H11V4.7C11 3.23 12.23 2 13.3 2zM6.7 2C7.77 2 9 3.23 9 4.7V7.4H6.7C5.23 7.4 4 6.17 4 4.7 4 3.23 5.23 2 6.7 2zM2 20V8h9v12H2zm11 0V8h9v12h-9z"/></svg>`,
+    bgGradient: 'linear-gradient(135deg,#3d2800,#1a1200)',
+    type: 'Work History',
+  },
+  {
+    label: 'Projects',
+    href: '#projects',
+    accent: '#3B82F6',
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M9.4 16.6 4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0 4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>`,
+    bgGradient: 'linear-gradient(135deg,#001830,#000d1a)',
+    type: 'Albums',
+  },
+  {
+    label: 'Skills',
+    href: '#skills',
+    accent: '#8B5CF6',
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`,
+    bgGradient: 'linear-gradient(135deg,#1a0a33,#0d0520)',
+    type: 'Tech Stack',
+  },
+  {
+    label: 'Education',
+    href: '#education',
+    accent: '#10B981',
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 3 1 9l4 2.18V15h1v-3.27l1 .55V17c0 2.21 3.58 4 8 4s8-1.79 8-4v-4.82L23 9l-11-6zm6.18 5L12 11.72 5.82 8 12 4.28 18.18 8zm.82 7c0 .5-2.13 2-7 2s-7-1.5-7-2v-3.4L12 15l6-2.4V15z"/></svg>`,
+    bgGradient: 'linear-gradient(135deg,#002918,#001510)',
+    type: 'Academic',
+  },
+  {
+    label: 'Contact',
+    href: '#contact',
+    accent: '#F97316',
+    icon: `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>`,
+    bgGradient: 'linear-gradient(135deg,#2d1000,#190800)',
+    type: 'Reach Out',
+  },
 ];
 ---
+
+<!-- Mobile hamburger toggle -->
+<button id="sb-toggle" class="sb-toggle" aria-label="Toggle menu">
+  <span></span><span></span><span></span>
+</button>
+<!-- Overlay -->
+<div id="sb-overlay" class="sb-overlay"></div>
 
 <aside class="sidebar" id="sidebar">
 
   <!-- Logo -->
-  <a href="#home" style="display:flex;align-items:center;gap:10px;padding:4px 8px 20px;text-decoration:none;">
-    <div style="width:34px;height:34px;background:var(--sp-green);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <svg viewBox="0 0 24 24" fill="black" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+  <a href="#home" class="sb-logo" id="sb-home-link">
+    <div class="sb-logo-icon">
+      <svg viewBox="0 0 24 24" fill="black" width="20" height="20"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
     </div>
-    <span style="font-size:0.95rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">Dean.dev</span>
+    <span class="sb-logo-text">Dean.dev</span>
   </a>
 
   <!-- Primary nav -->
-  <nav style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
-    {mainNav.map(item => (
-      <a href={item.href} class="sb-nav-link"
-        style="display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:8px;text-decoration:none;color:var(--sp-text);font-size:0.875rem;font-weight:600;transition:color 0.15s,background 0.15s;"
-        onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.07)'"
-        onmouseout="this.style.color='var(--sp-text)';this.style.background='transparent'">
-        <span set:html={item.icon} />
-        {item.label}
+  <nav class="sb-nav">
+    {mainNav.map((item, i) => (
+      <a href={item.href} class={`sb-nav-link${item.isLibrary ? ' sb-lib-link' : ''}`} id={`sb-nav-${i}`}>
+        <span class="sb-nav-icon" set:html={item.icon} />
+        <span class="sb-nav-label">{item.label}</span>
+        {item.isLibrary && (
+          <span class="sb-lib-add" title="Add section">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          </span>
+        )}
       </a>
     ))}
   </nav>
 
-  <!-- Library card -->
-  <div style="background:var(--sp-elevated);border-radius:10px;padding:16px;margin-bottom:20px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <div style="display:flex;align-items:center;gap:8px;color:var(--sp-text);">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6.464a1 1 0 0 0-.5-.866l-6-3.464zM9 2a1 1 0 0 0-1 1v18a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1z"/></svg>
-        <span style="font-size:0.8rem;font-weight:700;">Your Library</span>
-      </div>
-    </div>
+  <!-- Divider -->
+  <div class="sb-divider"></div>
 
-    <div style="display:flex;flex-direction:column;gap:2px;">
-      {sections.map(s => (
-        <a href={s.href}
-          style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:6px;text-decoration:none;transition:background 0.15s;"
-          onmouseover="this.style.background='rgba(255,255,255,0.06)'"
-          onmouseout="this.style.background='transparent'">
-          <div style={`width:36px;height:36px;border-radius:6px;background:${s.accent}18;border:1px solid ${s.accent}25;display:flex;align-items:center;justify-content:center;flex-shrink:0;`}>
-            <div style={`width:8px;height:8px;border-radius:50%;background:${s.accent};`}></div>
-          </div>
-          <div>
-            <p style="font-size:0.78rem;font-weight:600;color:#fff;">{s.label}</p>
-            <p style="font-size:0.65rem;color:var(--sp-text-dim);">Section</p>
-          </div>
-        </a>
-      ))}
+  <!-- Library label row -->
+  <div class="sb-lib-header">
+    <span class="sb-lib-title">Your Library</span>
+    <div class="sb-lib-actions">
+      <button class="sb-icon-btn" title="Search in library">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.279 7.407-7.279s7.407 3.273 7.407 7.279-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.279z"/></svg>
+      </button>
+      <button class="sb-icon-btn" title="List view">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+      </button>
     </div>
+  </div>
+
+  <!-- Library items -->
+  <div class="sb-library">
+    {sections.map(s => (
+      <a href={s.href} class="sb-lib-item">
+        <div class="sb-lib-art" style={`background:${s.bgGradient};border-color:${s.accent}30;`}>
+          <span class="sb-lib-art-icon" style={`color:${s.accent};`} set:html={s.icon} />
+        </div>
+        <div class="sb-lib-info">
+          <p class="sb-lib-name">{s.label}</p>
+          <p class="sb-lib-type"><span class="sb-lib-dot" style={`background:${s.accent};`}></span>{s.type}</p>
+        </div>
+      </a>
+    ))}
   </div>
 
   <!-- Profile chip -->
-  <div style="margin-top:auto;padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;display:flex;align-items:center;gap:10px;border:1px solid var(--sp-border);">
-    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1DB954,#0d7a3a);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:#000;">DB</div>
-    <div style="flex:1;min-width:0;">
-      <p style="font-size:0.75rem;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Dean Barquio</p>
-      <div style="display:flex;align-items:center;gap:5px;margin-top:1px;">
-        <span style="width:6px;height:6px;border-radius:50%;background:var(--sp-green);box-shadow:0 0 6px var(--sp-green);animation:pulse 2s ease infinite;flex-shrink:0;"></span>
-        <p style="font-size:0.65rem;color:var(--sp-green);font-weight:600;">Available</p>
+  <div class="sb-profile">
+    <div class="sb-avatar">DB</div>
+    <div class="sb-profile-info">
+      <p class="sb-profile-name">Dean Barquio</p>
+      <div class="sb-profile-status">
+        <span class="sb-status-dot"></span>
+        <p class="sb-status-label">Available</p>
       </div>
     </div>
-    <a href="mailto:deanbarquio@gmail.com" style="color:var(--sp-text);transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--sp-text)'">
-      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+    <a href="mailto:deanbarquio@gmail.com" class="sb-profile-action" title="Send email">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
     </a>
   </div>
+
 </aside>
 
 <style>
-  @keyframes pulse {
+  /* ── Toggle button (mobile only) ── */
+  .sb-toggle {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 200;
+    width: 40px;
+    height: 40px;
+    background: var(--sp-elevated);
+    border: 1px solid var(--sp-border);
+    border-radius: 8px;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0;
+    transition: background 0.2s;
+  }
+  .sb-toggle span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: #fff;
+    border-radius: 1px;
+    transition: transform 0.25s, opacity 0.25s;
+  }
+  .sb-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .sb-toggle.open span:nth-child(2) { opacity: 0; }
+  .sb-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── Overlay ── */
+  .sb-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+  }
+  .sb-overlay.visible { display: block; }
+
+  /* ── Logo ── */
+  .sb-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 8px 20px;
+    text-decoration: none;
+  }
+  .sb-logo-icon {
+    width: 34px;
+    height: 34px;
+    background: var(--sp-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .sb-logo-text {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Primary Nav ── */
+  .sb-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 8px;
+  }
+  .sb-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--sp-text);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: color 0.15s, background 0.15s;
+    position: relative;
+  }
+  .sb-nav-link:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.07);
+  }
+  .sb-nav-link.active-nav {
+    color: #fff;
+  }
+  .sb-nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+  }
+  .sb-nav-label { flex: 1; }
+  .sb-lib-link { justify-content: flex-start; }
+  .sb-lib-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: var(--sp-text);
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+  .sb-nav-link:hover .sb-lib-add {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* ── Divider ── */
+  .sb-divider {
+    height: 1px;
+    background: var(--sp-border);
+    margin: 8px 4px 12px;
+  }
+
+  /* ── Library header ── */
+  .sb-lib-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+  .sb-lib-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--sp-text);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .sb-lib-actions {
+    display: flex;
+    gap: 4px;
+  }
+  .sb-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--sp-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+  }
+  .sb-icon-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* ── Library items ── */
+  .sb-library {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .sb-library::-webkit-scrollbar { display: none; }
+
+  .sb-lib-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.15s;
+    border: 1px solid transparent;
+  }
+  .sb-lib-item:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.04);
+  }
+
+  .sb-lib-art {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+  }
+  .sb-lib-item:hover .sb-lib-art {
+    transform: scale(1.05);
+  }
+  .sb-lib-art-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sb-lib-info { flex: 1; min-width: 0; }
+  .sb-lib-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sb-lib-type {
+    font-size: 0.65rem;
+    color: var(--sp-text-dim);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 1px;
+  }
+  .sb-lib-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Profile chip ── */
+  .sb-profile {
+    margin-top: auto;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--sp-border);
+    transition: background 0.15s;
+  }
+  .sb-profile:hover { background: rgba(255,255,255,0.08); }
+
+  .sb-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#1DB954,#0d7a3a);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #000;
+  }
+  .sb-profile-info { flex: 1; min-width: 0; }
+  .sb-profile-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sb-profile-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 1px;
+  }
+  .sb-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--sp-green);
+    box-shadow: 0 0 6px var(--sp-green);
+    animation: sb-pulse 2s ease infinite;
+    flex-shrink: 0;
+  }
+  .sb-status-label {
+    font-size: 0.65rem;
+    color: var(--sp-green);
+    font-weight: 600;
+  }
+  .sb-profile-action {
+    color: var(--sp-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .sb-profile-action:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+  }
+
+  @keyframes sb-pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.5; transform: scale(1.4); }
   }
+
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .sb-toggle { display: flex; }
+    .sidebar {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      height: 100vh !important;
+      z-index: 150;
+      transform: translateX(-110%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      width: 260px !important;
+      border-radius: 0 12px 12px 0 !important;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+    }
+    .sidebar.sb-open {
+      transform: translateX(0);
+    }
+  }
 </style>
+
+<script>
+  const toggle = document.getElementById('sb-toggle');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sb-overlay');
+
+  function openSidebar() {
+    sidebar?.classList.add('sb-open');
+    toggle?.classList.add('open');
+    overlay?.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    sidebar?.classList.remove('sb-open');
+    toggle?.classList.remove('open');
+    overlay?.classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+
+  toggle?.addEventListener('click', () => {
+    sidebar?.classList.contains('sb-open') ? closeSidebar() : openSidebar();
+  });
+  overlay?.addEventListener('click', closeSidebar);
+
+  // Close on nav link click (mobile)
+  document.querySelectorAll('.sb-nav-link, .sb-lib-item').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 860) closeSidebar();
+    });
+  });
+
+  // Active nav highlight based on scroll
+  const sections = document.querySelectorAll('section[id], div[id]');
+  const navLinks = document.querySelectorAll('.sb-nav-link');
+  const mainScroll = document.getElementById('main-scroll');
+
+  function updateActiveNav() {
+    let current = '';
+    sections.forEach(sec => {
+      const top = (sec as HTMLElement).offsetTop;
+      if ((mainScroll?.scrollTop ?? 0) >= top - 120) current = sec.id;
+    });
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href')?.replace('#', '');
+      link.classList.toggle('active-nav', href === current);
+    });
+  }
+
+  mainScroll?.addEventListener('scroll', updateActiveNav);
+  updateActiveNav();
+</script>

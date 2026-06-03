@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Circular+Std:wght@400;500;700&family=Bricolage+Grotesque:wght@300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Circular+Std:wght@400;500;700&family=Bricolage+Grotesque:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -7,9 +7,9 @@
   --sp-surface: #181818;
   --sp-elevated: #242424;
   --sp-border: #2a2a2a;
-  --sp-green: #1DB954;
+  --sp-green: #1db954;
   --sp-green-dim: #1aa34a;
-  --sp-white: #FFFFFF;
+  --sp-white: #ffffff;
   --sp-text: #b3b3b3;
   --sp-text-dim: #6a6a6a;
   --sp-sidebar-w: 240px;
@@ -29,14 +29,23 @@ html {
 body {
   background: var(--sp-black);
   color: var(--sp-white);
-  font-family: 'Bricolage Grotesque', sans-serif;
+  font-family: "Bricolage Grotesque", sans-serif;
   overflow-x: hidden;
 }
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--sp-border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--sp-text-dim); }
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sp-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sp-text-dim);
+}
 
 .app-layout {
   display: grid;
@@ -111,9 +120,9 @@ body {
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 500;
-  background: rgba(29,185,84,0.12);
+  background: rgba(29, 185, 84, 0.12);
   color: var(--sp-green);
-  border: 1px solid rgba(29,185,84,0.2);
+  border: 1px solid rgba(29, 185, 84, 0.2);
 }
 
 .btn-primary {
@@ -127,7 +136,9 @@ body {
   font-size: 0.875rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  transition: transform 0.1s, background 0.2s;
+  transition:
+    transform 0.1s,
+    background 0.2s;
 }
 
 .btn-primary:hover {
@@ -141,12 +152,14 @@ body {
   font-weight: 700;
   padding: 11px 32px;
   border-radius: 500px;
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
   font-size: 0.875rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  transition: border-color 0.2s, transform 0.1s;
+  transition:
+    border-color 0.2s,
+    transform 0.1s;
 }
 
 .btn-outline:hover {
@@ -167,15 +180,15 @@ body {
 }
 
 .img-placeholder::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: repeating-linear-gradient(
     45deg,
     transparent,
     transparent 10px,
-    rgba(255,255,255,0.02) 10px,
-    rgba(255,255,255,0.02) 20px
+    rgba(255, 255, 255, 0.02) 10px,
+    rgba(255, 255, 255, 0.02) 20px
   );
 }
 
@@ -192,15 +205,15 @@ body {
 }
 
 .img-placeholder-sq::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: repeating-linear-gradient(
     45deg,
     transparent,
     transparent 10px,
-    rgba(255,255,255,0.02) 10px,
-    rgba(255,255,255,0.02) 20px
+    rgba(255, 255, 255, 0.02) 10px,
+    rgba(255, 255, 255, 0.02) 20px
   );
 }
 
@@ -215,7 +228,12 @@ body {
 
 /* Animated gradient text */
 .gradient-text {
-  background: linear-gradient(90deg, var(--sp-white) 0%, var(--sp-green) 50%, var(--sp-white) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--sp-white) 0%,
+    var(--sp-green) 50%,
+    var(--sp-white) 100%
+  );
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -224,8 +242,12 @@ body {
 }
 
 @keyframes shimmer {
-  0% { background-position: 0% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
 /* Scroll reveal default state */
@@ -234,25 +256,23 @@ body {
   transform: translateY(30px);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .app-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr var(--sp-player-h);
-    height: auto;
-    min-height: 100vh;
+    grid-template-rows: 1fr var(--sp-player-h);
+    height: 100vh;
   }
   .sidebar {
-    grid-row: 1;
-    flex-direction: row;
-    overflow-x: auto;
-    padding: 12px 16px;
-    gap: 4px;
+    /* Hidden; shown via JS toggle */
+    display: flex;
   }
   .main-content {
-    grid-row: 2;
+    grid-column: 1;
+    grid-row: 1;
+    padding-top: 0;
   }
   .player-bar {
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 2;
   }
 }
