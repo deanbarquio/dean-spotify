@@ -1,5 +1,5 @@
 ---
-import { categoryGraphics, getTrackIcon } from '../lib/skill-graphics';
+import { categoryPosters, getTrackIcon } from '../lib/skill-graphics';
 
 const skillGroups = [
   {
@@ -70,15 +70,11 @@ const heroTiles = skillGroups.slice(0, 4);
 
     <div class="sk-hero-visual">
       <div class="sk-hero-collage">
-        {heroTiles.map((g) => {
-          const gfx = categoryGraphics[g.id];
-          return (
-            <div class="sk-hero-tile" style={`--sk-accent:${g.accent};`}>
-              <div class="sk-card-mesh" set:html={gfx.mesh} />
-              <div class="sk-card-icon sk-card-icon--sm" set:html={gfx.icon} />
-            </div>
-          );
-        })}
+        {heroTiles.map((g) => (
+          <div class="sk-hero-tile sk-poster-wrap sk-poster-wrap--tile">
+            <div class="sk-poster-svg" set:html={categoryPosters[g.id]} />
+          </div>
+        ))}
       </div>
     </div>
 
@@ -107,68 +103,33 @@ const heroTiles = skillGroups.slice(0, 4);
     </div>
   </header>
 
-  <section class="sk-block sk-browse-block" aria-labelledby="sk-browse-heading">
-    <canvas id="sk-browse-canvas" class="sk-browse-canvas" aria-hidden="true"></canvas>
-    <div class="sk-block-header">
-      <h3 id="sk-browse-heading" class="sk-block-title">Browse all</h3>
-      <a href="#skills" class="sk-block-link">Show all</a>
-    </div>
-    <div class="sk-browse-grid">
-      {skillGroups.map((g) => {
-        const gfx = categoryGraphics[g.id];
-        return (
-          <a href={`#sk-playlist-${g.id}`} class="sk-browse-card js-sk-browse-card" style={`--sk-accent:${g.accent};`}>
-            <div class="sk-card-art">
-              <div class="sk-card-noise" aria-hidden="true"></div>
-              <div class="sk-card-mesh" set:html={gfx.mesh} />
-              <div class="sk-card-decor" set:html={gfx.decor} />
-              <div class="sk-card-icon" set:html={gfx.icon} />
-              <div class="sk-card-glow" aria-hidden="true"></div>
-            </div>
-            <div class="sk-browse-card-foot">
-              <span class="sk-browse-card-label">{g.category}</span>
-              <span class="sk-browse-card-count">{g.items.length} skills</span>
-            </div>
-          </a>
-        );
-      })}
-    </div>
-  </section>
-
   <section class="sk-block" aria-labelledby="sk-playlists-heading">
     <div class="sk-block-header">
       <h3 id="sk-playlists-heading" class="sk-block-title">Your skill playlists</h3>
       <a href="https://github.com/deanbarquio" target="_blank" rel="noopener" class="sk-block-link">Show all</a>
     </div>
     <div class="sk-playlist-grid">
-      {skillGroups.map((g) => {
-        const gfx = categoryGraphics[g.id];
-        return (
-          <article id={`sk-playlist-${g.id}`} class="sk-playlist-card">
-            <a href={`#sk-playlist-${g.id}`} class="sk-playlist-card-link">
-              <div class="sk-playlist-cover" style={`--sk-accent:${g.accent};`}>
-                <div class="sk-card-noise" aria-hidden="true"></div>
-                <div class="sk-card-mesh" set:html={gfx.mesh} />
-                <div class="sk-card-decor sk-card-decor--cover" set:html={gfx.decor} />
-                <div class="sk-card-icon sk-card-icon--cover" set:html={gfx.icon} />
-                <div class="sk-card-glow" aria-hidden="true"></div>
-                <span class="sk-playlist-play" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
-                </span>
-              </div>
-              <h4 class="sk-playlist-name">{g.category}</h4>
-              <p class="sk-playlist-meta">Playlist · {g.items.length} tracks</p>
-            </a>
-            <ul class="sk-tag-list">
-              {g.items.map((item) => (
-                <li>
-                  <span class="sk-tag" style={`--tag-accent:${g.accent};`}>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </article>
-        );
-      })}
+      {skillGroups.map((g) => (
+        <article id={`sk-playlist-${g.id}`} class="sk-playlist-card" data-poster={g.id}>
+          <a href={`#sk-playlist-${g.id}`} class="sk-playlist-card-link">
+            <div class="sk-playlist-cover sk-poster-wrap">
+              <div class="sk-poster-svg" set:html={categoryPosters[g.id]} />
+              <span class="sk-playlist-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </div>
+            <h4 class="sk-playlist-name">{g.category}</h4>
+            <p class="sk-playlist-meta">Playlist · {g.items.length} tracks</p>
+          </a>
+          <ul class="sk-tag-list">
+            {g.items.map((item) => (
+              <li>
+                <span class="sk-tag" style={`--tag-accent:${g.accent};`}>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ))}
     </div>
   </section>
 
@@ -389,118 +350,57 @@ const heroTiles = skillGroups.slice(0, 4);
     background: rgba(255, 255, 255, 0.08);
   }
 
-  /* Shared card art layers */
-  .sk-card-art,
-  .sk-playlist-cover,
+  /* Abstract gradient posters */
+  .sk-poster-wrap {
+    position: relative;
+    overflow: hidden;
+    background: #0a0a0a;
+  }
+
+  .sk-poster-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .sk-poster-svg :global(svg) {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
+
+  .sk-poster-svg :global(.js-poster-core) {
+    transform: none !important;
+  }
+
+  .sk-poster-svg :global(.js-poster-shapes) {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .sk-poster-wrap--tile .sk-poster-svg :global(.js-poster-shapes text) {
+    display: none;
+  }
+
   .sk-hero-tile {
-    --sk-accent: var(--sp-green);
+    background: #0a0a0a;
   }
 
-  .sk-card-noise {
-    position: absolute;
-    inset: 0;
-    opacity: 0.05;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .sk-card-mesh {
-    position: absolute;
-    inset: 0;
-    color: var(--sk-accent);
-    opacity: 0.35;
-    pointer-events: none;
+  .sk-playlist-cover .sk-poster-svg {
     z-index: 0;
   }
-  .sk-card-mesh :global(svg) {
-    width: 100%;
-    height: 100%;
-  }
 
-  .sk-card-decor {
-    position: absolute;
-    top: -8%;
-    right: -12%;
-    width: 75%;
-    height: 75%;
-    color: var(--sk-accent);
-    opacity: 0.22;
-    pointer-events: none;
+  .sk-playlist-play {
     z-index: 2;
-    will-change: transform;
-  }
-  .sk-card-decor :global(svg) {
-    width: 100%;
-    height: 100%;
-  }
-
-  .sk-card-decor--cover {
-    top: -5%;
-    right: -8%;
-    width: 65%;
-    height: 65%;
-  }
-
-  .sk-card-icon {
-    position: absolute;
-    left: 50%;
-    top: 42%;
-    transform: translate(-50%, -50%);
-    width: 56%;
-    max-width: 88px;
-    color: var(--sk-accent);
-    filter: drop-shadow(0 8px 24px color-mix(in srgb, var(--sk-accent) 45%, transparent));
-    z-index: 3;
-    will-change: transform;
-  }
-  .sk-card-icon :global(svg) {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  .sk-card-icon--sm {
-    width: 48%;
-    max-width: 40px;
-    top: 50%;
-  }
-
-  .sk-card-icon--cover {
-    top: 44%;
-    width: 52%;
-    max-width: 72px;
-  }
-
-  .sk-card-glow {
-    position: absolute;
-    bottom: -20%;
-    left: 10%;
-    width: 80%;
-    height: 50%;
-    background: radial-gradient(ellipse, color-mix(in srgb, var(--sk-accent) 35%, transparent), transparent 70%);
-    pointer-events: none;
-    z-index: 1;
   }
 
   .sk-block {
     width: 100%;
     margin-bottom: 44px;
     position: relative;
-  }
-
-  .sk-browse-block {
-    padding: 8px 0 16px;
-  }
-
-  .sk-browse-canvas {
-    position: absolute;
-    inset: 48px 0 0;
-    width: 100%;
-    height: calc(100% - 48px);
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.6;
   }
 
   .sk-block-header {
@@ -536,59 +436,6 @@ const heroTiles = skillGroups.slice(0, 4);
     text-underline-offset: 3px;
   }
 
-  /* Full-width browse grid */
-  .sk-browse-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 20px;
-    width: 100%;
-    position: relative;
-    z-index: 2;
-  }
-
-  .sk-browse-card {
-    display: flex;
-    flex-direction: column;
-    text-decoration: none;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #282828;
-    min-height: 260px;
-    will-change: transform;
-  }
-
-  .sk-card-art {
-    position: relative;
-    flex: 1;
-    min-height: 200px;
-    overflow: hidden;
-    background: #1a1a1a;
-  }
-
-  .sk-browse-card-foot {
-    padding: 14px 16px 16px;
-    position: relative;
-    z-index: 2;
-    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.25));
-  }
-
-  .sk-browse-card-label {
-    display: block;
-    font-size: clamp(1.1rem, 1.5vw, 1.5rem);
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.03em;
-    line-height: 1.15;
-  }
-
-  .sk-browse-card-count {
-    display: block;
-    margin-top: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--sp-text);
-  }
-
   /* Full-width playlist grid */
   .sk-playlist-grid {
     display: grid;
@@ -614,9 +461,8 @@ const heroTiles = skillGroups.slice(0, 4);
     border-radius: 6px;
     margin-bottom: 14px;
     overflow: hidden;
-    background: #1a1a1a;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-    will-change: transform;
+    background: #0a0a0a;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
   }
 
   .sk-playlist-play {
@@ -865,12 +711,8 @@ const heroTiles = skillGroups.slice(0, 4);
   }
 
   @media (max-width: 1200px) {
-    .sk-browse-grid,
     .sk-playlist-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .sk-browse-card {
-      min-height: 220px;
     }
   }
 
@@ -884,7 +726,6 @@ const heroTiles = skillGroups.slice(0, 4);
       width: 200px;
       height: 200px;
     }
-    .sk-browse-grid,
     .sk-playlist-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -902,18 +743,14 @@ const heroTiles = skillGroups.slice(0, 4);
     .sk-section {
       padding: 32px 20px 72px;
     }
-    .sk-browse-grid,
     .sk-playlist-grid {
       grid-template-columns: 1fr;
-    }
-    .sk-browse-card {
-      min-height: 200px;
     }
   }
 </style>
 
 <script>
-  import { initSkillsHeroCanvas, initSkillsBrowseCanvas } from '../lib/skills-three';
+  import { initSkillsHeroCanvas } from '../lib/skills-three';
 
   const handles: { dispose: () => void }[] = [];
 
@@ -921,12 +758,6 @@ const heroTiles = skillGroups.slice(0, 4);
   if (heroCanvas) {
     const h = initSkillsHeroCanvas(heroCanvas);
     if (h) handles.push(h);
-  }
-
-  const browseCanvas = document.getElementById('sk-browse-canvas') as HTMLCanvasElement | null;
-  if (browseCanvas) {
-    const b = initSkillsBrowseCanvas(browseCanvas);
-    if (b) handles.push(b);
   }
 
   document.addEventListener('astro:before-swap', () => {

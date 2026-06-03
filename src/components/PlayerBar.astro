@@ -71,6 +71,12 @@
 </div>
 
 <script>
+  import {
+    getMainScrollMetrics,
+    onMainScroll,
+    scrollMainTo,
+  } from '../lib/smooth-scroll';
+
   // Interactive progress bar mapped to #main-scroll (scoped IDs avoid album modal collision)
   const bar = document.getElementById('player-progress-bar');
   const fill = document.getElementById('player-progress-fill');
@@ -88,24 +94,12 @@
   });
 
   function getScrollFraction() {
-    const scroller = document.getElementById('main-scroll');
-    if (scroller) {
-      const scrollTop = scroller.scrollTop;
-      const scrollHeight = scroller.scrollHeight - scroller.clientHeight;
-      return scrollHeight > 0 ? scrollTop / scrollHeight : 0;
-    }
-    return 0;
+    return getMainScrollMetrics().progress;
   }
 
   function setScrollFraction(fraction: number) {
-    const scroller = document.getElementById('main-scroll');
-    if (scroller) {
-      const scrollHeight = scroller.scrollHeight - scroller.clientHeight;
-      scroller.scrollTo({
-        top: fraction * scrollHeight,
-        behavior: 'smooth'
-      });
-    }
+    const { maxScroll } = getMainScrollMetrics();
+    scrollMainTo(fraction * maxScroll, { duration: 0.85 });
   }
 
   function updateProgress() {
@@ -130,7 +124,7 @@
     const scroller = document.getElementById('main-scroll');
     if (!scroller || scroller.dataset.playerScrollBound === 'true') return;
     scroller.dataset.playerScrollBound = 'true';
-    scroller.addEventListener('scroll', updateProgress, { passive: true });
+    onMainScroll(updateProgress);
     updateProgress();
   }
 

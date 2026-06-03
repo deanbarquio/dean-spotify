@@ -65,7 +65,7 @@ function initMadeForYou() {
     },
   });
 
-  ScrollTrigger.batch('.mfy-station', {
+  ScrollTrigger.batch('.js-mfy-card', {
     ...scrollTriggerDefaults(),
     start: 'top 92%',
     interval: 0.08,
@@ -86,6 +86,7 @@ function initMadeForYou() {
       );
     },
   });
+
 }
 
 function initTrackOfWeek() {
@@ -213,36 +214,97 @@ function initAlbumMixCards() {
       );
     },
   });
+}
 
-  document.querySelectorAll<HTMLElement>('.js-album-mix').forEach((card) => {
-    const play = card.querySelector('.album-mix-play');
+function initExperienceSection() {
+  const section = document.getElementById('experience');
+  if (!section) return;
 
-    card.addEventListener('mouseenter', () => {
-      gsap.to(card, { scale: 1.03, duration: 0.28, ease: 'power2.out' });
-      if (play) {
-        gsap.to(play, {
-          opacity: 1,
+  gsap.from('.exp-show-tile', {
+    scale: 0.94,
+    opacity: 0,
+    duration: 0.55,
+    stagger: 0.08,
+    ease: 'power2.out',
+    scrollTrigger: {
+      ...scrollTriggerDefaults(),
+      trigger: '.exp-show-collage',
+      start: 'top 88%',
+      toggleActions: 'play none none none',
+    },
+  });
+
+  gsap.from('.exp-show-copy > *', {
+    y: 20,
+    opacity: 0,
+    duration: 0.65,
+    stagger: 0.06,
+    ease: 'power2.out',
+    scrollTrigger: {
+      ...scrollTriggerDefaults(),
+      trigger: section,
+      start: 'top 88%',
+      toggleActions: 'play none none none',
+    },
+  });
+
+  ScrollTrigger.batch('.js-exp-episode', {
+    ...scrollTriggerDefaults(),
+    trigger: section,
+    start: 'top 85%',
+    interval: 0.12,
+    batchMax: 3,
+    onEnter: (batch) => {
+      gsap.fromTo(
+        batch,
+        { y: 24, opacity: 0 },
+        {
           y: 0,
-          scale: 1,
-          duration: 0.28,
-          ease: 'back.out(1.6)',
-        });
-      }
-    });
+          opacity: 1,
+          duration: 0.55,
+          stagger: 0.1,
+          ease: 'power3.out',
+          overwrite: true,
+        }
+      );
+    },
+  });
 
-    card.addEventListener('mouseleave', () => {
-      gsap.to(card, { scale: 1, duration: 0.28, ease: 'power2.out' });
-      if (play) {
-        gsap.to(play, {
-          opacity: 0,
-          y: 8,
-          scale: 0.9,
-          duration: 0.2,
-          ease: 'power2.in',
-        });
-      }
+  section.querySelectorAll<HTMLElement>('.js-exp-progress').forEach((bar) => {
+    const pct = Number(bar.dataset.progress || 0);
+    ScrollTrigger.create({
+      ...scrollTriggerDefaults(),
+      trigger: bar,
+      start: 'top 92%',
+      once: true,
+      onEnter: () => {
+        gsap.to(bar, { width: `${pct}%`, duration: 1.1, ease: 'power2.out' });
+      },
     });
   });
+
+  document.querySelectorAll<HTMLElement>('.js-exp-episode').forEach((row) => {
+    const art = row.querySelector('.exp-episode-art');
+
+    row.addEventListener('mouseenter', () => {
+      if (art) gsap.to(art, { scale: 1.04, duration: 0.3, ease: 'power2.out' });
+    });
+
+    row.addEventListener('mouseleave', () => {
+      if (art) gsap.to(art, { scale: 1, duration: 0.25, ease: 'power2.out' });
+    });
+  });
+
+  const showPlay = section.querySelector('.exp-btn-play');
+  if (showPlay) {
+    gsap.to(showPlay, {
+      scale: 1.04,
+      duration: 1.4,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut',
+    });
+  }
 }
 
 function initSkillsSection() {
@@ -304,46 +366,13 @@ function initSkillsSection() {
     });
   });
 
-  ScrollTrigger.batch('.js-sk-browse-card', {
-    ...scrollTriggerDefaults(),
-    trigger: section.querySelector('.sk-browse-block') || section,
-    start: 'top 85%',
-    interval: 0.1,
-    batchMax: 5,
-    onEnter: (batch) => {
-      gsap.fromTo(
-        batch,
-        { y: 32, opacity: 0, scale: 0.92 },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.6,
-          stagger: 0.09,
-          ease: 'power3.out',
-          overwrite: true,
-        }
-      );
-    },
-  });
-
-  document.querySelectorAll<HTMLElement>('.js-sk-browse-card').forEach((card) => {
-    const icon = card.querySelector('.sk-card-icon');
-    const decor = card.querySelector('.sk-card-decor');
-    const art = card.querySelector('.sk-card-art');
-
-    card.addEventListener('mouseenter', () => {
-      gsap.to(card, { y: -6, duration: 0.35, ease: 'power2.out' });
-      if (icon) gsap.to(icon, { scale: 1.12, rotation: 6, duration: 0.4, ease: 'back.out(1.6)' });
-      if (decor) gsap.to(decor, { x: 8, y: -6, rotation: 12, duration: 0.45, ease: 'power2.out' });
-      if (art) gsap.to(art, { scale: 1.03, duration: 0.4, ease: 'power2.out' });
-    });
-
-    card.addEventListener('mouseleave', () => {
-      gsap.to(card, { y: 0, duration: 0.35, ease: 'power2.out' });
-      if (icon) gsap.to(icon, { scale: 1, rotation: 0, duration: 0.35, ease: 'power2.out' });
-      if (decor) gsap.to(decor, { x: 0, y: 0, rotation: 0, duration: 0.4, ease: 'power2.out' });
-      if (art) gsap.to(art, { scale: 1, duration: 0.35, ease: 'power2.out' });
+  section.querySelectorAll<HTMLElement>('.js-poster-spin').forEach((spin) => {
+    gsap.to(spin, {
+      rotation: 360,
+      duration: 28,
+      repeat: -1,
+      ease: 'none',
+      transformOrigin: '50% 50%',
     });
   });
 
@@ -372,22 +401,32 @@ function initSkillsSection() {
 
   document.querySelectorAll<HTMLElement>('.sk-playlist-card-link').forEach((link) => {
     const play = link.querySelector('.sk-playlist-play');
-    const cover = link.querySelector('.sk-playlist-cover');
-    const icon = cover?.querySelector('.sk-card-icon');
-    const decor = cover?.querySelector('.sk-card-decor');
+    const shapes = link.querySelector('.js-poster-shapes');
 
     link.addEventListener('mouseenter', () => {
       if (play) gsap.to(play, { opacity: 1, y: 0, scale: 1, duration: 0.28, ease: 'back.out(1.7)' });
-      if (cover) gsap.to(cover, { y: -6, duration: 0.35, ease: 'power2.out' });
-      if (icon) gsap.to(icon, { scale: 1.1, duration: 0.35, ease: 'back.out(1.5)' });
-      if (decor) gsap.to(decor, { rotation: 8, duration: 0.4, ease: 'power2.out' });
+      if (shapes) {
+        gsap.to(shapes, {
+          rotation: 10,
+          duration: 0.45,
+          ease: 'power2.out',
+          transformOrigin: '50% 50%',
+          svgOrigin: '200 200',
+        });
+      }
     });
 
     link.addEventListener('mouseleave', () => {
       if (play) gsap.to(play, { opacity: 0, y: 8, scale: 0.9, duration: 0.2, ease: 'power2.in' });
-      if (cover) gsap.to(cover, { y: 0, duration: 0.35, ease: 'power2.out' });
-      if (icon) gsap.to(icon, { scale: 1, duration: 0.3, ease: 'power2.out' });
-      if (decor) gsap.to(decor, { rotation: 0, duration: 0.35, ease: 'power2.out' });
+      if (shapes) {
+        gsap.to(shapes, {
+          rotation: 0,
+          duration: 0.4,
+          ease: 'power2.out',
+          transformOrigin: '50% 50%',
+          svgOrigin: '200 200',
+        });
+      }
     });
   });
 
@@ -460,6 +499,20 @@ function initSkillsSection() {
   });
 }
 
+function initDashQuickLinks() {
+  const cards = document.querySelectorAll('.dash-quick-card');
+  if (!cards.length) return;
+
+  gsap.from(cards, {
+    y: 14,
+    opacity: 0,
+    duration: 0.5,
+    stagger: 0.05,
+    ease: 'power2.out',
+    delay: 0.35,
+  });
+}
+
 function initSkillCards() {
   const split = document.querySelector('.dash-split');
   if (!split) return;
@@ -490,7 +543,7 @@ function initSkillCards() {
 /** Boot all scroll-driven and entrance animations for the portfolio shell. */
 export function initGsapApp(): () => void {
   if (prefersReducedMotion()) {
-    gsap.set(['.mfy-station', '.np-track-row', '.mono-card', '.reveal', '.js-album-mix', '.js-sk-browse-card', '.sk-playlist-card', '.sk-track-row', '.sk-pop-bar--on'], {
+    gsap.set(['.dash-quick-card', '.js-mfy-card', '.np-track-row', '.mono-card', '.reveal', '.js-album-mix', '.sk-playlist-card', '.sk-track-row', '.sk-pop-bar--on', '.js-exp-episode'], {
       opacity: 1,
       x: 0,
       y: 0,
@@ -505,10 +558,12 @@ export function initGsapApp(): () => void {
 
   const ctx = gsap.context(() => {
     initLayoutEntrance();
+    initDashQuickLinks();
     initRevealElements();
     initMadeForYou();
     initTrackOfWeek();
     initSkillCards();
+    initExperienceSection();
     initSkillsSection();
     initAlbumMixCards();
   });

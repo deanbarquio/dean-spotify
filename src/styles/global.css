@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Circular+Std:wght@400;500;700&family=Bricolage+Grotesque:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
+@import "./mix-cards.css";
 
 :root {
   --sp-black: #0a0a0a;
@@ -23,7 +24,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
@@ -72,8 +73,24 @@ body {
   grid-row: 1 / 2;
   background: var(--sp-bg);
   border-radius: 8px;
-  overflow-y: auto;
+  overflow: hidden;
   position: relative;
+  overscroll-behavior: contain;
+}
+
+.main-scroll-content {
+  min-height: 100%;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-content {
+    overflow-y: auto;
+  }
+
+  .main-scroll-content {
+    will-change: auto;
+  }
 }
 
 .player-bar {

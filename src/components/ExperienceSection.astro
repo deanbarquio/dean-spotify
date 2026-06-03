@@ -1,153 +1,767 @@
 ---
-// ExperienceSection.astro — Styled as a Spotify Podcast Episode Feed
+// ExperienceSection — Spotify podcast / episode feed UI
+
 const experiences = [
   {
+    id: 'eng',
     role: 'Software Engineer / Frontend Developer',
     company: 'N-Compass TV',
     location: 'Cebu City, Cebu',
     period: 'June 2025 – Present',
     duration: 'Ongoing · 10 months',
+    episodeDate: 'Jun 2025',
     current: true,
-    progress: '70%',
+    progress: 70,
     timeLeft: 'Ongoing',
-    description: 'Developed frontend applications using Angular and Svelte with Auth0, WebSockets, Filestack, and TailwindCSS. Designed UI standards for team scalability and mentored junior interns.',
+    description:
+      'Developed frontend applications using Angular and Svelte with Auth0, WebSockets, Filestack, and TailwindCSS. Designed UI standards for team scalability and mentored junior interns.',
     tags: ['Angular', 'Svelte', 'TypeScript', 'TailwindCSS', 'Auth0'],
     accent: '#1DB954',
+    poster: 'ring',
   },
   {
+    id: 'intern',
     role: 'Full-Stack Developer Intern',
     company: 'N-Compass TV',
     location: 'Cebu City, Cebu',
     period: 'March 2025 – May 2025',
     duration: '3 months · Completed',
+    episodeDate: 'Mar 2025',
     current: false,
-    progress: '100%',
+    progress: 100,
     timeLeft: 'Completed',
-    description: 'Built internal Control Panel and Company Dashboard solo. Integrated Elasticsearch/OpenSearch for search, Next.js for SSR, TanStack Query, and Docker.',
+    description:
+      'Built internal Control Panel and Company Dashboard solo. Integrated Elasticsearch/OpenSearch for search, Next.js for SSR, TanStack Query, and Docker.',
     tags: ['Next.js', 'NestJS', 'Elasticsearch', 'Docker', 'Prisma'],
     accent: '#3B82F6',
+    poster: 'layers',
   },
   {
+    id: 'qa',
     role: 'Quality Assurance Intern',
     company: 'N-Compass TV',
     location: 'Cebu City, Cebu',
     period: 'January 2025 – March 2025',
     duration: '3 months · Completed',
+    episodeDate: 'Jan 2025',
     current: false,
-    progress: '100%',
+    progress: 100,
     timeLeft: 'Completed',
-    description: 'Executed manual testing and UAT validation. Logged reproduction steps and automated cross-browser test suites using Selenium WebDriver.',
+    description:
+      'Executed manual testing and UAT validation. Logged reproduction steps and automated cross-browser test suites using Selenium WebDriver.',
     tags: ['Selenium', 'QA Testing', 'UAT', 'Bug Reporting'],
     accent: '#8B5CF6',
+    poster: 'spiral',
   },
 ];
+
+const totalEpisodes = experiences.length;
 ---
 
-<section id="experience" style="padding:60px 32px;background:linear-gradient(180deg,transparent 0%,rgba(18,18,18,0.5) 100%);">
-  
-  <!-- Header -->
-  <div class="reveal" style="margin-bottom:32px;">
-    <p style="font-size:0.72rem;font-weight:700;color:var(--sp-green);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Episodes</p>
-    <h2 style="font-size:2rem;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:4px;">Listening History</h2>
-    <p style="font-size:0.875rem;color:var(--sp-text);">Professional timeline as podcast episodes</p>
+<section id="experience" class="exp-section">
+  <header class="exp-show reveal">
+    <div class="exp-show-collage" aria-hidden="true">
+      {experiences.map((exp) => (
+        <div class={`exp-show-tile exp-show-tile--${exp.poster}`}>
+          <span class="exp-show-tile-glow"></span>
+        </div>
+      ))}
+    </div>
+    <div class="exp-show-copy">
+      <p class="exp-show-eyebrow">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-6l5.25 3.15-.75 1.23L11 11.5v5z"/>
+        </svg>
+        Podcast · Career
+      </p>
+      <h2 class="exp-show-title">Experiences</h2>
+      <p class="exp-show-meta">
+        <span class="exp-show-artist">Dean Barquio</span>
+        <span class="exp-show-sep">·</span>
+        {totalEpisodes} episodes
+        <span class="exp-show-sep">·</span>
+        N-Compass TV
+      </p>
+      <p class="exp-show-desc">Professional timeline — roles, impact, and stack at each chapter.</p>
+      <div class="exp-show-actions">
+        <button type="button" class="exp-btn-play" aria-label="Play all episodes">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button type="button" class="exp-btn-icon" aria-label="Shuffle episodes">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+        </button>
+        <button type="button" class="exp-btn-icon" aria-label="More options">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        </button>
+        <button type="button" class="exp-btn-follow">Follow</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="exp-filters reveal" data-delay="60">
+    <button type="button" class="exp-chip exp-chip--active">All</button>
+    <button type="button" class="exp-chip">Current</button>
+    <button type="button" class="exp-chip">Intern</button>
+    <button type="button" class="exp-chip">Completed</button>
   </div>
 
-  <!-- Feed List -->
-  <div style="display:flex;flex-direction:column;gap:1px;background:var(--sp-border);border-radius:8px;overflow:hidden;" class="reveal">
-    {experiences.map((exp, i) => (
-      <div 
-        class="episode-row" 
-        style="background:var(--sp-surface);padding:24px;border-bottom:1px solid var(--sp-border);transition:background 0.2s;"
-        onmouseover="this.style.background='var(--sp-elevated)'"
-        onmouseout="this.style.background='var(--sp-surface)'"
-      >
-        <div style="display:flex;gap:20px;align-items:flex-start;" class="episode-content">
-          
-          <!-- Left: Episode Cover Art -->
-          <div style={`width:80px;height:80px;border-radius:8px;background:linear-gradient(135deg,#121212 0%,${exp.accent}15 100%);border:1px solid ${exp.accent}20;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;`} class="episode-art">
-            <svg viewBox="0 0 24 24" fill={exp.accent} width="28" height="28" style="opacity:0.85;">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5zm4 4h-2v-5h2v5zm0-7h-2V7h2v2z"/>
-            </svg>
-            <div style="position:absolute;bottom:4px;right:4px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;">
-              <span style={`width:6px;height:6px;border-radius:50%;background:${exp.current?'var(--sp-green)':'var(--sp-text-dim)'};`}></span>
+  <div class="exp-episodes reveal" data-delay="100">
+    <div class="exp-episodes-header">
+      <h3 class="exp-episodes-title">All episodes</h3>
+      <button type="button" class="exp-sort-btn" aria-label="Sort episodes">
+        <span>Latest</span>
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M7 10l5 5 5-5z"/></svg>
+      </button>
+    </div>
+
+    <div class="exp-list">
+      {experiences.map((exp, i) => (
+        <article
+          class={`exp-episode js-exp-episode${exp.current ? ' exp-episode--now' : ''}`}
+          style={`--exp-accent: ${exp.accent};`}
+        >
+          <div class="exp-episode-row">
+            <div class="exp-episode-index">
+              <span class="exp-ep-num">{i + 1}</span>
+              <span class="exp-ep-play-hover" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M8 5v14l11-7z"/></svg>
+              </span>
             </div>
-          </div>
 
-          <!-- Right: Details -->
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
-              <span style="font-size:0.72rem;color:var(--sp-text-dim);font-weight:600;">{exp.period}</span>
-              <span style="color:var(--sp-text-dim);font-size:0.75rem;">·</span>
-              <span style="font-size:0.72rem;color:var(--sp-text-dim);">{exp.duration}</span>
+            <div class={`exp-episode-art exp-episode-art--${exp.poster}`}>
+              {exp.current && (
+                <span class="exp-now-badge" aria-label="Now playing">
+                  <span class="exp-eq" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span>
+                  </span>
+                </span>
+              )}
+              <span class="exp-ep-label">EP {totalEpisodes - i}</span>
             </div>
-            
-            <h3 style="font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:2px;letter-spacing:-0.01em;">
-              {exp.role}
-            </h3>
-            
-            <p style={`font-size:0.8rem;font-weight:700;color:${exp.accent};margin-bottom:12px;`}>
-              {exp.company} · <span style="font-weight:500;color:var(--sp-text-dim);">{exp.location}</span>
-            </p>
 
-            <p style="font-size:0.82rem;color:var(--sp-text);line-height:1.6;margin-bottom:16px;max-width:720px;">
-              {exp.description}
-            </p>
-
-            <!-- Control row + tags -->
-            <div style="display:flex;align-items:center;justify-content:between;flex-wrap:wrap;gap:16px;">
-              <div style="display:flex;align-items:center;gap:12px;">
-                <!-- Play Button -->
-                <button style="width:36px;height:36px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.1s;"
-                  onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                  <svg viewBox="0 0 24 24" fill="black" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
-                </button>
-                
-                <!-- Share Button -->
-                <button style="background:none;border:none;color:var(--sp-text);cursor:pointer;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--sp-text)'">
-                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
-                </button>
+            <div class="exp-episode-body">
+              <div class="exp-ep-meta-line">
+                <span class="exp-ep-date">{exp.episodeDate}</span>
+                <span class="exp-ep-dot">·</span>
+                <span class="exp-ep-duration">{exp.duration}</span>
               </div>
 
-              <!-- Tags list -->
-              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-left:auto;" class="tag-list">
-                {exp.tags.map(t => (
-                  <span style={`font-size:0.68rem;font-weight:700;padding:4px 10px;border-radius:4px;background:${exp.accent}12;color:${exp.accent};border:1px solid ${exp.accent}20;`}>
-                    {t}
-                  </span>
+              <div class="exp-ep-title-row">
+                <h4 class="exp-ep-title">{exp.role}</h4>
+                {exp.current && <span class="exp-live-pill">LIVE</span>}
+              </div>
+
+              <p class="exp-ep-sub">
+                <span class="exp-ep-company">{exp.company}</span>
+                <span class="exp-ep-dot">·</span>
+                {exp.location}
+              </p>
+
+              <p class="exp-ep-desc">{exp.description}</p>
+
+              <div class="exp-ep-tags">
+                {exp.tags.map((t) => (
+                  <span class="exp-tag">{t}</span>
                 ))}
               </div>
-            </div>
 
-            <!-- Progress bar representing time elapsed in job -->
-            <div style="margin-top:20px;display:flex;align-items:center;gap:12px;max-width:400px;">
-              <span style="font-size:0.65rem;color:var(--sp-text-dim);">0:00</span>
-              <div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.1);position:relative;">
-                <div style={`position:absolute;left:0;top:0;bottom:0;width:${exp.progress};background:${exp.accent};border-radius:2px;`}></div>
+              <div class="exp-ep-progress">
+                <span class="exp-ep-time">0:00</span>
+                <div class="exp-ep-progress-track">
+                  <div class="exp-ep-progress-fill js-exp-progress" data-progress={exp.progress}></div>
+                </div>
+                <span class="exp-ep-time">{exp.timeLeft}</span>
               </div>
-              <span style="font-size:0.65rem;color:var(--sp-text-dim);">{exp.timeLeft}</span>
+
+              <div class="exp-ep-actions">
+                <button type="button" class="exp-ep-action exp-ep-action--play" aria-label={`Play ${exp.role}`}>
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <button type="button" class="exp-ep-action" aria-label="Add to queue">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
+                </button>
+                <button type="button" class="exp-ep-action" aria-label="Share episode">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
+                </button>
+                <button type="button" class="exp-ep-action" aria-label="More">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                </button>
+              </div>
             </div>
-
           </div>
-
-        </div>
-      </div>
-    ))}
+        </article>
+      ))}
+    </div>
   </div>
-
 </section>
 
-<style>
-  @media (max-width: 600px) {
-    .episode-content {
-      flex-direction: column !important;
+<style is:global>
+  #experience.exp-section {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 48px 32px 80px;
+    background: linear-gradient(180deg, transparent 0%, rgba(18, 18, 18, 0.55) 100%);
+  }
+
+  #experience .exp-show {
+    display: flex;
+    align-items: flex-end;
+    gap: 28px;
+    margin-bottom: 28px;
+    padding: 28px;
+    min-height: 280px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(29, 185, 84, 0.12) 0%, transparent 50%), #181818;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #experience .exp-show::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 80% at 0% 100%, rgba(29, 185, 84, 0.15), transparent 60%);
+    pointer-events: none;
+  }
+
+  #experience .exp-show-collage {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 6px;
+    width: min(280px, 32vw);
+    height: min(280px, 32vw);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  #experience .exp-show-tile {
+    position: relative;
+    min-height: 0;
+    background: #0a0a0a;
+    overflow: hidden;
+  }
+
+  #experience .exp-show-tile:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+
+  #experience .exp-show-tile:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  #experience .exp-show-tile:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  #experience .exp-show-tile-glow {
+    position: absolute;
+    inset: 0;
+    opacity: 0.9;
+  }
+
+  #experience .exp-show-tile--ring .exp-show-tile-glow {
+    background: radial-gradient(circle at 50% 50%, transparent 28%, #0a0a0a 32%),
+      conic-gradient(from 200deg, #1e3a8a, #38bdf8, #1e3a8a, #60a5fa, #1e3a8a);
+  }
+
+  #experience .exp-show-tile--layers .exp-show-tile-glow {
+    background: repeating-linear-gradient(180deg, #431407 0px, #ea580c 18px, #fdba74 36px, #9a3412 54px);
+    opacity: 0.85;
+  }
+
+  #experience .exp-show-tile--spiral .exp-show-tile-glow {
+    background: conic-gradient(from 0deg, #450a0a, #f43f5e, #9f1239, #fb7185, #450a0a);
+  }
+
+  #experience .exp-show-copy {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  #experience .exp-show-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--sp-text);
+  }
+
+  #experience .exp-show-title {
+    margin: 0 0 10px;
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  #experience .exp-show-meta {
+    margin: 0 0 8px;
+    font-size: 0.875rem;
+    color: var(--sp-text);
+  }
+
+  #experience .exp-show-artist {
+    font-weight: 700;
+    color: #fff;
+  }
+
+  #experience .exp-show-sep {
+    margin: 0 6px;
+    color: var(--sp-text-dim);
+  }
+
+  #experience .exp-show-desc {
+    margin: 0 0 20px;
+    font-size: 0.875rem;
+    color: var(--sp-text);
+    line-height: 1.5;
+    max-width: 520px;
+  }
+
+  #experience .exp-show-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  #experience .exp-btn-play {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: var(--sp-green);
+    color: #121212;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(29, 185, 84, 0.35);
+  }
+
+  #experience .exp-btn-icon {
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: transparent;
+    color: var(--sp-text);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #experience .exp-btn-icon:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  #experience .exp-btn-follow {
+    margin-left: auto;
+    padding: 8px 22px;
+    border-radius: 500px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  #experience .exp-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  #experience .exp-chip {
+    padding: 8px 16px;
+    border-radius: 500px;
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  #experience .exp-chip--active {
+    background: var(--sp-green);
+    color: #121212;
+  }
+
+  #experience .exp-episodes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 0 4px;
+  }
+
+  #experience .exp-episodes-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.04em;
+  }
+
+  #experience .exp-sort-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    background: none;
+    color: var(--sp-text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-family: inherit;
+  }
+
+  #experience .exp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--sp-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  #experience .exp-episode {
+    background: var(--sp-surface);
+    padding: 20px 24px;
+    transition: background 0.2s ease;
+  }
+
+  #experience .exp-episode--now {
+    background: rgba(29, 185, 84, 0.08);
+  }
+
+  #experience .exp-episode:hover {
+    background: var(--sp-elevated);
+  }
+
+  #experience .exp-episode--now:hover {
+    background: rgba(29, 185, 84, 0.12);
+  }
+
+  #experience .exp-episode-row {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  #experience .exp-episode-index {
+    position: relative;
+    width: 28px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 28px;
+  }
+
+  #experience .exp-ep-num {
+    font-size: 0.875rem;
+    color: var(--sp-text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  #experience .exp-ep-play-hover {
+    position: absolute;
+    top: 28px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.7);
+    opacity: 0;
+    color: #fff;
+    display: flex;
+    pointer-events: none;
+  }
+
+  #experience .exp-episode:hover .exp-ep-num {
+    opacity: 0;
+  }
+
+  #experience .exp-episode:hover .exp-ep-play-hover {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+
+  #experience .exp-episode-art {
+    position: relative;
+    width: 112px;
+    height: 112px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #0a0a0a;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  #experience .exp-episode-art--ring {
+    background: radial-gradient(circle at 50% 50%, #0a0a0a 26%, transparent 30%),
+      conic-gradient(from 180deg, #1e3a8a, #60a5fa, #2563eb, #38bdf8, #1e3a8a);
+  }
+
+  #experience .exp-episode-art--layers {
+    background: repeating-linear-gradient(180deg, #431407 0%, #ea580c 22%, #fdba74 44%, #9a3412 66%, #431407 88%);
+  }
+
+  #experience .exp-episode-art--spiral {
+    background: conic-gradient(from 45deg, #450a0a, #e11d48, #881337, #fb7185, #450a0a);
+  }
+
+  #experience .exp-ep-label {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  #experience .exp-now-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--sp-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #experience .exp-eq {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+  }
+
+  #experience .exp-eq span {
+    width: 3px;
+    background: #121212;
+    border-radius: 1px;
+    animation: exp-eq-bounce 0.8s ease-in-out infinite;
+  }
+
+  #experience .exp-eq span:nth-child(1) { height: 4px; }
+  #experience .exp-eq span:nth-child(2) { height: 10px; animation-delay: 0.15s; }
+  #experience .exp-eq span:nth-child(3) { height: 6px; animation-delay: 0.3s; }
+  #experience .exp-eq span:nth-child(4) { height: 12px; animation-delay: 0.1s; }
+
+  @keyframes exp-eq-bounce {
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
+  }
+
+  #experience .exp-episode-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  #experience .exp-ep-meta-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 0.72rem;
+    color: var(--sp-text-dim);
+    font-weight: 600;
+  }
+
+  #experience .exp-ep-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  #experience .exp-ep-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+
+  #experience .exp-live-pill {
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: var(--sp-green);
+    color: #121212;
+  }
+
+  #experience .exp-ep-sub {
+    margin: 0 0 10px;
+    font-size: 0.8125rem;
+    color: var(--sp-text);
+  }
+
+  #experience .exp-ep-company {
+    font-weight: 700;
+    color: var(--exp-accent, var(--sp-green));
+  }
+
+  #experience .exp-ep-dot {
+    margin: 0 4px;
+    color: var(--sp-text-dim);
+  }
+
+  #experience .exp-ep-desc {
+    margin: 0 0 12px;
+    font-size: 0.8125rem;
+    color: var(--sp-text);
+    line-height: 1.6;
+    max-width: 720px;
+  }
+
+  #experience .exp-ep-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  #experience .exp-tag {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 500px;
+    color: var(--exp-accent, var(--sp-green));
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  #experience .exp-ep-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 400px;
+    margin-bottom: 12px;
+  }
+
+  #experience .exp-ep-time {
+    font-size: 0.6875rem;
+    color: var(--sp-text-dim);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  #experience .exp-ep-progress-track {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+  }
+
+  #experience .exp-ep-progress-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 2px;
+    background: var(--exp-accent, var(--sp-green));
+  }
+
+  #experience .exp-episode--now .exp-ep-progress-fill {
+    background: var(--sp-green);
+  }
+
+  #experience .exp-ep-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  #experience .exp-ep-action {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--sp-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+  }
+
+  #experience .exp-ep-action:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    #experience.exp-section {
+      padding: 32px 20px 64px;
     }
-    .episode-art {
-      width: 48px !important;
-      height: 48px !important;
+
+    #experience .exp-show {
+      flex-direction: column;
+      align-items: flex-start;
     }
-    .tag-list {
-      margin-left: 0 !important;
-      margin-top: 8px;
+
+    #experience .exp-show {
+      min-height: 0;
+    }
+
+    #experience .exp-show-collage {
+      width: 100%;
+      max-width: 280px;
+      height: min(280px, 72vw);
+      aspect-ratio: 1;
+    }
+
+    #experience .exp-episode-row {
+      flex-wrap: wrap;
+    }
+
+    #experience .exp-episode-index {
+      padding-top: 0;
+      width: 24px;
+    }
+
+    #experience .exp-ep-play-hover {
+      top: 0;
+    }
+
+    #experience .exp-episode-art {
+      width: 80px;
+      height: 80px;
+    }
+
+    #experience .exp-btn-follow {
+      margin-left: 0;
     }
   }
 </style>

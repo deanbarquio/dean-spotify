@@ -1,65 +1,55 @@
 ---
+import { categoryPosters } from '@/lib/skill-graphics';
+
 // DashboardSection.astro — Spotify Home Dashboard
 const madeForYou = [
   {
-    stationName: 'REACT',
-    meta: 'With NestJS, Firebase, Google Cloud and more',
-    bgColor: '#c8f5dc',
-    circles: [
-      { bg: 'linear-gradient(135deg,#61dafb,#149eca)', label: 'R' },
-      { bg: 'linear-gradient(135deg,#e0234e,#9b1c3f)', label: 'N' },
-      { bg: 'linear-gradient(135deg,#f6a800,#c47f00)', label: 'F' },
-    ],
+    title: 'React Stack',
+    sub: 'Radio · Full-stack',
+    meta: 'NestJS, Firebase, Google Cloud',
+    cover: '/constrack-web.png',
+    gradient: 'linear-gradient(145deg, #0d2818 0%, #1db954 55%, #121212 100%)',
+    accent: '#61dafb',
   },
   {
-    stationName: 'NEXT.JS',
-    meta: 'With Elasticsearch, Docker, TailwindCSS and more',
-    bgColor: '#ffd4c4',
-    circles: [
-      { bg: 'linear-gradient(135deg,#111,#333)', label: 'Nx' },
-      { bg: 'linear-gradient(135deg,#005571,#00b8db)', label: 'Es' },
-      { bg: 'linear-gradient(135deg,#2496ed,#1d6fa5)', label: 'D' },
-    ],
+    title: 'Next.js Ops',
+    sub: 'Radio · Internal tools',
+    meta: 'Elasticsearch, Docker, Tailwind',
+    cover: '/control_panel.png',
+    gradient: 'linear-gradient(145deg, #0c1929 0%, #3b82f6 50%, #121212 100%)',
+    accent: '#3B82F6',
   },
   {
-    stationName: 'ANGULAR',
-    meta: 'With Svelte, TypeScript, Verdaccio and more',
-    bgColor: '#e8d4f8',
-    circles: [
-      { bg: 'linear-gradient(135deg,#dd0031,#7d0019)', label: 'A' },
-      { bg: 'linear-gradient(135deg,#ff3e00,#c92d00)', label: 'S' },
-      { bg: 'linear-gradient(135deg,#3178c6,#1e4f8a)', label: 'Ts' },
-    ],
+    title: 'Angular UI',
+    sub: 'Radio · Component systems',
+    meta: 'Svelte, TypeScript, Verdaccio',
+    cover: '/psits_website.png',
+    gradient: 'linear-gradient(145deg, #2a0810 0%, #dd0031 48%, #121212 100%)',
+    accent: '#DD0031',
   },
   {
-    stationName: 'PRISMA',
-    meta: 'With MySQL, PostgreSQL, TanStack Query and more',
-    bgColor: '#ffe9b8',
-    circles: [
-      { bg: 'linear-gradient(135deg,#2d3748,#0d9488)', label: 'P' },
-      { bg: 'linear-gradient(135deg,#00758f,#003545)', label: 'My' },
-      { bg: 'linear-gradient(135deg,#336791,#1e3a5f)', label: 'Pg' },
-    ],
+    title: 'Data Layer',
+    sub: 'Radio · Backend',
+    meta: 'Prisma, MySQL, TanStack Query',
+    cover: '/meeting_room2.png',
+    gradient: 'linear-gradient(145deg, #0f2a22 0%, #0d9488 52%, #121212 100%)',
+    accent: '#0d9488',
   },
   {
-    stationName: 'FLUTTER',
-    meta: 'With Kotlin, MapLibre, OpenStreetMap and more',
-    bgColor: '#c8e8ff',
-    circles: [
-      { bg: 'linear-gradient(135deg,#54c5f8,#01579b)', label: 'Fl' },
-      { bg: 'linear-gradient(135deg,#7f52ff,#4527a0)', label: 'K' },
-      { bg: 'linear-gradient(135deg,#10b981,#047857)', label: 'M' },
-    ],
+    title: 'Flutter Mobile',
+    sub: 'Radio · Cross-platform',
+    meta: 'Kotlin, MapLibre, OpenStreetMap',
+    cover: '/buildIt_mobile.png',
+    gradient: 'linear-gradient(145deg, #0a1e33 0%, #54c5f8 50%, #121212 100%)',
+    accent: '#54c5f8',
   },
   {
-    stationName: 'NESTJS',
-    meta: 'By Dean Barquio · Full-stack radio',
-    bgColor: '#f5d0e8',
-    circles: [
-      { bg: 'linear-gradient(135deg,#e0234e,#9b1c3f)', label: 'N' },
-      { bg: 'linear-gradient(135deg,#1db954,#0d5c2e)', label: 'D' },
-      { bg: 'linear-gradient(135deg,#8b5cf6,#5b21b6)', label: 'B' },
-    ],
+    title: 'NestJS API',
+    sub: 'Radio · Dean Barquio',
+    meta: 'REST, WebSockets, Prisma',
+    cover: '/hikemate_3.jpeg',
+    gradient: 'linear-gradient(145deg, #2a0a14 0%, #e0234e 48%, #121212 100%)',
+    accent: '#e0234e',
   },
 ];
 
@@ -94,6 +84,65 @@ const topSkillCards = [
   },
 ];
 
+const quickLinks = [
+  {
+    title: 'About Me',
+    sub: 'Software Engineer · Cebu',
+    href: '#about',
+    accent: '#1DB954',
+    image: '/profile.png',
+    category: 'all',
+  },
+  {
+    title: 'Constrack',
+    sub: 'Full-Stack · React+NestJS',
+    href: '#projects',
+    accent: '#F6A800',
+    image: '/constrack-web.png',
+    category: 'projects',
+  },
+  {
+    title: 'Control Panel',
+    sub: 'Next.js · Elasticsearch',
+    href: '#projects',
+    accent: '#3B82F6',
+    image: '/control_panel.png',
+    category: 'projects',
+  },
+  {
+    title: 'Experiences',
+    sub: '1yr+ at N-Compass TV',
+    href: '#experience',
+    accent: '#8B5CF6',
+    category: 'podcasts',
+    poster: 'cloud' as const,
+  },
+  {
+    title: 'Skills',
+    sub: 'Angular · React · NestJS',
+    href: '#skills',
+    accent: '#F97316',
+    category: 'skills',
+    poster: 'web' as const,
+  },
+  {
+    title: 'Contact',
+    sub: 'Open to opportunities',
+    href: '#contact',
+    accent: '#10B981',
+    category: 'all',
+    poster: 'apis' as const,
+  },
+];
+
+const filterPills = [
+  { id: 'all', label: 'All' },
+  { id: 'music', label: 'Music' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'podcasts', label: 'Podcasts' },
+];
+
 const otherSkillCards = [
   {
     title: 'TailwindCSS',
@@ -116,80 +165,88 @@ const otherSkillCards = [
 
   <div style="padding:0 32px;">
 
-    <!-- ① NATIVE SPOTIFY GREETING HEADER -->
-    <h2 id="greeting-text" style="font-size:1.8rem;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:8px;padding-top:24px;">Good evening</h2>
+    <!-- ① Greeting + filter chips + Spotify-style quick links -->
+    <header class="dash-home-header">
+      <h2 id="greeting-text" class="dash-greeting">Good evening</h2>
 
-    <!-- ② QUICK ACCESS PILLS -->
-    <div style="display:flex;flex-wrap:wrap;gap:8px;padding:24px 0 8px;">
-      {['All', 'Music', 'Projects', 'Skills', 'Podcasts'].map((t, i) => (
-        <button class="pill-btn" data-active={i===0}
-          style={`padding:7px 16px;border-radius:500px;border:none;cursor:pointer;font-size:0.78rem;font-weight:700;transition:background 0.15s,color 0.15s;background:${i===0?'#fff':'rgba(255,255,255,0.1)'};color:${i===0?'#000':'#fff'};`}
-          onclick="document.querySelectorAll('.pill-btn').forEach(b=>{b.style.background='rgba(255,255,255,0.1)';b.style.color='#fff'});this.style.background='#fff';this.style.color='#000'">
-          {t}
-        </button>
-      ))}
-    </div>
+      <div class="dash-filters" role="tablist" aria-label="Filter shortcuts">
+        {filterPills.map((pill, i) => (
+          <button
+            type="button"
+            class:list={['dash-filter-pill', 'js-dash-filter', i === 0 && 'dash-filter-pill--active']}
+            data-filter={pill.id}
+            role="tab"
+            aria-selected={i === 0}
+          >
+            {pill.label}
+          </button>
+        ))}
+      </div>
 
-    <!-- ③ GOOD EVENING QUICK LINKS (2x3 grid) -->
-    <div style="margin:24px 0;">
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;" class="quick-grid">
-        {[
-          { title:'About Me', sub:'Software Engineer · Cebu', href:'#about', accent:'#1DB954' },
-          { title:'Constrack', sub:'Full-Stack · React+NestJS', href:'#projects', accent:'#F6A800' },
-          { title:'Control Panel', sub:'Next.js · Elasticsearch', href:'#projects', accent:'#3B82F6' },
-          { title:'Experience', sub:'1yr+ at N-Compass TV', href:'#experience', accent:'#8B5CF6' },
-          { title:'Skills', sub:'Angular · React · NestJS', href:'#skills', accent:'#F97316' },
-          { title:'Contact', sub:'Open to opportunities', href:'#contact', accent:'#10B981' },
-        ].map(item => (
-          <a href={item.href}
-            style="display:flex;align-items:center;gap:0;background:var(--sp-elevated);border-radius:6px;overflow:hidden;text-decoration:none;transition:background 0.15s,transform 0.1s;border:1px solid rgba(255,255,255,0.04);"
-            onmouseover="this.style.background='rgba(255,255,255,0.14)';this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.background='var(--sp-elevated)';this.style.transform='translateY(0)'">
-            <div style={`width:56px;height:56px;background:${item.accent};display:flex;align-items:center;justify-content:center;flex-shrink:0;`}>
-              <div style="width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.3);"></div>
-            </div>
-            <div style="padding:10px 14px;flex:1;min-width:0;">
-              <p style="font-size:0.8rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{item.title}</p>
-              <p style="font-size:0.65rem;color:var(--sp-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{item.sub}</p>
-            </div>
+      <div class="dash-quick quick-grid">
+        {quickLinks.map((item) => (
+          <a
+            href={item.href}
+            class="dash-quick-card js-dash-quick-card"
+            data-category={item.category}
+            style={`--quick-accent: ${item.accent};`}
+          >
+            <span class="dash-quick-art" aria-hidden="true">
+              {item.poster ? (
+                <span class="dash-quick-poster" set:html={categoryPosters[item.poster]} />
+              ) : item.image ? (
+                <>
+                  <img src={item.image} alt="" width="56" height="56" loading="lazy" decoding="async" />
+                  <span class="dash-quick-photo-wash"></span>
+                </>
+              ) : null}
+              <span class="dash-quick-art-edge"></span>
+            </span>
+            <span class="dash-quick-copy">
+              <span class="dash-quick-title">{item.title}</span>
+              <span class="dash-quick-sub">{item.sub}</span>
+            </span>
+            <span class="dash-quick-play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
+            </span>
           </a>
         ))}
       </div>
-    </div>
+    </header>
 
-    <!-- ④ MADE FOR YOU — Spotify-style recommended stations row -->
+    <!-- ④ MADE FOR YOU -->
     <section class="mfy-section" aria-label="Made For You">
       <div class="mfy-section-header">
         <h2 class="mfy-section-title">Made For You</h2>
         <a href="#projects" class="mfy-show-all">Show all</a>
       </div>
-      <div class="mfy-scroll" role="list">
+      <div class="mix-row-scroll" data-native-scroll role="list">
         {madeForYou.map((card) => (
-          <a href="#projects" class="mfy-station" role="listitem">
-            <div class="mfy-station-art" style={`background:${card.bgColor};`}>
-              <div class="mfy-station-badges">
-                <span class="mfy-spotify-mark" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="#121212" width="14" height="14"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-1.022-.336.073-.668-.142-.74-.477-.074-.335.14-.667.476-.74 3.845-.878 7.14-.505 9.81 1.13.295.18.387.564.207.862zm1.226-2.724c-.226.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.076-1.183-.412.125-.845-.107-.97-.52-.126-.412.107-.845.52-.97 3.668-1.112 8.243-.574 11.34 1.33.367.227.487.708.26 1.075zm.106-2.834C14.39 8.718 8.563 8.525 5.176 9.553c-.52.158-1.07-.14-1.227-.66-.158-.52.14-1.07.66-1.228 3.896-1.182 10.334-.96 14.385 1.447.47.28.623.89.344 1.36-.28.47-.89.622-1.36.343z"/></svg>
-                </span>
-                <span class="mfy-radio-tag">Radio</span>
-              </div>
-              <div class="mfy-avatars" aria-hidden="true">
-                <div class="mfy-avatar mfy-avatar--side" style={`background:${card.circles[0].bg};`}>
-                  <span>{card.circles[0].label}</span>
+          <a
+            href="#projects"
+            class="mix-card js-mfy-card"
+            role="listitem"
+            style={`--mix-accent: ${card.accent};`}
+          >
+            <div class="mix-card-cover">
+              {card.cover ? (
+                <img src={card.cover} alt="" loading="lazy" decoding="async" />
+              ) : (
+                <div class="mix-card-cover-fallback" style={`background:${card.gradient};`}>
+                  <span>{card.title[0]}</span>
                 </div>
-                <div class="mfy-avatar mfy-avatar--center" style={`background:${card.circles[1].bg};`}>
-                  <span>{card.circles[1].label}</span>
-                </div>
-                <div class="mfy-avatar mfy-avatar--side mfy-avatar--right" style={`background:${card.circles[2].bg};`}>
-                  <span>{card.circles[2].label}</span>
-                </div>
-              </div>
-              <p class="mfy-station-name">{card.stationName}</p>
-              <span class="mfy-station-play" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7z"/></svg>
+              )}
+              <div class="mix-card-vignette" aria-hidden="true"></div>
+              <span class="mix-card-pill">Mix</span>
+              <span class="mix-card-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M8 5v14l11-7z"/></svg>
               </span>
             </div>
-            <p class="mfy-station-meta">{card.meta}</p>
+            <div class="mix-card-body">
+              <p class="mix-card-title">{card.title}</p>
+              <p class="mix-card-sub">{card.sub}</p>
+              <p class="mix-card-tags">{card.meta}</p>
+            </div>
           </a>
         ))}
       </div>
@@ -348,14 +405,253 @@ const otherSkillCards = [
   </div><!-- /padding wrapper -->
 </section>
 
+<script>
+  function initDashQuickFilters() {
+    const filters = document.querySelectorAll<HTMLButtonElement>('.js-dash-filter');
+    const cards = document.querySelectorAll<HTMLElement>('.js-dash-quick-card');
+    if (!filters.length || !cards.length) return;
+
+    const matches = (category: string, filter: string) => {
+      if (filter === 'all') return true;
+      if (filter === 'music') return category === 'all' || category === 'skills';
+      return category === filter;
+    };
+
+    filters.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter ?? 'all';
+        filters.forEach((b) => {
+          const active = b === btn;
+          b.classList.toggle('dash-filter-pill--active', active);
+          b.setAttribute('aria-selected', String(active));
+        });
+        cards.forEach((card) => {
+          const category = card.dataset.category ?? 'all';
+          card.classList.toggle('is-filtered-out', !matches(category, filter));
+        });
+      });
+    });
+  }
+
+  initDashQuickFilters();
+  document.addEventListener('astro:page-load', initDashQuickFilters);
+</script>
+
 <style>
   @keyframes sp-pulse {
     0%,100%{opacity:1;transform:scale(1)}
     50%{opacity:.5;transform:scale(1.4)}
   }
-  /* ── Made For You — Spotify recommended stations row ── */
+
+  /* ── Home greeting + Spotify shortcut grid (3×2) ── */
+  .dash-home-header {
+    margin-bottom: 32px;
+  }
+
+  .dash-greeting {
+    font-size: clamp(1.5rem, 4vw, 1.8rem);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+    padding-top: 24px;
+  }
+
+  .dash-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 20px 0 12px;
+  }
+
+  .dash-filter-pill {
+    padding: 7px 16px;
+    border-radius: 500px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-family: inherit;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+
+  .dash-filter-pill:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: scale(1.02);
+  }
+
+  .dash-filter-pill--active {
+    background: #fff;
+    color: #000;
+  }
+
+  .dash-filter-pill--active:hover {
+    background: #fff;
+    transform: none;
+  }
+
+  .dash-quick,
+  .quick-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .dash-quick-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    height: 56px;
+    padding-right: 8px;
+    background: var(--sp-elevated, rgba(255, 255, 255, 0.06));
+    border-radius: 4px;
+    overflow: hidden;
+    text-decoration: none;
+    isolation: isolate;
+    transition: background 0.2s ease;
+  }
+
+  .dash-quick-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    pointer-events: none;
+  }
+
+  .dash-quick-card:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .dash-quick-card.is-filtered-out {
+    display: none;
+  }
+
+  .dash-quick-art {
+    position: relative;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    overflow: hidden;
+    background: #0a0a0a;
+    box-shadow:
+      4px 0 16px rgba(0, 0, 0, 0.45),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+
+  .dash-quick-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.25s ease;
+  }
+
+  .dash-quick-card:hover .dash-quick-art img {
+    transform: scale(1.06);
+  }
+
+  .dash-quick-photo-wash {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--quick-accent) 55%, transparent) 0%,
+      transparent 55%
+    );
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+  }
+
+  .dash-quick-poster {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  .dash-quick-poster :global(svg) {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .dash-quick-poster :global(text) {
+    display: none;
+  }
+
+  .dash-quick-art-edge {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 55%, rgba(0, 0, 0, 0.2) 100%);
+    pointer-events: none;
+  }
+
+  .dash-quick-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+  }
+
+  .dash-quick-title {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.25;
+  }
+
+  .dash-quick-sub {
+    font-size: 0.6875rem;
+    color: var(--sp-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.25;
+  }
+
+  .dash-quick-card:hover .dash-quick-sub {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .dash-quick-play {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: var(--sp-green, #1db954);
+    color: #121212;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateX(8px) scale(0.9);
+    box-shadow: 0 8px 24px rgba(29, 185, 84, 0.45);
+    transition:
+      opacity 0.2s ease,
+      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  .dash-quick-card:hover .dash-quick-play {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+
+  /* ── Made For You row (mix-card styles in mix-cards.css) ── */
   .mfy-section {
-    margin-bottom: 40px;
+    margin-bottom: 44px;
   }
 
   .mfy-section-header {
@@ -386,180 +682,6 @@ const otherSkillCards = [
     color: #fff;
     text-decoration: underline;
     text-underline-offset: 3px;
-  }
-
-  .mfy-scroll {
-    display: flex;
-    gap: 16px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 8px;
-    margin: 0 -4px;
-    padding-left: 4px;
-    padding-right: 4px;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .mfy-scroll::-webkit-scrollbar {
-    display: none;
-  }
-
-  .mfy-station {
-    flex: 0 0 168px;
-    width: 168px;
-    text-decoration: none;
-    color: inherit;
-    scroll-snap-align: start;
-    cursor: pointer;
-    will-change: transform, opacity;
-  }
-
-  .mfy-station-art {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease;
-  }
-  .mfy-station:hover .mfy-station-art {
-    transform: none;
-  }
-
-  .mfy-station-badges {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    z-index: 2;
-    pointer-events: none;
-  }
-
-  .mfy-spotify-mark {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.85;
-  }
-
-  .mfy-radio-tag {
-    font-size: 0.5625rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    color: rgba(0, 0, 0, 0.55);
-    text-transform: uppercase;
-  }
-
-  .mfy-avatars {
-    position: absolute;
-    left: 50%;
-    top: 42%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
-    pointer-events: none;
-  }
-
-  .mfy-avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.35);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
-    color: #fff;
-    font-size: 0.65rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  }
-
-  .mfy-avatar--side {
-    width: 52px;
-    height: 52px;
-    margin-right: -14px;
-    z-index: 1;
-    transform: translateY(6px);
-  }
-
-  .mfy-avatar--right {
-    margin-right: 0;
-    margin-left: -14px;
-  }
-
-  .mfy-avatar--center {
-    width: 68px;
-    height: 68px;
-    z-index: 3;
-    font-size: 0.75rem;
-    border-width: 4px;
-  }
-
-  .mfy-station-name {
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    margin: 0;
-    font-size: 1.125rem;
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: -0.03em;
-    color: #121212;
-    text-transform: uppercase;
-    z-index: 2;
-    pointer-events: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .mfy-station-play {
-    position: absolute;
-    right: 8px;
-    bottom: 8px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--sp-green);
-    color: #121212;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transform: translateY(6px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-    transition:
-      opacity 0.2s ease,
-      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
-    z-index: 4;
-  }
-  .mfy-station:hover .mfy-station-play {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .mfy-station-meta {
-    margin: 8px 0 0;
-    font-size: 0.8125rem;
-    font-weight: 400;
-    color: var(--sp-text);
-    line-height: 1.35;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    min-height: 2.7em;
-  }
-  .mfy-station:hover .mfy-station-meta {
-    color: #fff;
   }
 
   /* ── Split row: skills + Now Playing ── */
@@ -1116,11 +1238,21 @@ const otherSkillCards = [
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .dash-quick-card,
+    .dash-filter-pill,
+    .dash-quick-play,
+    .dash-quick-art img { transition: none; }
+    .dash-quick-card:hover .dash-quick-play {
+      opacity: 1;
+      transform: none;
+    }
     .mono-card,
     .np-hero,
     .np-stack-art,
-    .mfy-station,
+    .js-mfy-card,
+    .mix-card,
     .np-track-row { transition: none; animation: none; }
+    .mix-card-play { opacity: 1; transform: none; }
     .mono-card:hover,
     .np-hero:hover { transform: none; }
     .np-track-play-hover { display: none; }
@@ -1128,8 +1260,10 @@ const otherSkillCards = [
   }
 
   @media (max-width: 900px) {
-    .quick-grid { grid-template-columns: repeat(2, 1fr) !important; }
-    .mfy-station { flex: 0 0 152px; width: 152px; }
+    .dash-quick,
+    .quick-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
     .dash-split { grid-template-columns: 1fr !important; }
     .about-grid { grid-template-columns: 1fr !important; }
     .np-hero { min-height: 220px; }
@@ -1138,8 +1272,10 @@ const otherSkillCards = [
   }
 
   @media (max-width: 600px) {
-    .quick-grid { grid-template-columns: repeat(2, 1fr) !important; }
-    .mfy-station { flex: 0 0 140px; width: 140px; }
+    .dash-quick,
+    .quick-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
     .mfy-section-title { font-size: 1.25rem; }
     .np-stack-art { width: min(72%, 280px); right: -12px; }
     .np-hero-title { font-size: 1.15rem; }

@@ -1,5 +1,7 @@
 /** Scroll a section into view inside #main-scroll (not the window). */
 
+import { getMainScroller, getMainScrollMetrics, scrollMainTo } from './smooth-scroll';
+
 const SCROLL_OFFSET = 56;
 
 export function scrollToSection(
@@ -8,16 +10,20 @@ export function scrollToSection(
 ): boolean {
   const id = selector.startsWith('#') ? selector : `#${selector}`;
   const target = document.querySelector(id) as HTMLElement | null;
-  const scroller = document.getElementById('main-scroll');
+  const scroller = getMainScroller();
   if (!target || !scroller) return false;
 
+  const { scrollTop } = getMainScrollMetrics();
   const top =
     target.getBoundingClientRect().top -
     scroller.getBoundingClientRect().top +
-    scroller.scrollTop -
+    scrollTop -
     SCROLL_OFFSET;
 
-  scroller.scrollTo({ top: Math.max(0, top), behavior });
+  scrollMainTo(Math.max(0, top), {
+    immediate: behavior === 'auto',
+    duration: behavior === 'smooth' ? 1.15 : undefined,
+  });
   return true;
 }
 

@@ -1,37 +1,147 @@
-/** Inline SVG graphics for Skills section — category & track icons */
+/** Skill playlist poster art + track icons */
 
-export type SkillGraphic = {
-  icon: string;
-  decor: string;
-  mesh: string;
-};
+export const categoryPosters: Record<string, string> = {
+  web: `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+    <rect width="400" height="400" fill="#0a0a0a"/>
+    <defs>
+      <linearGradient id="poster-web-a" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#1e3a8a"/>
+        <stop offset="55%" stop-color="#2563eb"/>
+        <stop offset="100%" stop-color="#7dd3fc"/>
+      </linearGradient>
+      <linearGradient id="poster-web-b" x1="100%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#172554"/>
+        <stop offset="100%" stop-color="#38bdf8"/>
+      </linearGradient>
+      <filter id="poster-web-glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="8" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <g class="js-poster-shapes" filter="url(#poster-web-glow)">
+      <ellipse class="js-poster-shape" cx="200" cy="200" rx="128" ry="46" fill="url(#poster-web-a)" opacity="0.95" transform="rotate(-32 200 200)"/>
+      <ellipse class="js-poster-shape" cx="200" cy="200" rx="128" ry="46" fill="url(#poster-web-b)" opacity="0.9" transform="rotate(28 200 200)"/>
+      <ellipse class="js-poster-shape" cx="200" cy="200" rx="128" ry="46" fill="url(#poster-web-a)" opacity="0.88" transform="rotate(88 200 200)"/>
+    </g>
+    <g class="js-poster-core">
+      <circle cx="200" cy="200" r="52" fill="#0a0a0a" opacity="0.9"/>
+      <text x="200" y="188" text-anchor="middle" fill="rgba(255,255,255,0.45)" font-size="11" font-weight="500" letter-spacing="0.35em" font-family="system-ui,sans-serif">STACK</text>
+      <text x="200" y="228" text-anchor="middle" fill="#fff" font-size="28" font-weight="800" letter-spacing="0.12em" font-family="system-ui,sans-serif">WEB</text>
+    </g>
+  </svg>`,
 
-export const categoryGraphics: Record<string, SkillGraphic> = {
-  web: {
-    icon: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 18h40v28H12V18z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M22 28l8 8 12-16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="48" cy="22" r="4" fill="currentColor" opacity="0.5"/></svg>`,
-    decor: `<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 60 Q60 10 110 60 Q60 110 10 60" stroke="currentColor" stroke-width="1.5" opacity="0.25"/><path d="M30 60h60M60 30v60" stroke="currentColor" stroke-width="1" opacity="0.15"/></svg>`,
-    mesh: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><pattern id="sk-mesh-web" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.12"/></pattern></defs><rect width="200" height="200" fill="url(#sk-mesh-web)"/></svg>`,
-  },
-  mobile: {
-    icon: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="20" y="8" width="24" height="48" rx="4" stroke="currentColor" stroke-width="2.5"/><circle cx="32" cy="48" r="3" fill="currentColor"/><rect x="26" y="14" width="12" height="22" rx="1" fill="currentColor" opacity="0.35"/></svg>`,
-    decor: `<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="35" y="20" width="50" height="80" rx="8" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><path d="M20 40h15M85 40h15" stroke="currentColor" stroke-width="1" opacity="0.15"/></svg>`,
-    mesh: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="100" cy="100" r="70" stroke="currentColor" stroke-width="0.5" fill="none" opacity="0.1"/><circle cx="100" cy="100" r="45" stroke="currentColor" stroke-width="0.5" fill="none" opacity="0.08"/><circle cx="100" cy="100" r="20" stroke="currentColor" stroke-width="0.5" fill="none" opacity="0.06"/></svg>`,
-  },
-  databases: {
-    icon: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="32" cy="18" rx="18" ry="7" stroke="currentColor" stroke-width="2.5"/><path d="M14 18v28c0 4 8 7 18 7s18-3 18-7V18" stroke="currentColor" stroke-width="2.5"/><ellipse cx="32" cy="32" rx="18" ry="7" stroke="currentColor" stroke-width="2" opacity="0.5"/><ellipse cx="32" cy="46" rx="18" ry="7" stroke="currentColor" stroke-width="2" opacity="0.35"/></svg>`,
-    decor: `<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="60" cy="35" rx="35" ry="12" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><ellipse cx="60" cy="60" rx="35" ry="12" stroke="currentColor" stroke-width="1" opacity="0.15"/><ellipse cx="60" cy="85" rx="35" ry="12" stroke="currentColor" stroke-width="1" opacity="0.1"/></svg>`,
-    mesh: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M0 100h200M100 0v200" stroke="currentColor" stroke-width="0.5" opacity="0.08"/><path d="M0 50h200M0 150h200" stroke="currentColor" stroke-width="0.5" opacity="0.05"/></svg>`,
-  },
-  cloud: {
-    icon: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18 44h32a10 10 0 000-20 14 14 0 00-27-4 12 12 0 00-5 24z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M28 38l4 4 8-10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-    decor: `<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M25 70h70a15 15 0 000-30 20 20 0 00-38-6 16 16 0 00-32 36z" stroke="currentColor" stroke-width="1.5" opacity="0.18"/></svg>`,
-    mesh: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="100,20 180,60 180,140 100,180 20,140 20,60" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.1"/></svg>`,
-  },
-  apis: {
-    icon: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="16" cy="32" r="6" stroke="currentColor" stroke-width="2.5"/><circle cx="48" cy="16" r="6" stroke="currentColor" stroke-width="2.5"/><circle cx="48" cy="48" r="6" stroke="currentColor" stroke-width="2.5"/><path d="M22 30l20-12M22 34l20 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>`,
-    decor: `<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="30" cy="60" r="8" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><circle cx="90" cy="30" r="8" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><circle cx="90" cy="90" r="8" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><path d="M38 56L82 36M38 64L82 84" stroke="currentColor" stroke-width="1" opacity="0.12"/></svg>`,
-    mesh: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 20l160 160M180 20L20 180" stroke="currentColor" stroke-width="0.5" opacity="0.08"/></svg>`,
-  },
+  mobile: `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect width="400" height="400" fill="#0a0a0a"/>
+    <defs>
+      <linearGradient id="poster-mob-a" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%" stop-color="#052e16"/>
+        <stop offset="40%" stop-color="#15803d"/>
+        <stop offset="100%" stop-color="#4ade80"/>
+      </linearGradient>
+      <linearGradient id="poster-mob-b" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#14532d"/>
+        <stop offset="100%" stop-color="#86efac"/>
+      </linearGradient>
+    </defs>
+    <g class="js-poster-shapes">
+      <polygon class="js-poster-shape" points="200,48 320,168 80,168" fill="url(#poster-mob-a)" opacity="0.85"/>
+      <polygon class="js-poster-shape" points="200,108 300,208 100,208" fill="url(#poster-mob-b)" opacity="0.9"/>
+      <polygon class="js-poster-shape" points="200,168 280,248 120,248" fill="url(#poster-mob-a)" opacity="0.95"/>
+      <polygon class="js-poster-shape" points="200,228 260,288 140,288" fill="url(#poster-mob-b)" opacity="1"/>
+      <polygon class="js-poster-shape" points="200,278 240,318 160,318" fill="url(#poster-mob-a)" opacity="0.7"/>
+    </g>
+    <text x="48" y="360" fill="#fff" font-size="26" font-weight="800" letter-spacing="0.06em" font-family="system-ui,sans-serif">MOBILE</text>
+    <text x="48" y="382" fill="rgba(255,255,255,0.4)" font-size="10" font-weight="500" letter-spacing="0.2em" font-family="system-ui,sans-serif">GRADIENT DESIGN</text>
+    <text x="360" y="56" fill="rgba(255,255,255,0.25)" font-size="9" font-weight="600" letter-spacing="0.25em" font-family="system-ui,sans-serif" transform="rotate(90 360 56)">FLOW</text>
+  </svg>`,
+
+  databases: `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect width="400" height="400" fill="#0a0a0a"/>
+    <defs>
+      <linearGradient id="poster-db-a" x1="0%" y1="50%" x2="100%" y2="50%">
+        <stop offset="0%" stop-color="#431407"/>
+        <stop offset="50%" stop-color="#ea580c"/>
+        <stop offset="100%" stop-color="#fdba74"/>
+      </linearGradient>
+      <linearGradient id="poster-db-b" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#7c2d12"/>
+        <stop offset="100%" stop-color="#fb923c"/>
+      </linearGradient>
+    </defs>
+    <g class="js-poster-shapes">
+      <ellipse class="js-poster-shape" cx="200" cy="118" rx="140" ry="36" fill="url(#poster-db-a)" opacity="0.75"/>
+      <ellipse class="js-poster-shape" cx="200" cy="168" rx="152" ry="40" fill="url(#poster-db-b)" opacity="0.88"/>
+      <ellipse class="js-poster-shape" cx="200" cy="220" rx="164" ry="44" fill="url(#poster-db-a)" opacity="0.95"/>
+      <ellipse class="js-poster-shape" cx="200" cy="276" rx="176" ry="48" fill="url(#poster-db-b)" opacity="1"/>
+      <ellipse class="js-poster-shape" cx="200" cy="332" rx="148" ry="38" fill="url(#poster-db-a)" opacity="0.65"/>
+    </g>
+    <text x="40" y="368" fill="#fff" font-size="24" font-weight="800" letter-spacing="0.08em" font-family="system-ui,sans-serif">DATA</text>
+    <text x="40" y="388" fill="rgba(255,255,255,0.38)" font-size="10" font-weight="500" letter-spacing="0.18em" font-family="system-ui,sans-serif">LAYERS · STORE</text>
+  </svg>`,
+
+  cloud: `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+    <rect width="400" height="400" fill="#0a0a0a"/>
+    <defs>
+      <linearGradient id="poster-cl-a" x1="50%" y1="50%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#1a0510"/>
+        <stop offset="50%" stop-color="#9f1239"/>
+        <stop offset="100%" stop-color="#fb7185"/>
+      </linearGradient>
+      <linearGradient id="poster-cl-b" x1="0%" y1="50%" x2="100%" y2="50%">
+        <stop offset="0%" stop-color="#450a0a"/>
+        <stop offset="100%" stop-color="#f43f5e"/>
+      </linearGradient>
+      <radialGradient id="poster-cl-void" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#0a0a0a"/>
+        <stop offset="70%" stop-color="#0a0a0a"/>
+        <stop offset="100%" stop-color="#1a0510"/>
+      </radialGradient>
+      <filter id="poster-cl-glow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="6" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <g class="js-poster-shapes" filter="url(#poster-cl-glow)" transform="translate(200 200)">
+      <g class="js-poster-shape" opacity="0.94"><path d="M0 0 L0 -148 A148 148 0 0 1 128.19 -74 Z" fill="url(#poster-cl-a)"/></g>
+      <g class="js-poster-shape" opacity="0.9" transform="rotate(60)"><path d="M0 0 L0 -148 A148 148 0 0 1 128.19 -74 Z" fill="url(#poster-cl-b)"/></g>
+      <g class="js-poster-shape" opacity="0.94" transform="rotate(120)"><path d="M0 0 L0 -148 A148 148 0 0 1 128.19 -74 Z" fill="url(#poster-cl-a)"/></g>
+      <g class="js-poster-shape" opacity="0.88" transform="rotate(180)"><path d="M0 0 L0 -148 A148 148 0 0 1 128.19 -74 Z" fill="url(#poster-cl-b)"/></g>
+      <g class="js-poster-shape" opacity="0.92" transform="rotate(240)"><path d="M0 0 L0 -148 A148 148 0 0 1 128.19 -74 Z" fill="url(#poster-cl-a)"/></g>
+      <g class="js-poster-shape" opacity="0.9" transform="rotate(300)"><path d="M0 0 L0 -148 A148 148 0 0 1 128.19 -74 Z" fill="url(#poster-cl-b)"/></g>
+    </g>
+    <g class="js-poster-core">
+      <circle cx="200" cy="200" r="58" fill="url(#poster-cl-void)"/>
+      <circle cx="200" cy="200" r="58" fill="none" stroke="rgba(244,63,94,0.35)" stroke-width="1"/>
+      <text x="200" y="192" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="10" font-weight="600" letter-spacing="0.24em" font-family="system-ui,sans-serif">INFRA</text>
+      <text x="200" y="222" text-anchor="middle" fill="#fff" font-size="24" font-weight="800" letter-spacing="0.12em" font-family="system-ui,sans-serif">CLOUD</text>
+    </g>
+  </svg>`,
+
+  apis: `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect width="400" height="400" fill="#0a0a0a"/>
+    <defs>
+      <linearGradient id="poster-api-a" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#134e4a"/>
+        <stop offset="50%" stop-color="#0d9488"/>
+        <stop offset="100%" stop-color="#5eead4"/>
+      </linearGradient>
+      <linearGradient id="poster-api-b" x1="100%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#042f2e"/>
+        <stop offset="100%" stop-color="#2dd4bf"/>
+      </linearGradient>
+    </defs>
+    <g class="js-poster-shapes">
+      <circle class="js-poster-shape" cx="120" cy="200" r="36" fill="url(#poster-api-a)" opacity="0.9"/>
+      <circle class="js-poster-shape" cx="280" cy="120" r="32" fill="url(#poster-api-b)" opacity="0.85"/>
+      <circle class="js-poster-shape" cx="280" cy="280" r="40" fill="url(#poster-api-a)" opacity="0.95"/>
+      <path class="js-poster-shape" d="M152 188 L248 132" stroke="url(#poster-api-b)" stroke-width="14" stroke-linecap="round" opacity="0.7"/>
+      <path class="js-poster-shape" d="M152 212 L248 268" stroke="url(#poster-api-a)" stroke-width="14" stroke-linecap="round" opacity="0.75"/>
+      <path class="js-poster-shape" d="M248 152 L248 248" stroke="url(#poster-api-b)" stroke-width="10" stroke-linecap="round" opacity="0.5" stroke-dasharray="4 12"/>
+      <ellipse class="js-poster-shape" cx="200" cy="200" rx="90" ry="90" fill="none" stroke="url(#poster-api-a)" stroke-width="2" opacity="0.25"/>
+    </g>
+    <text x="200" y="368" text-anchor="middle" fill="#fff" font-size="24" font-weight="800" letter-spacing="0.1em" font-family="system-ui,sans-serif">APIs</text>
+    <text x="200" y="388" text-anchor="middle" fill="rgba(255,255,255,0.38)" font-size="10" font-weight="500" letter-spacing="0.2em" font-family="system-ui,sans-serif">CONNECT · STREAM</text>
+  </svg>`,
 };
 
 export const trackIcons: Record<string, string> = {

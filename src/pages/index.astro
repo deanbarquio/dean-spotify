@@ -17,16 +17,17 @@ import ContactSection from '../components/ContactSection.astro';
     <Sidebar />
 
     <main class="main-content" id="main-scroll">
+      <div id="main-scroll-content" class="main-scroll-content">
 
       <!-- Spotify-style sticky top bar -->
       <div style="position:sticky;top:0;z-index:20;height:56px;background:linear-gradient(180deg,rgba(18,18,18,0.95) 80%,transparent);display:flex;align-items:center;justify-content:space-between;padding:0 24px;backdrop-filter:blur(8px);">
         <div style="display:flex;gap:8px;">
-          <button onclick="document.getElementById('main-scroll').scrollTop -= 500"
+          <button type="button" class="js-scroll-back"
             style="width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.7);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background 0.15s;"
             onmouseover="this.style.background='rgba(0,0,0,0.9)'" onmouseout="this.style.background='rgba(0,0,0,0.7)'">
             <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
           </button>
-          <button onclick="document.getElementById('main-scroll').scrollTop += 500"
+          <button type="button" class="js-scroll-forward"
             style="width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.7);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background 0.15s;"
             onmouseover="this.style.background='rgba(0,0,0,0.9)'" onmouseout="this.style.background='rgba(0,0,0,0.7)'">
             <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
@@ -76,6 +77,7 @@ import ContactSection from '../components/ContactSection.astro';
           Astro · TailwindCSS · GSAP · Three.js
         </p>
       </footer>
+      </div>
     </main>
 
     <PlayerBar />
@@ -84,8 +86,24 @@ import ContactSection from '../components/ContactSection.astro';
 
 <script>
   import { initGsapApp } from '../lib/gsap-app';
+  import { initSmoothScroll, scrollMainBy } from '../lib/smooth-scroll';
 
-  initGsapApp();
+  let teardownSmooth = initSmoothScroll();
+  let teardownGsap = initGsapApp();
+
+  document.querySelector('.js-scroll-back')?.addEventListener('click', () => {
+    scrollMainBy(-500);
+  });
+  document.querySelector('.js-scroll-forward')?.addEventListener('click', () => {
+    scrollMainBy(500);
+  });
+
+  document.addEventListener('astro:page-load', () => {
+    teardownGsap();
+    teardownSmooth();
+    teardownSmooth = initSmoothScroll();
+    teardownGsap = initGsapApp();
+  });
 
   const h = new Date().getHours();
   const greet = h < 12 ? 'Good morning 👋' : h < 17 ? 'Good afternoon 👋' : 'Good evening 👋';
