@@ -234,6 +234,15 @@ const projects = [
     ]
   },
 ];
+
+function featuredLine(tags: string[]) {
+  if (!tags.length) return '';
+  if (tags.length <= 3) return tags.join(', ');
+  return `${tags.slice(0, 3).join(', ')} and more`;
+}
+
+const albumRowPrimary = projects.slice(0, 4);
+const albumRowSecondary = projects.slice(4, 8);
 ---
 
 <section id="projects" style="padding:48px 32px 80px;">
@@ -252,40 +261,87 @@ const projects = [
     >Show all on GitHub →</a>
   </div>
 
-  <!-- Album grid -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:18px;margin-bottom:64px;" class="album-grid">
-    {projects.map((p) => (
-      <div
-        class="album-card"
-        data-id={p.id}
-        style="cursor:pointer;position:relative;background:#181818;padding:15px;border-radius:8px;transition:background 0.25s, transform 0.2s;"
-        onmouseover="this.style.background='#282828';this.querySelector('.album-play-btn').style.opacity='1';this.querySelector('.album-play-btn').style.transform='translateY(0)';"
-        onmouseout="this.style.background='#181818';this.querySelector('.album-play-btn').style.opacity='0';this.querySelector('.album-play-btn').style.transform='translateY(8px)';"
-        onclick={`openAlbum('${p.id}')`}
-      >
-        <!-- Album cover wrapper -->
-        <div style="width:100%;aspect-ratio:1/1;border-radius:6px;position:relative;overflow:hidden;margin-bottom:12px;box-shadow:0 8px 20px rgba(0,0,0,0.4);" class="album-art-wrap">
-          {p.image ? (
-            <img src={p.image} alt={p.title} style="width:100%;height:100%;object-fit:cover;border-radius:6px;" />
-          ) : (
-            <!-- Fallback: gradient with accent -->
-            <div style="width:100%;height:100%;background:linear-gradient(135deg, {p.gradient.split(',')[0].replace('linear-gradient(135deg,','')}, {p.gradient.split(',').pop()?.replace(')','') || '#000'});display:flex;align-items:center;justify-content:center;border-radius:6px;">
-              <span style="font-size:3rem;font-weight:900;color:rgba(255,255,255,0.1);letter-spacing:2px;">{p.title[0]}</span>
-            </div>
-          )}
-
-          <!-- Play button overlay: transitions precisely on hover -->
-          <div class="album-play-btn" style="position:absolute;bottom:8px;right:8px;width:40px;height:40px;background:var(--sp-green);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(8px);transition:opacity 0.2s,transform 0.2s;box-shadow:0 8px 16px rgba(0,0,0,0.5);z-index:4;">
-            <svg viewBox="0 0 24 24" fill="black" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
-          </div>
-        </div>
-
-        <!-- Info block matching Spotify album view -->
-        <p style="font-size:0.82rem;font-weight:700;color:#fff;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{p.title}</p>
-        <p style="font-size:0.7rem;color:var(--sp-text);line-height:1.4;">{p.type}</p>
-        <p style="font-size:0.65rem;color:var(--sp-text-dim);margin-top:2px;">{p.year} · Album</p>
+  <!-- Album rows — Spotify "Made for you" mix cards -->
+  <div class="album-showcase">
+    <section class="album-row" aria-label="Made for you mixes">
+      <div class="album-row-header">
+        <h3 class="album-row-title">Made for you</h3>
+        <a href="https://github.com/deanbarquio" target="_blank" rel="noopener" class="album-row-link">Show all</a>
       </div>
-    ))}
+      <div class="album-row-grid">
+        {albumRowPrimary.map((p) => (
+          <button type="button" class="album-mix-card js-album-mix" data-id={p.id} onclick={`openAlbum('${p.id}')`}>
+            <div class="album-mix-bg">
+              {p.image ? (
+                <img src={p.image} alt="" loading="lazy" decoding="async" />
+              ) : (
+                <div class="album-mix-bg-fallback" style={`background:${p.gradient};`}>
+                  <span>{p.title[0]}</span>
+                </div>
+              )}
+              <div class="album-mix-overlay" aria-hidden="true"></div>
+            </div>
+            <div class="album-mix-head">
+              <div class="album-mix-thumb">
+                {p.image ? (
+                  <img src={p.image} alt="" loading="lazy" />
+                ) : (
+                  <div class="album-mix-thumb-fallback" style={`background:${p.accent};`}>{p.title[0]}</div>
+                )}
+              </div>
+              <div class="album-mix-head-text">
+                <p class="album-mix-name">{p.title} Mix</p>
+                <p class="album-mix-type">Playlist · Dean Barquio</p>
+              </div>
+            </div>
+            <p class="album-mix-featured">{featuredLine(p.tags)}</p>
+            <span class="album-mix-play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+          </button>
+        ))}
+      </div>
+    </section>
+
+    <section class="album-row" aria-label="More projects">
+      <div class="album-row-header">
+        <h3 class="album-row-title">More like your stack</h3>
+        <button type="button" class="album-row-link album-row-link--btn" onclick="document.getElementById('projects')?.scrollIntoView({behavior:'smooth'})">Show all</button>
+      </div>
+      <div class="album-row-grid">
+        {albumRowSecondary.map((p) => (
+          <button type="button" class="album-mix-card js-album-mix" data-id={p.id} onclick={`openAlbum('${p.id}')`}>
+            <div class="album-mix-bg">
+              {p.image ? (
+                <img src={p.image} alt="" loading="lazy" decoding="async" />
+              ) : (
+                <div class="album-mix-bg-fallback" style={`background:${p.gradient};`}>
+                  <span>{p.title[0]}</span>
+                </div>
+              )}
+              <div class="album-mix-overlay" aria-hidden="true"></div>
+            </div>
+            <div class="album-mix-head">
+              <div class="album-mix-thumb">
+                {p.image ? (
+                  <img src={p.image} alt="" loading="lazy" />
+                ) : (
+                  <div class="album-mix-thumb-fallback" style={`background:${p.accent};`}>{p.title[0]}</div>
+                )}
+              </div>
+              <div class="album-mix-head-text">
+                <p class="album-mix-name">{p.title} Mix</p>
+                <p class="album-mix-type">Playlist · Dean Barquio</p>
+              </div>
+            </div>
+            <p class="album-mix-featured">{featuredLine(p.tags)}</p>
+            <span class="album-mix-play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+          </button>
+        ))}
+      </div>
+    </section>
   </div>
 
   <!-- Album Detail Page View (Full Page Replacement) -->
@@ -476,14 +532,243 @@ const projects = [
     display: none !important;
   }
 
-  .album-card:hover .album-play-btn {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
+  /* Spotify-style album mix rows */
+  .album-showcase {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    margin-bottom: 64px;
   }
-  .album-card:hover .album-art {
-    box-shadow: 0 16px 40px rgba(0,0,0,0.6) !important;
+
+  .album-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 0 4px;
   }
-  
+
+  .album-row-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+  }
+
+  .album-row-link {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--sp-text);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+    transition: color 0.15s;
+  }
+  .album-row-link:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .album-row-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    width: 100%;
+  }
+
+  .album-mix-card {
+    position: relative;
+    width: 100%;
+    min-height: 340px;
+    aspect-ratio: 5 / 7;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    text-align: left;
+    background: #282828;
+    will-change: transform, opacity;
+  }
+
+  .album-mix-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .album-mix-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .album-mix-bg-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.12);
+  }
+
+  .album-mix-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.65) 0%,
+      rgba(0, 0, 0, 0.2) 38%,
+      rgba(0, 0, 0, 0.15) 55%,
+      rgba(0, 0, 0, 0.75) 100%
+    );
+    pointer-events: none;
+  }
+
+  .album-mix-head {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    right: 18px;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    pointer-events: none;
+  }
+
+  .album-mix-thumb {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+  }
+
+  .album-mix-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .album-mix-thumb-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 800;
+    color: rgba(0, 0, 0, 0.55);
+  }
+
+  .album-mix-head-text {
+    min-width: 0;
+    flex: 1;
+    padding-top: 2px;
+  }
+
+  .album-mix-name {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .album-mix-type {
+    margin: 3px 0 0;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .album-mix-featured {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    margin: 0;
+    z-index: 2;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.92);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .album-mix-play {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 3;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--sp-green);
+    color: #121212;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    will-change: transform, opacity;
+    pointer-events: none;
+  }
+
+  @media (max-width: 1100px) {
+    .album-row-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .album-mix-card {
+      min-height: 300px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .album-row-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .album-mix-card {
+      min-height: 280px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .album-row-grid {
+      grid-template-columns: 1fr;
+    }
+    .album-mix-card {
+      min-height: 320px;
+      max-width: 100%;
+    }
+  }
 
   /* Album lyrics — identical rules to EducationSection, scoped to album card */
   #modal-lyrics-card .lyrics-container::-webkit-scrollbar {

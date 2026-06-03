@@ -1,128 +1,935 @@
 ---
-// SkillsSection.astro — Spotify playlist style skills
+import { categoryGraphics, getTrackIcon } from '../lib/skill-graphics';
+
 const skillGroups = [
   {
+    id: 'web',
     category: 'Web',
-    icon: '🌐',
     items: ['Angular', 'React', 'Next.js', 'Svelte', 'Node.js', 'NestJS', 'HTML', 'CSS', 'TailwindCSS', 'Auth0'],
     accent: '#3B82F6',
+    mono: 'WB',
   },
   {
+    id: 'mobile',
     category: 'Mobile',
-    icon: '📱',
     items: ['Flutter', 'Kotlin'],
     accent: '#06B6D4',
+    mono: 'MB',
   },
   {
+    id: 'databases',
     category: 'Databases',
-    icon: '🗄️',
     items: ['MySQL', 'MongoDB', 'Prisma', 'Firebase', 'Elasticsearch', 'OpenSearch'],
     accent: '#F97316',
+    mono: 'DB',
   },
   {
+    id: 'cloud',
     category: 'Cloud & DevOps',
-    icon: '☁️',
     items: ['GCP', 'Docker', 'Terraform', 'CI/CD'],
     accent: '#8B5CF6',
+    mono: 'CL',
   },
   {
+    id: 'apis',
     category: 'APIs & Data',
-    icon: '⚡',
     items: ['REST APIs', 'WebSockets', 'TanStack Query'],
     accent: '#1DB954',
+    mono: 'API',
   },
 ];
 
-// Proficiency bars for key skills
-const proficiency = [
-  { skill: 'Angular', pct: 90, accent: '#DD0031' },
-  { skill: 'React / Next.js', pct: 85, accent: '#61DAFB' },
-  { skill: 'NestJS', pct: 82, accent: '#E0234E' },
-  { skill: 'TailwindCSS', pct: 95, accent: '#38BDF8' },
-  { skill: 'TypeScript', pct: 88, accent: '#3178C6' },
-  { skill: 'Flutter', pct: 72, accent: '#54C5F8' },
-  { skill: 'Docker', pct: 70, accent: '#2496ED' },
-  { skill: 'Prisma / MySQL', pct: 80, accent: '#2D3748' },
+const topSkills = [
+  { skill: 'Angular', category: 'Web · Frontend', pct: 90, accent: '#DD0031' },
+  { skill: 'React / Next.js', category: 'Web · UI', pct: 85, accent: '#61DAFB' },
+  { skill: 'NestJS', category: 'Web · Backend', pct: 82, accent: '#E0234E' },
+  { skill: 'TailwindCSS', category: 'Web · Styling', pct: 95, accent: '#38BDF8' },
+  { skill: 'TypeScript', category: 'Web · Language', pct: 88, accent: '#3178C6' },
+  { skill: 'Flutter', category: 'Mobile', pct: 72, accent: '#54C5F8' },
+  { skill: 'Docker', category: 'Cloud & DevOps', pct: 70, accent: '#2496ED' },
+  { skill: 'Prisma / MySQL', category: 'Databases', pct: 80, accent: '#2D3748' },
 ];
+
+function skillDuration(pct: number): string {
+  const m = Math.floor((pct / 100) * 5);
+  const s = Math.round(((pct / 100) * 5 - m) * 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function popularityBars(pct: number): number {
+  return Math.max(1, Math.min(4, Math.round(pct / 25)));
+}
+
+const totalTracks = skillGroups.reduce((n, g) => n + g.items.length, 0);
+const heroTiles = skillGroups.slice(0, 4);
 ---
 
-<section id="skills" class="section">
-  <div class="reveal">
-    <p style="font-size:0.72rem;font-weight:700;color:var(--sp-green);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Your Playlist</p>
-    <h2 class="section-title" style="font-size:2rem;margin-bottom:4px;">Skills</h2>
-    <p class="section-subtitle">Technologies I work with daily</p>
-  </div>
+<section id="skills" class="sk-section">
+  <header class="sk-hero">
+    <canvas id="sk-hero-canvas" class="sk-hero-canvas" aria-hidden="true"></canvas>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;" class="skills-grid">
-    <!-- Left: Category chips -->
-    <div style="display:flex;flex-direction:column;gap:20px;">
-      {skillGroups.map((group, i) => (
-        <div class="reveal card" data-delay={i * 80} style="border-left:3px solid transparent;transition:border-color 0.2s,background 0.2s;"
-          onmouseover={`this.style.borderColor='${group.accent}';this.style.background='var(--sp-elevated)'`}
-          onmouseout="this.style.borderColor='transparent';this.style.background='var(--sp-surface)'"
-        >
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-            <span style="font-size:1.1rem;">{group.icon}</span>
-            <span style={`font-size:0.8rem;font-weight:700;color:${group.accent};text-transform:uppercase;letter-spacing:0.08em;`}>{group.category}</span>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;">
-            {group.items.map(item => (
-              <span style={`font-size:0.75rem;padding:4px 10px;border-radius:6px;background:${group.accent}14;color:${group.accent};font-weight:500;border:1px solid ${group.accent}25;`}>{item}</span>
-            ))}
-          </div>
-        </div>
-      ))}
+    <div class="sk-hero-visual">
+      <div class="sk-hero-collage">
+        {heroTiles.map((g) => {
+          const gfx = categoryGraphics[g.id];
+          return (
+            <div class="sk-hero-tile" style={`--sk-accent:${g.accent};`}>
+              <div class="sk-card-mesh" set:html={gfx.mesh} />
+              <div class="sk-card-icon sk-card-icon--sm" set:html={gfx.icon} />
+            </div>
+          );
+        })}
+      </div>
     </div>
 
-    <!-- Right: Proficiency bars (Spotify track popularity style) -->
-    <div class="reveal" data-delay={100}>
-      <p style="font-size:0.8rem;font-weight:700;color:var(--sp-text);margin-bottom:20px;text-transform:uppercase;letter-spacing:0.06em;">Top Tracks · Proficiency</p>
-      <div style="display:flex;flex-direction:column;gap:16px;">
-        {proficiency.map((p, i) => (
-          <div class="prof-row" data-pct={p.pct} data-accent={p.accent}>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-              <span style="font-size:0.82rem;font-weight:600;color:var(--sp-white);">
-                <span style="font-size:0.65rem;color:var(--sp-text-dim);margin-right:10px;font-weight:400;">{String(i + 1).padStart(2,'0')}</span>
-                {p.skill}
+    <div class="sk-hero-copy">
+      <p class="sk-hero-type">Public playlist</p>
+      <h2 class="sk-hero-title">Skills & Stack</h2>
+      <p class="sk-hero-meta">
+        <a href="https://github.com/deanbarquio" target="_blank" rel="noopener" class="sk-hero-artist">Dean Barquio</a>
+        <span class="sk-hero-sep">·</span>
+        {totalTracks} technologies
+        <span class="sk-hero-sep">·</span>
+        {topSkills.length} top tracks
+      </p>
+      <p class="sk-hero-blurb">Full-stack toolkit — web, mobile, data, and cloud. Built for shipping real products.</p>
+      <div class="sk-hero-actions">
+        <button type="button" class="sk-hero-play js-sk-hero-play" aria-label="Play all skills">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button type="button" class="sk-hero-icon-btn" aria-label="Shuffle">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+        </button>
+        <button type="button" class="sk-hero-icon-btn" aria-label="More options">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="sk-block sk-browse-block" aria-labelledby="sk-browse-heading">
+    <canvas id="sk-browse-canvas" class="sk-browse-canvas" aria-hidden="true"></canvas>
+    <div class="sk-block-header">
+      <h3 id="sk-browse-heading" class="sk-block-title">Browse all</h3>
+      <a href="#skills" class="sk-block-link">Show all</a>
+    </div>
+    <div class="sk-browse-grid">
+      {skillGroups.map((g) => {
+        const gfx = categoryGraphics[g.id];
+        return (
+          <a href={`#sk-playlist-${g.id}`} class="sk-browse-card js-sk-browse-card" style={`--sk-accent:${g.accent};`}>
+            <div class="sk-card-art">
+              <div class="sk-card-noise" aria-hidden="true"></div>
+              <div class="sk-card-mesh" set:html={gfx.mesh} />
+              <div class="sk-card-decor" set:html={gfx.decor} />
+              <div class="sk-card-icon" set:html={gfx.icon} />
+              <div class="sk-card-glow" aria-hidden="true"></div>
+            </div>
+            <div class="sk-browse-card-foot">
+              <span class="sk-browse-card-label">{g.category}</span>
+              <span class="sk-browse-card-count">{g.items.length} skills</span>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <section class="sk-block" aria-labelledby="sk-playlists-heading">
+    <div class="sk-block-header">
+      <h3 id="sk-playlists-heading" class="sk-block-title">Your skill playlists</h3>
+      <a href="https://github.com/deanbarquio" target="_blank" rel="noopener" class="sk-block-link">Show all</a>
+    </div>
+    <div class="sk-playlist-grid">
+      {skillGroups.map((g) => {
+        const gfx = categoryGraphics[g.id];
+        return (
+          <article id={`sk-playlist-${g.id}`} class="sk-playlist-card">
+            <a href={`#sk-playlist-${g.id}`} class="sk-playlist-card-link">
+              <div class="sk-playlist-cover" style={`--sk-accent:${g.accent};`}>
+                <div class="sk-card-noise" aria-hidden="true"></div>
+                <div class="sk-card-mesh" set:html={gfx.mesh} />
+                <div class="sk-card-decor sk-card-decor--cover" set:html={gfx.decor} />
+                <div class="sk-card-icon sk-card-icon--cover" set:html={gfx.icon} />
+                <div class="sk-card-glow" aria-hidden="true"></div>
+                <span class="sk-playlist-play" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
+                </span>
+              </div>
+              <h4 class="sk-playlist-name">{g.category}</h4>
+              <p class="sk-playlist-meta">Playlist · {g.items.length} tracks</p>
+            </a>
+            <ul class="sk-tag-list">
+              {g.items.map((item) => (
+                <li>
+                  <span class="sk-tag" style={`--tag-accent:${g.accent};`}>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+        );
+      })}
+    </div>
+  </section>
+
+  <section class="sk-block sk-tracks-block" aria-labelledby="sk-popular-heading">
+    <div class="sk-block-header">
+      <h3 id="sk-popular-heading" class="sk-block-title">Popular</h3>
+    </div>
+    <div class="sk-tracks-table" role="table">
+      <div class="sk-tracks-colhead" role="row">
+        <span class="sk-col sk-col--index" role="columnheader">#</span>
+        <span class="sk-col sk-col--thumb" role="columnheader" aria-hidden="true"></span>
+        <span class="sk-col sk-col--title" role="columnheader">Title</span>
+        <span class="sk-col sk-col--album" role="columnheader">Album</span>
+        <span class="sk-col sk-col--pop" role="columnheader">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h12v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </span>
+        <span class="sk-col sk-col--time" role="columnheader">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-6l5.25 3.15-.75 1.23L11 11.5v5z"/></svg>
+        </span>
+      </div>
+      <div class="sk-tracks-list" role="rowgroup">
+        {topSkills.map((t, i) => (
+          <div class="sk-track-row" style={`--track-accent:${t.accent};`} role="row">
+            <span class="sk-col sk-col--index">
+              <span class="sk-track-num">{i + 1}</span>
+              <span class="sk-track-play-hover" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M8 5v14l11-7z"/></svg>
               </span>
-              <span style="font-size:0.72rem;color:var(--sp-text-dim);">{p.pct}%</span>
+            </span>
+            <div class="sk-track-thumb">
+              <span class="sk-track-icon" set:html={getTrackIcon(t.skill)} />
             </div>
-            <div style="height:3px;background:var(--sp-border);border-radius:2px;overflow:hidden;">
-              <div class="prof-fill" style={`height:100%;width:0%;background:${p.accent};border-radius:2px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);`}
-                data-target={p.pct + '%'}
-              ></div>
+            <div class="sk-col sk-col--title">
+              <p class="sk-track-name">{t.skill}</p>
+              <p class="sk-track-artist">Dean Barquio</p>
             </div>
+            <span class="sk-col sk-col--album">{t.category}</span>
+            <span class="sk-col sk-col--pop" aria-label={`Popularity ${t.pct}%`}>
+              <span class="sk-pop-bars js-sk-pop-bars" data-pct={t.pct}>
+                {[1, 2, 3, 4].map((bar) => (
+                  <span class:list={['sk-pop-bar', bar <= popularityBars(t.pct) && 'sk-pop-bar--on']}></span>
+                ))}
+              </span>
+            </span>
+            <span class="sk-col sk-col--time">{skillDuration(t.pct)}</span>
           </div>
         ))}
       </div>
     </div>
-  </div>
+  </section>
 </section>
 
 <style>
-  @media (max-width: 768px) {
-    .skills-grid {
-      grid-template-columns: 1fr !important;
+  .sk-section {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 40px 32px 96px;
+    position: relative;
+  }
+
+  .sk-hero {
+    display: flex;
+    align-items: flex-end;
+    gap: 28px;
+    width: 100%;
+    margin-bottom: 48px;
+    padding: 28px 28px 32px;
+    border-radius: 8px;
+    background: #181818;
+    position: relative;
+    overflow: hidden;
+    min-height: 280px;
+  }
+
+  .sk-hero-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.85;
+  }
+
+  .sk-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(18, 18, 18, 0.92) 0%, rgba(18, 18, 18, 0.4) 45%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .sk-hero-visual {
+    position: relative;
+    flex-shrink: 0;
+    width: min(280px, 28vw);
+    height: min(280px, 28vw);
+    z-index: 2;
+  }
+
+  .sk-hero-collage {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 5px;
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.55);
+  }
+
+  .sk-hero-tile {
+    position: relative;
+    overflow: hidden;
+    background: #282828;
+  }
+
+  .sk-hero-copy {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    z-index: 2;
+    align-self: flex-end;
+    padding-bottom: 4px;
+  }
+
+  .sk-hero-type {
+    margin: 0 0 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--sp-text);
+  }
+
+  .sk-hero-title {
+    margin: 0 0 12px;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  .sk-hero-meta {
+    margin: 0 0 10px;
+    font-size: 0.875rem;
+    color: var(--sp-text);
+    line-height: 1.5;
+  }
+
+  .sk-hero-artist {
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+  }
+  .sk-hero-artist:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .sk-hero-sep {
+    margin: 0 6px;
+    color: var(--sp-text-dim);
+  }
+
+  .sk-hero-blurb {
+    margin: 0 0 20px;
+    font-size: 0.875rem;
+    color: var(--sp-text);
+    line-height: 1.55;
+    max-width: 560px;
+  }
+
+  .sk-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .sk-hero-play {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: var(--sp-green);
+    color: #121212;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 28px rgba(29, 185, 84, 0.35);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .sk-hero-play:hover {
+    transform: scale(1.06);
+    background: #1ed760;
+  }
+
+  .sk-hero-icon-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--sp-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+  }
+  .sk-hero-icon-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Shared card art layers */
+  .sk-card-art,
+  .sk-playlist-cover,
+  .sk-hero-tile {
+    --sk-accent: var(--sp-green);
+  }
+
+  .sk-card-noise {
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .sk-card-mesh {
+    position: absolute;
+    inset: 0;
+    color: var(--sk-accent);
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .sk-card-mesh :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sk-card-decor {
+    position: absolute;
+    top: -8%;
+    right: -12%;
+    width: 75%;
+    height: 75%;
+    color: var(--sk-accent);
+    opacity: 0.22;
+    pointer-events: none;
+    z-index: 2;
+    will-change: transform;
+  }
+  .sk-card-decor :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sk-card-decor--cover {
+    top: -5%;
+    right: -8%;
+    width: 65%;
+    height: 65%;
+  }
+
+  .sk-card-icon {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%);
+    width: 56%;
+    max-width: 88px;
+    color: var(--sk-accent);
+    filter: drop-shadow(0 8px 24px color-mix(in srgb, var(--sk-accent) 45%, transparent));
+    z-index: 3;
+    will-change: transform;
+  }
+  .sk-card-icon :global(svg) {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .sk-card-icon--sm {
+    width: 48%;
+    max-width: 40px;
+    top: 50%;
+  }
+
+  .sk-card-icon--cover {
+    top: 44%;
+    width: 52%;
+    max-width: 72px;
+  }
+
+  .sk-card-glow {
+    position: absolute;
+    bottom: -20%;
+    left: 10%;
+    width: 80%;
+    height: 50%;
+    background: radial-gradient(ellipse, color-mix(in srgb, var(--sk-accent) 35%, transparent), transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .sk-block {
+    width: 100%;
+    margin-bottom: 44px;
+    position: relative;
+  }
+
+  .sk-browse-block {
+    padding: 8px 0 16px;
+  }
+
+  .sk-browse-canvas {
+    position: absolute;
+    inset: 48px 0 0;
+    width: 100%;
+    height: calc(100% - 48px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  .sk-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 0 4px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .sk-block-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .sk-block-link {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--sp-text);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: color 0.15s;
+  }
+  .sk-block-link:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Full-width browse grid */
+  .sk-browse-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 20px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+
+  .sk-browse-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #282828;
+    min-height: 260px;
+    will-change: transform;
+  }
+
+  .sk-card-art {
+    position: relative;
+    flex: 1;
+    min-height: 200px;
+    overflow: hidden;
+    background: #1a1a1a;
+  }
+
+  .sk-browse-card-foot {
+    padding: 14px 16px 16px;
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.25));
+  }
+
+  .sk-browse-card-label {
+    display: block;
+    font-size: clamp(1.1rem, 1.5vw, 1.5rem);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+
+  .sk-browse-card-count {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--sp-text);
+  }
+
+  /* Full-width playlist grid */
+  .sk-playlist-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 24px 20px;
+    width: 100%;
+  }
+
+  .sk-playlist-card {
+    min-width: 0;
+  }
+
+  .sk-playlist-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    margin-bottom: 12px;
+  }
+
+  .sk-playlist-cover {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    background: #1a1a1a;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    will-change: transform;
+  }
+
+  .sk-playlist-play {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 5;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--sp-green);
+    color: #121212;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(8px) scale(0.9);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    will-change: transform, opacity;
+  }
+
+  .sk-playlist-name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+  .sk-playlist-card-link:hover .sk-playlist-name {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .sk-playlist-meta {
+    margin: 4px 0 0;
+    font-size: 0.8125rem;
+    color: var(--sp-text);
+    line-height: 1.3;
+  }
+
+  .sk-tag-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sk-tag {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 500px;
+    color: color-mix(in srgb, var(--tag-accent) 90%, #fff);
+    background: color-mix(in srgb, var(--tag-accent) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tag-accent) 28%, transparent);
+  }
+
+  .sk-tracks-block {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100px);
+    border-radius: 8px;
+    padding-top: 8px;
+  }
+
+  .sk-tracks-table {
+    width: 100%;
+  }
+
+  .sk-tracks-colhead,
+  .sk-track-row {
+    display: grid;
+    grid-template-columns: 32px 44px minmax(0, 2fr) minmax(0, 1.2fr) 64px 48px;
+    align-items: center;
+    gap: 16px;
+    padding: 0 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .sk-tracks-colhead {
+    height: 36px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--sp-text-dim);
+    font-size: 0.6875rem;
+    font-weight: 500;
+  }
+
+  .sk-col--index {
+    text-align: center;
+    justify-self: center;
+    position: relative;
+    width: 32px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sk-col--album {
+    font-size: 0.8125rem;
+    color: var(--sp-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sk-col--pop {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .sk-col--time {
+    text-align: right;
+    font-size: 0.8125rem;
+    color: var(--sp-text-dim);
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .sk-tracks-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .sk-track-row {
+    border-radius: 4px;
+    min-height: 56px;
+    margin: 0 8px;
+    padding: 8px;
+    will-change: transform, opacity, background-color;
+  }
+
+  .sk-track-num {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--sp-text-dim);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .sk-track-play-hover {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    opacity: 0;
+    transform: scale(0.7);
+    will-change: transform, opacity;
+  }
+
+  .sk-track-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #282828;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    will-change: transform;
+  }
+
+  .sk-track-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--track-accent, var(--sp-green));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sk-track-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sk-col--title {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sk-track-name {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 400;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  .sk-track-artist {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--sp-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  .sk-track-row:hover .sk-track-name {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .sk-pop-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 14px;
+  }
+
+  .sk-pop-bar {
+    width: 3px;
+    border-radius: 1px;
+    background: var(--sp-text-dim);
+    opacity: 0.35;
+    transform-origin: bottom;
+    transform: scaleY(0.2);
+  }
+  .sk-pop-bar:nth-child(1) { height: 4px; }
+  .sk-pop-bar:nth-child(2) { height: 7px; }
+  .sk-pop-bar:nth-child(3) { height: 10px; }
+  .sk-pop-bar:nth-child(4) { height: 14px; }
+
+  .sk-pop-bar--on {
+    background: var(--track-accent, var(--sp-green));
+    opacity: 1;
+  }
+
+  @media (max-width: 1200px) {
+    .sk-browse-grid,
+    .sk-playlist-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .sk-browse-card {
+      min-height: 220px;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .sk-hero {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 20px;
+    }
+    .sk-hero-visual {
+      width: 200px;
+      height: 200px;
+    }
+    .sk-browse-grid,
+    .sk-playlist-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .sk-tracks-colhead .sk-col--album,
+    .sk-track-row .sk-col--album {
+      display: none;
+    }
+    .sk-tracks-colhead,
+    .sk-track-row {
+      grid-template-columns: 32px 44px minmax(0, 1fr) 64px 48px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .sk-section {
+      padding: 32px 20px 72px;
+    }
+    .sk-browse-grid,
+    .sk-playlist-grid {
+      grid-template-columns: 1fr;
+    }
+    .sk-browse-card {
+      min-height: 200px;
     }
   }
 </style>
 
 <script>
-  // Animate proficiency bars when in view
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const fills = entry.target.querySelectorAll('.prof-fill');
-        fills.forEach((fill: Element) => {
-          const el = fill as HTMLElement;
-          const target = el.getAttribute('data-target') || '0%';
-          setTimeout(() => { el.style.width = target; }, 200);
-        });
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.3 });
+  import { initSkillsHeroCanvas, initSkillsBrowseCanvas } from '../lib/skills-three';
 
-  const skillSection = document.getElementById('skills');
-  if (skillSection) observer.observe(skillSection);
+  const handles: { dispose: () => void }[] = [];
+
+  const heroCanvas = document.getElementById('sk-hero-canvas') as HTMLCanvasElement | null;
+  if (heroCanvas) {
+    const h = initSkillsHeroCanvas(heroCanvas);
+    if (h) handles.push(h);
+  }
+
+  const browseCanvas = document.getElementById('sk-browse-canvas') as HTMLCanvasElement | null;
+  if (browseCanvas) {
+    const b = initSkillsBrowseCanvas(browseCanvas);
+    if (b) handles.push(b);
+  }
+
+  document.addEventListener('astro:before-swap', () => {
+    handles.forEach((h) => h.dispose());
+  });
 </script>
