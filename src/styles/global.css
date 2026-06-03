@@ -1,6 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Circular+Std:wght@400;500;700&family=Bricolage+Grotesque:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "./mix-cards.css";
+@import "./app-shell.css";
+@import "./mobile-first.css";
 
 :root {
   --sp-black: #0a0a0a;
@@ -13,8 +15,6 @@
   --sp-white: #ffffff;
   --sp-text: #b3b3b3;
   --sp-text-dim: #6a6a6a;
-  --sp-sidebar-w: 240px;
-  --sp-player-h: 90px;
 }
 
 * {
@@ -48,34 +48,17 @@ body {
   background: var(--sp-text-dim);
 }
 
-.app-layout {
-  display: grid;
-  grid-template-columns: var(--sp-sidebar-w) 1fr;
-  grid-template-rows: 1fr var(--sp-player-h);
-  height: 100vh;
-  gap: 8px;
-  padding: 8px;
-  background: var(--sp-black);
-}
+/* Layout: app-shell.css (mobile-first) */
 
 .sidebar {
-  grid-row: 1 / 2;
   background: var(--sp-bg);
-  border-radius: 8px;
-  padding: 24px 12px;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
 .main-content {
-  grid-row: 1 / 2;
   background: var(--sp-bg);
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-  overscroll-behavior: contain;
 }
 
 .main-scroll-content {
@@ -94,18 +77,11 @@ body {
 }
 
 .player-bar {
-  grid-column: 1 / -1;
   background: var(--sp-elevated);
-  border-radius: 8px;
   border-top: 1px solid var(--sp-border);
 }
 
-.section {
-  padding: 60px 32px;
-}
-
 .section-title {
-  font-size: 1.5rem;
   font-weight: 700;
   color: var(--sp-white);
   margin-bottom: 4px;
@@ -273,23 +249,3 @@ body {
   transform: translateY(30px);
 }
 
-@media (max-width: 860px) {
-  .app-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr var(--sp-player-h);
-    height: 100vh;
-  }
-  .sidebar {
-    /* Hidden; shown via JS toggle */
-    display: flex;
-  }
-  .main-content {
-    grid-column: 1;
-    grid-row: 1;
-    padding-top: 0;
-  }
-  .player-bar {
-    grid-column: 1;
-    grid-row: 2;
-  }
-}

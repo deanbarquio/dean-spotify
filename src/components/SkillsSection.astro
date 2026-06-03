@@ -187,7 +187,7 @@ const heroTiles = skillGroups.slice(0, 4);
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    padding: 40px 32px 96px;
+    padding: 32px var(--page-pad-x, 16px) 72px;
     position: relative;
   }
 
@@ -439,9 +439,34 @@ const heroTiles = skillGroups.slice(0, 4);
   /* Full-width playlist grid */
   .sk-playlist-grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 24px 20px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
     width: 100%;
+  }
+
+  @media (max-width: 380px) {
+    .sk-playlist-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .sk-playlist-grid {
+      gap: 20px 16px;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .sk-playlist-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .sk-playlist-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 24px 20px;
+    }
   }
 
   .sk-playlist-card {
@@ -710,41 +735,57 @@ const heroTiles = skillGroups.slice(0, 4);
     opacity: 1;
   }
 
-  @media (max-width: 1200px) {
-    .sk-playlist-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+  .sk-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px;
+  }
+
+  .sk-hero-visual {
+    width: min(200px, 100%);
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  .sk-tracks-colhead .sk-col--album,
+  .sk-track-row .sk-col--album {
+    display: none;
+  }
+
+  .sk-tracks-colhead,
+  .sk-track-row {
+    grid-template-columns: 28px 40px minmax(0, 1fr) 44px;
+  }
+
+  @media (min-width: 640px) {
+    .sk-section {
+      padding: 40px var(--page-pad-x, 20px) 80px;
     }
   }
 
-  @media (max-width: 900px) {
+  @media (min-width: 900px) {
     .sk-hero {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 20px;
+      flex-direction: row;
+      align-items: center;
+      padding: 24px;
     }
     .sk-hero-visual {
-      width: 200px;
-      height: 200px;
-    }
-    .sk-playlist-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 240px;
+      height: 240px;
     }
     .sk-tracks-colhead .sk-col--album,
     .sk-track-row .sk-col--album {
-      display: none;
+      display: block;
     }
     .sk-tracks-colhead,
     .sk-track-row {
-      grid-template-columns: 32px 44px minmax(0, 1fr) 64px 48px;
+      grid-template-columns: 32px 44px minmax(0, 1fr) minmax(0, 1.2fr) 64px 48px;
     }
   }
 
-  @media (max-width: 640px) {
+  @media (min-width: 861px) {
     .sk-section {
-      padding: 32px 20px 72px;
-    }
-    .sk-playlist-grid {
-      grid-template-columns: 1fr;
+      padding: 40px 32px 96px;
     }
   }
 </style>

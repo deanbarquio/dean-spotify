@@ -1,0 +1,243 @@
+/* Mobile-first overrides for page sections */
+
+.section {
+  padding: 36px var(--page-pad-x, 16px);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.section-title {
+  font-size: 1.25rem;
+}
+
+/* Hero */
+#home {
+  min-height: min(100dvh, 100vh);
+  min-height: 100svh;
+}
+
+#hero-content {
+  padding: 56px var(--page-pad-x, 16px) 40px !important;
+  max-width: 100% !important;
+}
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 24px;
+  margin-top: 40px !important;
+  padding-top: 28px !important;
+}
+
+.hero-stats > div {
+  flex: 1 1 40%;
+  min-width: 120px;
+}
+
+.hero-meta {
+  flex-direction: column;
+  align-items: flex-start !important;
+  gap: 8px !important;
+}
+
+.hero-meta .hero-meta-sep {
+  display: none;
+}
+
+.hero-ctas {
+  flex-direction: column;
+  width: 100%;
+}
+
+.hero-ctas .btn-primary,
+.hero-ctas .btn-outline {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Contact */
+#contact .contact-inner h2 {
+  font-size: clamp(1.5rem, 8vw, 2.5rem) !important;
+}
+
+#contact .contact-socials {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Mix cards: mobile 2-up grid in project rows */
+.mix-row-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mix-row-scroll .mix-card {
+  flex: 0 0 140px;
+  width: 140px;
+}
+
+@media (min-width: 480px) {
+  .mix-row-scroll .mix-card {
+    flex: 0 0 156px;
+    width: 156px;
+  }
+}
+
+@media (min-width: 640px) {
+  .section {
+    padding: 48px var(--page-pad-x, 20px);
+  }
+
+  .section-title {
+    font-size: 1.4rem;
+  }
+
+  #hero-content {
+    padding: 72px var(--page-pad-x, 20px) 48px !important;
+  }
+
+  .hero-meta {
+    flex-direction: row;
+    align-items: center !important;
+    flex-wrap: wrap;
+    gap: 12px !important;
+  }
+
+  .hero-meta .hero-meta-sep {
+    display: inline;
+  }
+
+  .hero-ctas {
+    flex-direction: row;
+    width: auto;
+  }
+
+  .hero-ctas .btn-primary,
+  .hero-ctas .btn-outline {
+    width: auto;
+  }
+
+  .mix-row-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 861px) {
+  .section {
+    padding: 60px var(--page-pad-x, 32px);
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  #hero-content {
+    padding: 80px 48px 60px !important;
+    max-width: 700px !important;
+  }
+
+  .mix-row-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .mix-row-scroll .mix-card {
+    flex: 0 0 172px;
+    width: 172px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .mix-row-grid {
+    gap: 20px;
+  }
+}
+
+/* Experience podcast */
+#experience.exp-section {
+  padding: 32px var(--page-pad-x, 16px) 56px;
+}
+
+#experience .exp-show {
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 0;
+}
+
+#experience .exp-show-collage {
+  width: 100%;
+  max-width: 280px;
+  height: min(260px, 72vw);
+  aspect-ratio: 1;
+}
+
+#experience .exp-episode-row {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  #experience.exp-section {
+    padding: 48px var(--page-pad-x, 20px) 64px;
+  }
+
+  #experience .exp-show {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  #experience .exp-show-collage {
+    width: auto;
+    max-width: none;
+    flex: 0 0 auto;
+  }
+
+  #experience .exp-episode-row {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Education / projects section padding */
+.edu-layout,
+.album-showcase {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 899px) {
+  .edu-layout {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Prevent horizontal bleed from wide children */
+img,
+video,
+canvas,
+svg,
+iframe {
+  max-width: 100%;
+}
+
+.dash-filters {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+.dash-filters::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .dash-filters {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}

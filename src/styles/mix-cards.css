@@ -189,8 +189,6 @@ button.mix-card:hover {
 
 .mix-row-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
   width: 100%;
 }
 
@@ -209,32 +207,7 @@ button.mix-card:hover {
 }
 
 .mix-row-scroll .mix-card {
-  flex: 0 0 172px;
-  width: 172px;
   scroll-snap-align: start;
-}
-
-@media (max-width: 1100px) {
-  .mix-row-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 768px) {
-  .mix-row-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-  }
-  .mix-row-scroll .mix-card {
-    flex: 0 0 156px;
-    width: 156px;
-  }
-}
-
-@media (max-width: 480px) {
-  .mix-row-grid {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
