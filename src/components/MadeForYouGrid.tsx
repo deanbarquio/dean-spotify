@@ -2,7 +2,9 @@ import { ArticleCard } from '@/components/ui/article-cards';
 import { madeForYouCards } from '@/data/made-for-you-cards';
 
 function scrollToProjects() {
-  document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+  void import('@/lib/scroll-to-section').then(({ scrollToSection }) => {
+    scrollToSection('#projects', 'smooth');
+  });
 }
 
 export default function MadeForYouGrid() {

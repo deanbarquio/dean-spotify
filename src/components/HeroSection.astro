@@ -162,16 +162,31 @@
   window.addEventListener('resize', resize);
 
   let frame = 0;
+  let visible = true;
+
+  const scrollRoot = document.getElementById('main-scroll');
+  const visibilityRoot = scrollRoot ?? null;
+  const visibilityObserver = new IntersectionObserver(
+    ([entry]) => {
+      visible = entry.isIntersecting;
+    },
+    { root: visibilityRoot, threshold: 0.05, rootMargin: '40px 0px' }
+  );
+  visibilityObserver.observe(canvas);
+
   function animate() {
     requestAnimationFrame(animate);
-    
-    // Auto-adjust size if canvas client bounds changed
-    resize();
-    
+    if (!visible) return;
+
     frame += 0.001;
     particles.rotation.y = frame + mouseX * 0.3;
     particles.rotation.x = mouseY * 0.2;
     renderer.render(scene, camera);
   }
   animate();
+
+  document.addEventListener('astro:before-swap', () => {
+    visibilityObserver.disconnect();
+    window.removeEventListener('resize', resize);
+  });
 </script>

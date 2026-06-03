@@ -63,16 +63,16 @@ body {
 
 .main-scroll-content {
   min-height: 100%;
+}
+
+/* Lenis moves this node via transform — avoid will-change on native scroll (GPU + jank). */
+.main-scroll-content.lenis-scroll-content {
   will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .main-content {
     overflow-y: auto;
-  }
-
-  .main-scroll-content {
-    will-change: auto;
   }
 }
 

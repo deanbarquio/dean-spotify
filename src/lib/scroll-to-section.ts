@@ -22,7 +22,7 @@ export function scrollToSection(
 
   scrollMainTo(Math.max(0, top), {
     immediate: behavior === 'auto',
-    duration: behavior === 'smooth' ? 1.15 : undefined,
+    duration: behavior === 'smooth' ? 0.85 : undefined,
   });
   return true;
 }

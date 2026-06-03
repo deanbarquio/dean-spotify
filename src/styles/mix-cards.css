@@ -193,6 +193,8 @@ button.mix-card:hover {
 }
 
 .mix-row-scroll {
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
   display: flex;
   gap: 20px;
   overflow-x: auto;

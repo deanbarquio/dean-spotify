@@ -58,9 +58,11 @@
   width: 100%;
   max-width: 100%;
   border-radius: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .main-scroll-content {
@@ -92,6 +94,11 @@
 
 body.sidebar-open {
   overflow: hidden;
+}
+
+.main-scroll--locked {
+  overflow: hidden !important;
+  touch-action: none;
 }
 
 /* ── Main top bar (mobile default) ── */
@@ -386,12 +393,13 @@ body.sidebar-open {
 
   /* Desktop collapse rail */
   .app-layout--collapsed {
-    --sp-sidebar-w: 72px;
+    --sp-sidebar-w: 80px;
   }
 
   .sidebar.sb-collapsed {
-    padding-left: 8px;
-    padding-right: 8px;
+    padding: 12px 6px 16px;
+    align-items: center;
+    overflow-x: hidden;
   }
 
   .sidebar.sb-collapsed .sb-logo-text,
@@ -405,18 +413,70 @@ body.sidebar-open {
     display: none !important;
   }
 
-  .sidebar.sb-collapsed .sb-logo {
+  .sidebar.sb-collapsed .sb-logo-row {
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 0 0 12px;
+  }
+
+  .sidebar.sb-collapsed .sb-logo {
+    flex: 0 0 auto;
+    justify-content: center;
+    width: auto;
+    padding: 0;
+    margin: 0 auto;
+  }
+
+  .sidebar.sb-collapsed .sb-collapse-btn {
+    flex-shrink: 0;
+    margin: 0 auto;
+  }
+
+  .sidebar.sb-collapsed .sb-nav {
+    width: 100%;
+    align-items: center;
   }
 
   .sidebar.sb-collapsed .sb-nav-link {
     justify-content: center;
+    align-items: center;
+    width: 48px;
+    max-width: 100%;
+    margin: 0 auto;
     padding: 10px;
+    gap: 0;
+    box-sizing: border-box;
+  }
+
+  .sidebar.sb-collapsed .sb-nav-icon {
+    width: 22px;
+    height: 22px;
+    margin: 0;
+  }
+
+  .sidebar.sb-collapsed .sb-nav-icon :global(svg) {
+    width: 22px;
+    height: 22px;
   }
 
   .sidebar.sb-collapsed .sb-profile {
     justify-content: center;
-    padding: 8px;
+    align-items: center;
+    width: 48px;
+    max-width: 100%;
+    margin: auto auto 0;
+    padding: 6px;
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .sidebar.sb-collapsed .sb-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.72rem;
   }
 
   .sidebar.sb-collapsed .sb-profile-action {

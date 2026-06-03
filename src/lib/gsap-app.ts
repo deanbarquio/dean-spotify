@@ -41,6 +41,7 @@ function initRevealElements() {
           trigger: el,
           start: 'top 92%',
           toggleActions: 'play none none none',
+          once: true,
         },
       }
     );
@@ -513,6 +514,76 @@ function initDashQuickLinks() {
   });
 }
 
+function initRecommendationsSection() {
+  const section = document.getElementById('recommendations');
+  if (!section) return;
+
+  gsap.from('.rec-hero-inner > *', {
+    y: 16,
+    opacity: 0,
+    duration: 0.55,
+    stagger: 0.08,
+    ease: 'power2.out',
+    scrollTrigger: {
+      ...scrollTriggerDefaults(),
+      trigger: section.querySelector('.rec-hero') || section,
+      start: 'top 88%',
+      toggleActions: 'play none none none',
+    },
+  });
+
+  gsap.from('.rec-collage-tile', {
+    scale: 0.85,
+    opacity: 0,
+    rotation: -8,
+    duration: 0.5,
+    stagger: 0.06,
+    ease: 'back.out(1.4)',
+    scrollTrigger: {
+      ...scrollTriggerDefaults(),
+      trigger: '.rec-hero-collage',
+      start: 'top 90%',
+      toggleActions: 'play none none none',
+    },
+  });
+
+  gsap.from('.rec-featured', {
+    y: 28,
+    opacity: 0,
+    scale: 0.98,
+    duration: 0.65,
+    ease: 'power3.out',
+    scrollTrigger: {
+      ...scrollTriggerDefaults(),
+      trigger: '.rec-featured',
+      start: 'top 90%',
+      toggleActions: 'play none none none',
+    },
+  });
+
+  ScrollTrigger.batch('.rec-scroll .js-rec-card', {
+    ...scrollTriggerDefaults(),
+    trigger: section,
+    start: 'top 85%',
+    interval: 0.06,
+    batchMax: 3,
+    onEnter: (batch) => {
+      gsap.fromTo(
+        batch,
+        { x: 24, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 0.5,
+          stagger: 0.07,
+          ease: 'power3.out',
+          overwrite: true,
+        }
+      );
+    },
+  });
+}
+
 function initSkillCards() {
   const split = document.querySelector('.dash-split');
   if (!split) return;
@@ -543,7 +614,7 @@ function initSkillCards() {
 /** Boot all scroll-driven and entrance animations for the portfolio shell. */
 export function initGsapApp(): () => void {
   if (prefersReducedMotion()) {
-    gsap.set(['.dash-quick-card', '.js-mfy-card', '.np-track-row', '.mono-card', '.reveal', '.js-album-mix', '.sk-playlist-card', '.sk-track-row', '.sk-pop-bar--on', '.js-exp-episode'], {
+    gsap.set(['.dash-quick-card', '.js-mfy-card', '.np-track-row', '.mono-card', '.reveal', '.js-album-mix', '.sk-playlist-card', '.sk-track-row', '.sk-pop-bar--on', '.js-exp-episode', '.rec-featured', '.rec-scroll .js-rec-card'], {
       opacity: 1,
       x: 0,
       y: 0,
@@ -566,14 +637,17 @@ export function initGsapApp(): () => void {
     initExperienceSection();
     initSkillsSection();
     initAlbumMixCards();
+    initRecommendationsSection();
   });
 
   let resizeTimer: ReturnType<typeof setTimeout>;
   const onResize = () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => ScrollTrigger.refresh(), 200);
+    resizeTimer = setTimeout(() => {
+      ScrollTrigger.refresh(true);
+    }, 280);
   };
-  window.addEventListener('resize', onResize);
+  window.addEventListener('resize', onResize, { passive: true });
 
   return () => {
     window.removeEventListener('resize', onResize);

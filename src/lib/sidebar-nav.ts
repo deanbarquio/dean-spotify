@@ -35,8 +35,7 @@ export function initSidebarNav(): () => void {
       el.classList.add('open');
       el.setAttribute('aria-expanded', 'true');
     });
-    const main = document.getElementById('main-scroll');
-    if (main) main.style.overflow = 'hidden';
+    document.getElementById('main-scroll')?.classList.add('main-scroll--locked');
   };
 
   const closeDrawer = () => {
@@ -47,8 +46,7 @@ export function initSidebarNav(): () => void {
       el.classList.remove('open');
       el.setAttribute('aria-expanded', 'false');
     });
-    const main = document.getElementById('main-scroll');
-    if (main) main.style.overflow = '';
+    document.getElementById('main-scroll')?.classList.remove('main-scroll--locked');
   };
 
   const toggleDrawer = () => {

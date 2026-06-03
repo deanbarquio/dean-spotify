@@ -6,16 +6,28 @@ gsap.registerPlugin(ScrollTrigger);
 
 const WRAPPER_ID = 'main-scroll';
 const CONTENT_ID = 'main-scroll-content';
+const MOBILE_BP = 860;
 
-/** Nested regions that keep native overflow scrolling. */
+/** Nested regions keep native overflow (horizontal lists, lyrics, sidebar library). */
 const NATIVE_SCROLL_SELECTOR =
-  '.lyrics-container, .mfy-scroll, .sb-library, [data-native-scroll]';
+  '.lyrics-container, .mfy-scroll, .mix-row-scroll, .sb-library, .dash-filters, [data-native-scroll]';
 
 let lenis: Lenis | null = null;
 let tickerHook: ((time: number) => void) | null = null;
+let scrollTriggerHook: (() => void) | null = null;
+let modeMq: MediaQueryList | null = null;
+let onModeMq: (() => void) | null = null;
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/** Lenis fights touch scrolling; native overflow is more reliable on mobile/coarse pointers. */
+export function shouldUseLenis(): boolean {
+  if (prefersReducedMotion()) return false;
+  if (window.matchMedia(`(max-width: ${MOBILE_BP}px)`).matches) return false;
+  if (window.matchMedia('(pointer: coarse)').matches) return false;
+  return true;
 }
 
 export function isSmoothScrollActive(): boolean {
@@ -64,7 +76,7 @@ export function scrollMainTo(
   if (lenis) {
     lenis.scrollTo(y, {
       immediate: options.immediate,
-      duration: options.duration ?? 1.1,
+      duration: options.duration ?? 0.85,
       programmatic: true,
     });
     return;
@@ -96,56 +108,90 @@ export function onMainScroll(callback: () => void): () => void {
   return () => scroller.removeEventListener('scroll', callback);
 }
 
-/**
- * Lenis smooth scroll for #main-scroll + GSAP ScrollTrigger sync.
- * Call once before initGsapApp().
- */
-export function initSmoothScroll(): () => void {
-  const wrapper = getMainScroller();
-  const content = getMainScrollContent();
-
-  if (!wrapper || !content) return () => {};
-
-  if (prefersReducedMotion()) {
-    wrapper.style.overflowY = 'auto';
-    return () => {};
-  }
-
-  wrapper.style.overflow = 'hidden';
-
-  lenis = new Lenis({
-    wrapper,
-    content,
-    lerp: 0.09,
-    duration: 1.15,
-    smoothWheel: true,
-    wheelMultiplier: 0.95,
-    touchMultiplier: 1.15,
-    autoResize: true,
-    prevent: (node) => !!node.closest(NATIVE_SCROLL_SELECTOR),
-  });
-
-  lenis.on('scroll', ScrollTrigger.update);
-
+function setupScrollerProxy(wrapper: HTMLElement, useLenis: boolean): void {
   ScrollTrigger.scrollerProxy(wrapper, {
     scrollTop(value) {
-      if (arguments.length && value !== undefined && lenis) {
-        lenis.scrollTo(value, { immediate: true, programmatic: true });
+      if (arguments.length && value !== undefined) {
+        if (lenis && useLenis) {
+          lenis.scrollTo(value, { immediate: true, programmatic: true });
+        } else {
+          wrapper.scrollTop = value;
+        }
       }
-      return lenis?.scroll ?? wrapper.scrollTop;
+      return lenis && useLenis ? lenis.scroll : wrapper.scrollTop;
     },
     getBoundingClientRect() {
       return wrapper.getBoundingClientRect();
     },
-    pinType: 'transform',
+    pinType: useLenis ? 'transform' : 'fixed',
   });
+}
+
+function clearScrollerProxy(wrapper: HTMLElement): void {
+  ScrollTrigger.scrollerProxy(wrapper, {});
+}
+
+function applyNativeScrollerStyles(wrapper: HTMLElement, content: HTMLElement): void {
+  wrapper.style.overflowY = 'auto';
+  wrapper.style.overflowX = 'hidden';
+  wrapper.style.webkitOverflowScrolling = 'touch';
+  wrapper.style.overscrollBehavior = 'contain';
+  content.classList.remove('lenis-scroll-content');
+  content.style.willChange = '';
+}
+
+function initNativeScroll(wrapper: HTMLElement, content: HTMLElement): () => void {
+  applyNativeScrollerStyles(wrapper, content);
+  setupScrollerProxy(wrapper, false);
+
+  const onScroll = () => ScrollTrigger.update();
+  wrapper.addEventListener('scroll', onScroll, { passive: true });
+  scrollTriggerHook = onScroll;
+
+  requestAnimationFrame(() => ScrollTrigger.refresh());
+
+  return () => {
+    wrapper.removeEventListener('scroll', onScroll);
+    scrollTriggerHook = null;
+    clearScrollerProxy(wrapper);
+  };
+}
+
+function initLenisScroll(wrapper: HTMLElement, content: HTMLElement): () => void {
+  wrapper.style.overflow = 'hidden';
+  wrapper.style.webkitOverflowScrolling = '';
+  content.classList.add('lenis-scroll-content');
+
+  lenis = new Lenis({
+    wrapper,
+    content,
+    lerp: 0.16,
+    duration: 0.85,
+    smoothWheel: true,
+    wheelMultiplier: 1.15,
+    touchMultiplier: 1,
+    autoResize: true,
+    prevent: (node) => !!node.closest(NATIVE_SCROLL_SELECTOR),
+  });
+
+  setupScrollerProxy(wrapper, true);
+
+  let scrollRaf = 0;
+  const onLenisScroll = () => {
+    if (scrollRaf) return;
+    scrollRaf = requestAnimationFrame(() => {
+      scrollRaf = 0;
+      ScrollTrigger.update();
+    });
+  };
+  lenis.on('scroll', onLenisScroll);
+  scrollTriggerHook = onLenisScroll;
 
   const onRefresh = () => lenis?.resize();
   ScrollTrigger.addEventListener('refresh', onRefresh);
 
   tickerHook = (time: number) => lenis?.raf(time * 1000);
   gsap.ticker.add(tickerHook);
-  gsap.ticker.lagSmoothing(0);
 
   requestAnimationFrame(() => {
     lenis?.resize();
@@ -158,6 +204,49 @@ export function initSmoothScroll(): () => void {
     tickerHook = null;
     lenis?.destroy();
     lenis = null;
-    wrapper.style.overflowY = 'auto';
+    content.classList.remove('lenis-scroll-content');
+    clearScrollerProxy(wrapper);
+    applyNativeScrollerStyles(wrapper, content);
+  };
+}
+
+/**
+ * Main column scroll: native on touch/mobile, Lenis on desktop pointer.
+ * GSAP ScrollTrigger uses #main-scroll in both modes.
+ */
+export function initSmoothScroll(): () => void {
+  const wrapper = getMainScroller();
+  const content = getMainScrollContent();
+
+  if (!wrapper || !content) return () => {};
+
+  ScrollTrigger.config({
+    limitCallbacks: true,
+    ignoreMobileResize: true,
+  });
+
+  let teardownScroll = shouldUseLenis()
+    ? initLenisScroll(wrapper, content)
+    : initNativeScroll(wrapper, content);
+
+  modeMq = window.matchMedia(`(max-width: ${MOBILE_BP}px), (pointer: coarse)`);
+  onModeMq = () => {
+    const wantLenis = shouldUseLenis();
+    const hasLenis = lenis !== null;
+    if (wantLenis === hasLenis) return;
+
+    teardownScroll();
+    teardownScroll = wantLenis
+      ? initLenisScroll(wrapper, content)
+      : initNativeScroll(wrapper, content);
+    ScrollTrigger.refresh();
+  };
+  modeMq.addEventListener('change', onModeMq);
+
+  return () => {
+    modeMq?.removeEventListener('change', onModeMq);
+    modeMq = null;
+    onModeMq = null;
+    teardownScroll();
   };
 }
