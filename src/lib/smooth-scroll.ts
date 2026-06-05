@@ -10,7 +10,7 @@ const MOBILE_BP = 860;
 
 /** Nested regions keep native overflow (horizontal lists, lyrics, sidebar library). */
 const NATIVE_SCROLL_SELECTOR =
-  '.lyrics-container, .mfy-scroll, .mix-row-scroll, .sb-library, .dash-filters, [data-native-scroll]';
+  '#album-detail-view, .lyrics-container, .mfy-scroll, .mix-row-scroll, .sb-library, .dash-filters, [data-native-scroll]';
 
 let lenis: Lenis | null = null;
 let tickerHook: ((time: number) => void) | null = null;

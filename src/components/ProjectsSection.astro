@@ -341,7 +341,7 @@ const albumRowSecondary = projects.slice(4, 8);
   </div>
 
   <!-- Album Detail Page View (Full Page Replacement) -->
-  <div id="album-detail-view" style="display:none;position:relative;width:calc(100% + 64px);margin-top:-48px;margin-left:-32px;margin-right:-32px;min-height:100vh;background:var(--sp-bg);z-index:5;">
+  <div id="album-detail-view" data-native-scroll style="display:none;position:relative;width:calc(100% + 64px);margin-top:-48px;margin-left:-32px;margin-right:-32px;min-height:100vh;background:var(--sp-bg);z-index:5;">
     
     <!-- Header with custom gradient -->
     <div id="modal-header" style="padding:80px 40px 40px;position:relative;overflow:hidden;background:#282828;display:flex;flex-direction:column;justify-content:flex-end;">
@@ -408,10 +408,40 @@ const albumRowSecondary = projects.slice(4, 8);
         </button>
       </div>
       <div>
-        <!-- List toggle icon representing Spotify list display -->
-        <div style="display:flex;align-items:center;gap:8px;color:var(--sp-text);font-size:0.8rem;font-weight:600;">
-          <span>List</span>
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M4 15h16v-2H4v2zm0 4h16v-2H4v2zm0-8h16V9H4v2zm0-6v2h16V5H4z"/></svg>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <!-- Queue / projects drawer toggle -->
+          <button
+            id="album-queue-toggle"
+            type="button"
+            class="album-queue-toggle"
+            aria-haspopup="dialog"
+            aria-controls="album-queue-drawer"
+            aria-expanded="false"
+            title="Open project queue"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true">
+              <path d="M3 10h13v2H3v-2zm0-4h13v2H3V6zm0 8h13v2H3v-2zm15.5-3.5v-3L22 11l-3.5 3.5v-3z"/>
+            </svg>
+            <span>Queue</span>
+          </button>
+          <!-- Lyrics voice toggle (Web Speech API) -->
+          <button
+            id="album-voice-toggle"
+            type="button"
+            class="album-queue-toggle"
+            aria-pressed="false"
+            title="Toggle lyric singing"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true">
+              <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/>
+            </svg>
+            <span>Sing</span>
+          </button>
+          <!-- List toggle icon representing Spotify list display -->
+          <div style="display:flex;align-items:center;gap:8px;color:var(--sp-text);font-size:0.8rem;font-weight:600;">
+            <span>List</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M4 15h16v-2H4v2zm0 4h16v-2H4v2zm0-8h16V9H4v2zm0-6v2h16V5H4z"/></svg>
+          </div>
         </div>
       </div>
     </div>
@@ -463,7 +493,14 @@ const albumRowSecondary = projects.slice(4, 8);
     </div>
 
     <!-- Lyrics & Credits Section -->
-    <div style="display:grid;grid-template-columns:1.25fr 0.75fr;gap:24px;padding:24px 40px 80px;" class="edu-layout reveal">
+    <div id="album-lyrics-section" class="album-lyrics-section">
+      <div class="album-lyrics-intro">
+        <p class="album-lyrics-kicker">Sing Along</p>
+        <h3 class="album-lyrics-title">Lyrics &amp; Credits</h3>
+        <p class="album-lyrics-sub">Project story presented as synchronized lyrics</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.25fr 0.75fr;gap:24px;padding:0 40px 80px;" class="edu-layout">
       
       <!-- Left: Lyrics Screen (same structure & behavior as EducationSection) -->
       <div id="modal-lyrics-card" class="lyrics-card" style="border-radius:12px;padding:40px;position:relative;overflow:hidden;min-height:500px;display:flex;flex-direction:column;">
@@ -509,13 +546,55 @@ const albumRowSecondary = projects.slice(4, 8);
 
       </div>
 
+      </div>
     </div>
   </div>
+
+  <!-- Right drawer overlay (mobile) -->
+  <div id="album-queue-overlay" class="album-queue-overlay" aria-hidden="true"></div>
+
+  <!-- Right drawer (Queue-like projects list) -->
+  <aside
+    id="album-queue-drawer"
+    class="album-queue-drawer"
+    role="dialog"
+    aria-modal="false"
+    aria-label="Project queue"
+  >
+    <div class="album-queue-header">
+      <div class="album-queue-title">
+        <p class="album-queue-kicker">Queue</p>
+        <p class="album-queue-heading">Projects</p>
+      </div>
+      <button id="album-queue-close" type="button" class="album-queue-close" aria-label="Close queue" title="Close">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true">
+          <path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3 1.42 1.42z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="album-queue-body">
+      <div class="album-queue-now">
+        <p class="album-queue-section-label">Now playing</p>
+        <div id="album-queue-now-item" class="album-queue-now-item"></div>
+      </div>
+
+      <div class="album-queue-upnext">
+        <div class="album-queue-upnext-row">
+          <p class="album-queue-section-label">Up next</p>
+          <button id="album-queue-reset" type="button" class="album-queue-ghost">
+            Reset
+          </button>
+        </div>
+        <div id="album-queue-list" class="album-queue-list"></div>
+      </div>
+    </div>
+  </aside>
 </section>
 
 <style>
   /* Global page-replacement routing styles when an album is active */
-  :global(body.album-view-active) #projects > :not(#album-detail-view) {
+  :global(body.album-view-active) #projects > :not(#album-detail-view):not(#album-queue-overlay):not(#album-queue-drawer) {
     display: none !important;
   }
   :global(body.album-view-active) :global(#home),
@@ -526,6 +605,346 @@ const albumRowSecondary = projects.slice(4, 8);
   :global(body.album-view-active) :global(#contact),
   :global(body.album-view-active) :global(footer) {
     display: none !important;
+  }
+
+  /* Album view should scroll independently of the main column */
+  :global(body.album-view-active) :global(#main-scroll) {
+    overflow: hidden !important;
+  }
+  :global(body.album-view-active) :global(#album-detail-view) {
+    /* Fill the main column and become the scroll container */
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    min-height: 100% !important;
+    height: 100% !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--sp-player-h);
+    touch-action: pan-y;
+    z-index: 12;
+  }
+
+  .album-lyrics-section {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    padding-top: 8px;
+  }
+
+  .album-lyrics-intro {
+    padding: 8px 40px 20px;
+  }
+
+  .album-lyrics-kicker {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--sp-green);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .album-lyrics-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .album-lyrics-sub {
+    font-size: 0.875rem;
+    color: var(--sp-text);
+  }
+
+  /* ── Album queue drawer (right sidebar) ── */
+  .album-queue-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .album-queue-toggle:hover {
+    background: rgba(0,0,0,0.75);
+    transform: translateY(-1px);
+  }
+  .album-queue-toggle:disabled {
+    opacity: 0.55;
+    cursor: default;
+    transform: none;
+  }
+
+  .album-queue-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 240;
+    /* When shown, it should be clickable on mobile to close the drawer */
+    pointer-events: auto;
+  }
+
+  .album-queue-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100dvh;
+    height: 100vh;
+    width: min(360px, 92vw);
+    background: rgba(18,18,18,0.98);
+    border-left: 1px solid rgba(255,255,255,0.08);
+    box-shadow: -12px 0 32px rgba(0,0,0,0.55);
+    transform: translateX(105%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 250;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  :global(body.album-queue-open) .album-queue-overlay {
+    display: block;
+  }
+  :global(body.album-queue-open) .album-queue-drawer {
+    transform: translateX(0);
+  }
+
+  .album-queue-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 18px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent);
+  }
+
+  .album-queue-kicker {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sp-text-dim);
+  }
+  .album-queue-heading {
+    margin-top: 6px;
+    font-size: 1.05rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+
+  .album-queue-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .album-queue-close:hover {
+    background: rgba(255,255,255,0.14);
+  }
+
+  .album-queue-body {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 14px 12px 18px;
+    overflow: hidden; /* only the Up next list should scroll */
+    flex: 1;
+    min-height: 0;
+  }
+
+  .album-queue-now {
+    flex: 0 0 auto;
+  }
+
+  .album-queue-upnext {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1;
+  }
+
+  .album-queue-list {
+    overflow: auto;
+    min-height: 0;
+    padding-bottom: 6px;
+  }
+
+  .album-queue-section-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sp-text-dim);
+    padding: 0 6px;
+    margin-bottom: 10px;
+  }
+
+  .album-queue-now-item,
+  .album-queue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .album-queue-upnext-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 6px;
+    margin-bottom: 10px;
+  }
+
+  .album-queue-ghost {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 6px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .album-queue-ghost:hover {
+    border-color: rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.06);
+  }
+
+  /* NOTE: queue items are injected via innerHTML, so they don't get Astro's scoped attributes.
+     Use :global() (scoped to the drawer) so styles apply reliably. */
+  .album-queue-drawer :global(.q-item) {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: rgba(255,255,255,0.03);
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  }
+  .album-queue-drawer :global(.q-item:hover) {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.06);
+    transform: translateY(-1px);
+  }
+  .album-queue-drawer :global(.q-item.q-active) {
+    background: rgba(29,185,84,0.10);
+    border-color: rgba(29,185,84,0.22);
+  }
+
+  .album-queue-drawer :global(.q-art) {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .album-queue-drawer :global(.q-art img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .album-queue-drawer :global(.q-art-fallback) {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: rgba(255,255,255,0.85);
+    font-size: 0.95rem;
+  }
+
+  .album-queue-drawer :global(.q-meta) {
+    min-width: 0;
+  }
+  .album-queue-drawer :global(.q-title) {
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.84rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .album-queue-drawer :global(.q-sub) {
+    margin-top: 2px;
+    color: var(--sp-text);
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .album-queue-drawer :global(.q-actions) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .album-queue-drawer :global(.q-icon) {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  .album-queue-drawer :global(.q-icon:hover) {
+    background: rgba(255,255,255,0.14);
+  }
+
+  /* On desktop, keep it as a panel without overlay feel */
+  @media (min-width: 861px) {
+    .album-queue-drawer {
+      width: 360px;
+      top: 8px;
+      height: calc(100vh - 8px - var(--sp-player-h) - 8px);
+      border-radius: 12px 0 0 12px;
+    }
+    :global(body.album-view-active.album-queue-open) #album-detail-view {
+      padding-right: 360px;
+    }
+    .album-queue-overlay {
+      background: transparent;
+      backdrop-filter: none;
+      /* On desktop we don't want the overlay to block scrolling the album */
+      pointer-events: none;
+    }
   }
 
   /* Spotify-style album mix rows */
@@ -573,24 +992,30 @@ const albumRowSecondary = projects.slice(4, 8);
 
   /* Mix cards: shared styles in src/styles/mix-cards.css */
 
-  /* Album lyrics — identical rules to EducationSection, scoped to album card */
-  #modal-lyrics-card .lyrics-container::-webkit-scrollbar {
+  /* Album lyrics — identical rules to EducationSection */
+  :global(#modal-lyrics-card) .lyrics-container::-webkit-scrollbar {
     display: none;
   }
 
-  #modal-lyrics-card .lyrics-container {
+  :global(#modal-lyrics-card) .lyrics-container {
     -ms-overflow-style: none;
     scrollbar-width: none;
     max-height: 380px;
+    min-height: 280px;
   }
 
-  #modal-lyrics-card .lyrics-container:hover .lyric-line {
+  /* Lyric lines are injected via innerHTML — use :global() */
+  :global(#modal-lyrics-card) .lyrics-container:hover :global(.lyric-line) {
     color: rgba(0, 0, 0, 0.25) !important;
   }
 
-  #modal-lyrics-card .lyrics-container .lyric-line:hover {
+  :global(#modal-lyrics-card) .lyrics-container :global(.lyric-line:hover) {
     color: #ffffff !important;
     transform: scale(1.02);
+  }
+
+  :global(#modal-lyrics-card) :global(.lyric-line.active) {
+    color: #ffffff !important;
   }
 
   @media (max-width: 900px) {
@@ -958,6 +1383,7 @@ const albumRowSecondary = projects.slice(4, 8);
   function openAlbum(id: string) {
     const p = projects.find(x => x.id === id);
     if (!p) return;
+    currentAlbumId = id;
 
     const detailView = document.getElementById('album-detail-view')!;
     const header = document.getElementById('modal-header')!;
@@ -1085,6 +1511,13 @@ const albumRowSecondary = projects.slice(4, 8);
     // Show detailed view & trigger routing class
     document.body.classList.add('album-view-active');
     detailView.style.display = 'block';
+    detailView.scrollTop = 0;
+    lastSpokenLine = '';
+    // Ensure play is gated by voice readiness whenever album view opens
+    initVoiceReadiness();
+
+    // Lock the main scroller; the album view becomes the scroll container
+    document.getElementById('main-scroll')?.classList.add('main-scroll--locked');
 
     scrollMainTo(0, { immediate: true });
 
@@ -1092,6 +1525,12 @@ const albumRowSecondary = projects.slice(4, 8);
     if (typeof (window as any).updateProgress === 'function') {
       (window as any).updateProgress();
     }
+
+    // Keep queue in sync with current album
+    updateQueueUI();
+
+    // Open queue by default when viewing an album
+    openQueue();
   }
 
   function closeAlbum(options: { scrollToProjects?: boolean } = {}) {
@@ -1101,6 +1540,8 @@ const albumRowSecondary = projects.slice(4, 8);
     const detailView = document.getElementById('album-detail-view')!;
     document.body.classList.remove('album-view-active');
     detailView.style.display = 'none';
+    document.getElementById('main-scroll')?.classList.remove('main-scroll--locked');
+    stopLyricVoice();
 
     if (scrollToProjects) {
       const scroller = document.getElementById('main-scroll');
@@ -1119,11 +1560,297 @@ const albumRowSecondary = projects.slice(4, 8);
     if (typeof (window as any).updateProgress === 'function') {
       (window as any).updateProgress();
     }
+
+    closeQueue();
   }
 
   let albumPlaying = false;
   let currentLyricIdx = 0;
   let lyricTimer: ReturnType<typeof setInterval> | null = null;
+  let currentAlbumId: string | null = null;
+  let lyricVoiceEnabled = false;
+  let lastSpokenLine = '';
+  let lyricVoiceReady = false;
+
+  const VOICE_KEY = 'dean.albumLyricsVoice.v1';
+
+  function canSpeakLyrics() {
+    return typeof window !== 'undefined' && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
+  }
+
+  function setVoiceToggleUI(state: { ready: boolean; enabled: boolean }) {
+    const btn = document.getElementById('album-voice-toggle') as HTMLButtonElement | null;
+    if (!btn) return;
+
+    btn.disabled = !state.ready;
+    btn.setAttribute('aria-pressed', state.enabled ? 'true' : 'false');
+    btn.dataset.voiceReady = state.ready ? 'true' : 'false';
+
+    const label = btn.querySelector('span');
+    if (label) label.textContent = state.ready ? 'Sing' : 'Loading…';
+    btn.title = state.ready ? 'Toggle lyric singing' : 'Loading voice…';
+  }
+
+  function setAlbumPlayEnabled(enabled: boolean) {
+    const playBtn = document.getElementById('modal-play-btn') as HTMLButtonElement | null;
+    const artBtn = document.getElementById('modal-art') as HTMLElement | null;
+
+    if (playBtn) {
+      playBtn.disabled = !enabled;
+      playBtn.style.opacity = enabled ? '1' : '0.6';
+      playBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+      playBtn.title = enabled ? 'Play / pause' : 'Loading voice…';
+    }
+
+    // Disc art uses click handler, not a <button>
+    if (artBtn) {
+      artBtn.style.pointerEvents = enabled ? 'auto' : 'none';
+      artBtn.style.opacity = enabled ? '1' : '0.8';
+      artBtn.title = enabled ? 'Click to play / pause' : 'Loading voice…';
+    }
+  }
+
+  function computeVoiceReady() {
+    if (!canSpeakLyrics()) return false;
+    try {
+      const voices = window.speechSynthesis.getVoices();
+      return Array.isArray(voices) && voices.length > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  function initVoiceReadiness() {
+    if (!canSpeakLyrics()) {
+      lyricVoiceReady = false;
+      setVoiceToggleUI({ ready: false, enabled: false });
+      // If speech isn't supported, don't block playback.
+      setAlbumPlayEnabled(true);
+      return;
+    }
+
+    const update = () => {
+      lyricVoiceReady = computeVoiceReady();
+      setVoiceToggleUI({ ready: lyricVoiceReady, enabled: lyricVoiceEnabled });
+      setAlbumPlayEnabled(lyricVoiceReady);
+    };
+
+    // Kick off voice loading; many browsers populate voices async.
+    update();
+    try {
+      window.speechSynthesis.onvoiceschanged = () => update();
+      // Some browsers never fire onvoiceschanged unless getVoices() is called repeatedly at least once.
+      setTimeout(update, 200);
+      setTimeout(update, 800);
+      setTimeout(update, 1500);
+    } catch {
+      /* noop */
+    }
+  }
+
+  function stopLyricVoice() {
+    if (!canSpeakLyrics()) return;
+    try {
+      window.speechSynthesis.cancel();
+    } catch {
+      /* noop */
+    }
+  }
+
+  function speakLyricLine(text: string) {
+    if (!lyricVoiceEnabled) return;
+    if (!albumPlaying) return;
+    if (!text) return;
+    if (!canSpeakLyrics() || !lyricVoiceReady) return;
+
+    const clean = text.trim();
+    if (!clean) return;
+    // Avoid re-speaking the same line (e.g. during ScrollTrigger/progress sync)
+    if (clean === lastSpokenLine) return;
+    lastSpokenLine = clean;
+
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(clean);
+      u.lang = 'en-US';
+      // Slightly musical cadence; tweak later if you want more/less "singy"
+      u.rate = 1.03;
+      u.pitch = 1.08;
+      u.volume = 1;
+      window.speechSynthesis.speak(u);
+    } catch {
+      /* noop */
+    }
+  }
+
+  function loadLyricVoicePref() {
+    try {
+      const v = localStorage.getItem(VOICE_KEY);
+      lyricVoiceEnabled = v === '1';
+    } catch {
+      lyricVoiceEnabled = false;
+    }
+  }
+
+  function saveLyricVoicePref(enabled: boolean) {
+    try {
+      localStorage.setItem(VOICE_KEY, enabled ? '1' : '0');
+    } catch {
+      /* noop */
+    }
+  }
+
+  // ── Queue drawer state ──
+  const QUEUE_KEY = 'dean.projectQueue.v1';
+  let memoryQueueIds: string[] | null = null;
+
+  type Project = typeof projects[number];
+
+  function safeParseJSON<T>(value: string | null): T | null {
+    if (!value) return null;
+    try {
+      return JSON.parse(value) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  function defaultQueueIds() {
+    return projects.map((p) => p.id);
+  }
+
+  function storageGet(key: string) {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  function storageSet(key: string, value: string) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function loadQueueIds() {
+    if (memoryQueueIds?.length) return memoryQueueIds;
+
+    const parsed = safeParseJSON<string[]>(storageGet(QUEUE_KEY));
+    const allIds = new Set(projects.map((p) => p.id));
+    if (!parsed?.length) return defaultQueueIds();
+    const filtered = parsed.filter((id) => allIds.has(id));
+    // Ensure all projects appear at least once
+    for (const id of defaultQueueIds()) if (!filtered.includes(id)) filtered.push(id);
+    return filtered;
+  }
+
+  function saveQueueIds(ids: string[]) {
+    const ok = storageSet(QUEUE_KEY, JSON.stringify(ids));
+    if (!ok) memoryQueueIds = ids;
+  }
+
+  function openQueue() {
+    if (!document.body.classList.contains('album-view-active')) return;
+    document.body.classList.add('album-queue-open');
+    const toggle = document.getElementById('album-queue-toggle');
+    toggle?.setAttribute('aria-expanded', 'true');
+    updateQueueUI();
+  }
+
+  function closeQueue() {
+    document.body.classList.remove('album-queue-open');
+    const toggle = document.getElementById('album-queue-toggle');
+    toggle?.setAttribute('aria-expanded', 'false');
+  }
+
+  function isQueueOpen() {
+    return document.body.classList.contains('album-queue-open');
+  }
+
+  function queueItemHTML(p: Project, opts: { active?: boolean; removable?: boolean }) {
+    const active = opts.active ? ' q-active' : '';
+    const art = p.image
+      ? `<img src="${p.image}" alt="" loading="lazy" decoding="async" />`
+      : `<div class="q-art-fallback" style="background:${p.gradient};"><span>${p.title[0]}</span></div>`;
+
+    const removeBtn = opts.removable
+      ? `<button class="q-icon js-q-remove" type="button" title="Remove from queue" aria-label="Remove from queue" data-id="${p.id}">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M19 13H5v-2h14v2z"/></svg>
+        </button>`
+      : '';
+
+    return `
+      <div class="q-item${active} js-q-open" data-id="${p.id}" role="button" tabindex="0">
+        <div class="q-art">${art}</div>
+        <div class="q-meta">
+          <p class="q-title">${p.title}</p>
+          <p class="q-sub">${p.type} · ${p.year}</p>
+        </div>
+        <div class="q-actions">
+          ${removeBtn}
+          <button class="q-icon" type="button" title="Open" aria-label="Open">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function updateQueueUI() {
+    if (!document.body.classList.contains('album-view-active')) return;
+
+    const nowEl = document.getElementById('album-queue-now-item');
+    const listEl = document.getElementById('album-queue-list');
+    if (!nowEl || !listEl) return;
+
+    const ids = loadQueueIds();
+    const currentId = currentAlbumId || ids[0] || null;
+    const current = currentId ? projects.find((p) => p.id === currentId) : null;
+
+    if (current) {
+      nowEl.innerHTML = queueItemHTML(current, { active: true, removable: false });
+    } else {
+      nowEl.innerHTML = `<div style="padding:10px 12px;color:var(--sp-text);font-size:0.82rem;">No project selected.</div>`;
+    }
+
+    const upNext = ids.filter((id) => id !== currentId).map((id) => projects.find((p) => p.id === id)).filter(Boolean) as Project[];
+    listEl.innerHTML = upNext.map((p) => queueItemHTML(p, { active: false, removable: true })).join('');
+
+    // wire events (delegated)
+    listEl.querySelectorAll('.js-q-open').forEach((el) => {
+      el.addEventListener('click', () => {
+        const id = (el as HTMLElement).dataset.id;
+        if (!id) return;
+        openAlbum(id);
+        if (window.matchMedia('(max-width: 860px)').matches) closeQueue();
+      });
+      el.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        (el as HTMLElement).click();
+      });
+    });
+
+    listEl.querySelectorAll('.js-q-remove').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = (btn as HTMLElement).dataset.id;
+        if (!id) return;
+        const next = loadQueueIds().filter((x) => x !== id);
+        saveQueueIds(next.length ? next : defaultQueueIds());
+        updateQueueUI();
+      });
+    });
+  }
+
+  function resetQueue() {
+    saveQueueIds(defaultQueueIds());
+    updateQueueUI();
+  }
 
   function getAlbumLyricsRoot() {
     return document.getElementById('modal-lyrics-card');
@@ -1159,6 +1886,7 @@ const albumRowSecondary = projects.slice(4, 8);
     currentLyricIdx = idx;
     activateLyricLine(container, lines, lines[idx] as HTMLElement);
     syncAlbumProgressFromLyricIndex(idx);
+    speakLyricLine((lines[idx] as HTMLElement)?.textContent || '');
   }
 
   function stopLyricTimer() {
@@ -1166,6 +1894,7 @@ const albumRowSecondary = projects.slice(4, 8);
       clearInterval(lyricTimer);
       lyricTimer = null;
     }
+    stopLyricVoice();
   }
 
   function startLyricTimer() {
@@ -1186,6 +1915,8 @@ const albumRowSecondary = projects.slice(4, 8);
     const idx = syncLyricsFromFraction(root, fraction);
     currentLyricIdx = idx;
     syncAlbumProgressFromLyricIndex(idx);
+    const { lines } = getAlbumLyricsElements();
+    if (lines?.length) speakLyricLine((lines[idx] as HTMLElement)?.textContent || '');
   };
 
   (window as any).seekToLyric = function (index: number) {
@@ -1243,13 +1974,16 @@ const albumRowSecondary = projects.slice(4, 8);
   (window as any).openAlbum = openAlbum;
   (window as any).closeAlbum = closeAlbum;
 
-  // ESC to close
+  // ESC to close (queue first, then album)
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      stopLyricTimer();
-      albumPlaying = false;
-      closeAlbum();
+    if (e.key !== 'Escape') return;
+    if (isQueueOpen()) {
+      closeQueue();
+      return;
     }
+    stopLyricTimer();
+    albumPlaying = false;
+    closeAlbum();
   });
 
   document.getElementById('album-share-lyrics-btn')?.addEventListener('click', async () => {
@@ -1262,6 +1996,56 @@ const albumRowSecondary = projects.slice(4, 8);
       await navigator.clipboard.writeText(text);
     } catch {
       /* clipboard unavailable */
+    }
+  });
+
+  // ── Queue drawer wiring ──
+  const queueToggle = document.getElementById('album-queue-toggle');
+  const queueClose = document.getElementById('album-queue-close');
+  const queueOverlay = document.getElementById('album-queue-overlay');
+  const resetBtn = document.getElementById('album-queue-reset');
+  const voiceToggle = document.getElementById('album-voice-toggle');
+
+  // Lenis applies transforms to the scroll content which breaks `position: fixed`
+  // for descendants. Move overlay + drawer to <body> so they stay viewport-fixed.
+  document.addEventListener('DOMContentLoaded', () => {
+    const albumView = document.getElementById('album-detail-view');
+    const mainScroll = document.getElementById('main-scroll');
+    const overlay = document.getElementById('album-queue-overlay');
+    const drawer = document.getElementById('album-queue-drawer');
+    if (albumView && mainScroll && albumView.parentElement !== mainScroll) mainScroll.appendChild(albumView);
+    if (overlay && overlay.parentElement !== document.body) document.body.appendChild(overlay);
+    if (drawer && drawer.parentElement !== document.body) document.body.appendChild(drawer);
+
+    loadLyricVoicePref();
+    initVoiceReadiness();
+  });
+
+  queueToggle?.addEventListener('click', () => {
+    if (!document.body.classList.contains('album-view-active')) return;
+    if (isQueueOpen()) closeQueue();
+    else openQueue();
+  });
+
+  queueClose?.addEventListener('click', closeQueue);
+  queueOverlay?.addEventListener('click', closeQueue);
+  resetBtn?.addEventListener('click', resetQueue);
+
+  voiceToggle?.addEventListener('click', () => {
+    if (!lyricVoiceReady) {
+      // User clicked early; keep showing loading until voices are ready.
+      initVoiceReadiness();
+      return;
+    }
+    lyricVoiceEnabled = !lyricVoiceEnabled;
+    saveLyricVoicePref(lyricVoiceEnabled);
+    voiceToggle.setAttribute('aria-pressed', lyricVoiceEnabled ? 'true' : 'false');
+    setVoiceToggleUI({ ready: lyricVoiceReady, enabled: lyricVoiceEnabled });
+    lastSpokenLine = '';
+    if (!lyricVoiceEnabled) stopLyricVoice();
+    else {
+      const { lines } = getAlbumLyricsElements();
+      if (lines?.length) speakLyricLine((lines[currentLyricIdx] as HTMLElement)?.textContent || '');
     }
   });
 </script>

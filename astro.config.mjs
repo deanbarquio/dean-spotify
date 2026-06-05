@@ -13,5 +13,9 @@ export default defineConfig({
         "@": new URL("./src", import.meta.url).pathname,
       },
     },
+    optimizeDeps: {
+      // Pre-bundle heavy deps so the first page load doesn't 504 with "Outdated Optimize Dep"
+      include: ["three", "gsap", "lenis", "react", "react-dom"],
+    },
   },
 });
