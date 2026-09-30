@@ -19,8 +19,9 @@
   grid-template-rows: minmax(0, 1fr) var(--sp-player-h);
   width: 100%;
   max-width: 100vw;
-  height: 100dvh;
+  /* vh first, dvh wins where supported (mobile URL bar) */
   height: 100vh;
+  height: 100dvh;
   gap: 0;
   padding: 0;
   background: var(--sp-black);
@@ -33,23 +34,48 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: min(300px, 88vw);
-  max-width: 300px;
-  height: 100dvh;
+  width: min(320px, 86vw);
+  max-width: 320px;
   height: 100vh;
+  height: 100dvh;
   z-index: 150;
   margin: 0;
   border-radius: 0 12px 12px 0;
   transform: translateX(-105%);
-  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Hidden after slide-out so off-screen links aren't tabbable or painted */
+  visibility: hidden;
+  transition:
+    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 0.28s;
   box-shadow: 8px 0 32px rgba(0, 0, 0, 0.55);
-  padding: max(16px, env(safe-area-inset-top)) 12px max(16px, env(safe-area-inset-bottom));
+  padding:
+    max(16px, env(safe-area-inset-top))
+    12px
+    max(16px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
   overflow-y: auto;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  will-change: transform;
 }
 
 .sidebar.sb-open {
   transform: translateX(0);
+  visibility: visible;
+  transition:
+    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s;
+}
+
+/* Bigger touch targets in the drawer */
+.sidebar .sb-lib-item {
+  min-height: 52px;
+}
+
+/* Set for a couple of frames when crossing breakpoints */
+.sb-no-anim .sidebar,
+.sb-no-anim .sb-overlay {
+  transition: none !important;
 }
 
 .main-content {
@@ -80,16 +106,21 @@
 }
 
 .sb-overlay {
-  display: none;
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.65);
   z-index: 140;
-  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.28s ease, visibility 0s linear 0.28s;
 }
 
 .sb-overlay.visible {
-  display: block;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.28s ease, visibility 0s;
 }
 
 body.sidebar-open {
@@ -347,23 +378,33 @@ body.sidebar-open {
     grid-template-rows: minmax(0, 1fr) var(--sp-player-h);
     gap: 8px;
     padding: 8px;
-    transition: grid-template-columns 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    /* No grid-template-columns transition: animating it reflows the whole main
+       column (WebGL canvases, ScrollTrigger) every frame and stutters. */
   }
 
   .sidebar {
     grid-area: sidebar;
     position: relative;
     transform: none;
+    visibility: visible;
+    transition: none;
+    will-change: auto;
     width: auto;
     max-width: none;
     height: auto;
+    min-height: 0;
     border-radius: 8px;
     box-shadow: none;
     padding: 24px 12px;
+    overflow-x: hidden;
   }
 
   .sidebar.sb-open {
     transform: none;
+  }
+
+  .sidebar .sb-lib-item {
+    min-height: 0;
   }
 
   .main-content {
@@ -387,8 +428,16 @@ body.sidebar-open {
     overflow: auto;
   }
 
+  .sb-overlay,
   .sb-overlay.visible {
     display: none !important;
+  }
+
+  /* Wide desktop: a bit more room for the library */
+  @media (min-width: 1280px) {
+    :root {
+      --sp-sidebar-w: 280px;
+    }
   }
 
   /* Desktop collapse rail */
@@ -399,18 +448,62 @@ body.sidebar-open {
   .sidebar.sb-collapsed {
     padding: 12px 6px 16px;
     align-items: center;
-    overflow-x: hidden;
   }
 
   .sidebar.sb-collapsed .sb-logo-text,
   .sidebar.sb-collapsed .sb-nav-label,
   .sidebar.sb-collapsed .sb-lib-header,
   .sidebar.sb-collapsed .sb-search-box,
-  .sidebar.sb-collapsed .sb-library,
-  .sidebar.sb-collapsed .sb-divider,
+  .sidebar.sb-collapsed .sb-lib-info,
+  .sidebar.sb-collapsed .sb-lib-empty,
   .sidebar.sb-collapsed .sb-profile-info,
   .sidebar.sb-collapsed .sb-lib-add {
     display: none !important;
+  }
+
+  .sidebar.sb-collapsed .sb-lib-link {
+    padding-right: 10px;
+  }
+
+  /* Rail keeps library sections as icon tiles (Spotify-style) */
+  .sidebar.sb-collapsed .sb-divider {
+    width: 32px;
+    margin: 6px auto 10px;
+  }
+
+  .sidebar.sb-collapsed .sb-library,
+  .sidebar.sb-collapsed .sb-library.sb-grid-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .sidebar.sb-collapsed .sb-lib-item,
+  .sidebar.sb-collapsed .sb-library.sb-grid-view .sb-lib-item {
+    flex-direction: row;
+    justify-content: center;
+    padding: 4px;
+  }
+
+  .sidebar.sb-collapsed .sb-lib-item[hidden] {
+    display: flex;
+  }
+
+  .sidebar.sb-collapsed .sb-library.sb-grid-view .sb-lib-art {
+    width: 40px;
+    aspect-ratio: auto;
+    height: 40px;
+    border-radius: 6px;
+  }
+
+  .sidebar.sb-collapsed .sb-lib-item.is-active {
+    background: transparent;
+  }
+
+  .sidebar.sb-collapsed .sb-lib-item.is-active .sb-lib-art {
+    box-shadow: 0 0 0 2px var(--sp-green);
   }
 
   .sidebar.sb-collapsed .sb-logo-row {

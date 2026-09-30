@@ -96,16 +96,19 @@ export function scrollMainBy(
   scrollMainTo(Math.min(maxScroll, Math.max(0, scrollTop + delta)), options);
 }
 
+/**
+ * Listeners survive Lenis ⇄ native switches and subscriptions made before init
+ * (component scripts can run before initSmoothScroll).
+ */
+const mainScrollListeners = new Set<() => void>();
+
+function emitMainScroll(): void {
+  mainScrollListeners.forEach((cb) => cb());
+}
+
 export function onMainScroll(callback: () => void): () => void {
-  if (lenis) {
-    return lenis.on('scroll', callback);
-  }
-
-  const scroller = getMainScroller();
-  if (!scroller) return () => {};
-
-  scroller.addEventListener('scroll', callback, { passive: true });
-  return () => scroller.removeEventListener('scroll', callback);
+  mainScrollListeners.add(callback);
+  return () => mainScrollListeners.delete(callback);
 }
 
 function setupScrollerProxy(wrapper: HTMLElement, useLenis: boolean): void {
@@ -144,7 +147,10 @@ function initNativeScroll(wrapper: HTMLElement, content: HTMLElement): () => voi
   applyNativeScrollerStyles(wrapper, content);
   setupScrollerProxy(wrapper, false);
 
-  const onScroll = () => ScrollTrigger.update();
+  const onScroll = () => {
+    ScrollTrigger.update();
+    emitMainScroll();
+  };
   wrapper.addEventListener('scroll', onScroll, { passive: true });
   scrollTriggerHook = onScroll;
 
@@ -182,6 +188,7 @@ function initLenisScroll(wrapper: HTMLElement, content: HTMLElement): () => void
     scrollRaf = requestAnimationFrame(() => {
       scrollRaf = 0;
       ScrollTrigger.update();
+      emitMainScroll();
     });
   };
   lenis.on('scroll', onLenisScroll);
