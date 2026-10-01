@@ -19,6 +19,19 @@ const {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Cinematic intro state, set before first paint (full on first visit per session, short after) -->
+    <script is:inline>
+      (function () {
+        try {
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          var d = document.documentElement;
+          d.classList.add('intro-playing');
+          if (sessionStorage.getItem('intro-seen')) d.classList.add('intro-short');
+          // Fail-safe: never leave the site hidden if a script fails
+          setTimeout(function () { d.classList.remove('intro-playing'); }, 14000);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <slot />

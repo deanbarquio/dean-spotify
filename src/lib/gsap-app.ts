@@ -16,8 +16,12 @@ function scrollTriggerDefaults() {
 }
 
 function initLayoutEntrance() {
-  gsap.from('#sidebar', { x: -24, opacity: 0, duration: 0.7, ease: 'power2.out', delay: 0.1 });
-  gsap.from('#player-bar', { y: 20, opacity: 0, duration: 0.7, ease: 'power2.out', delay: 0.4 });
+  // During the hero intro the chrome is hidden by CSS and revealed by HeroSection;
+  // a from() tween here would capture opacity 0 as its end state and keep it hidden.
+  if (!document.documentElement.classList.contains('intro-playing')) {
+    gsap.fromTo('#sidebar', { x: -24, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: 'power2.out', delay: 0.1, clearProps: 'transform,opacity' });
+    gsap.fromTo('#player-bar', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'power2.out', delay: 0.4, clearProps: 'transform,opacity' });
+  }
   const banner = document.getElementById('dash-banner');
   if (banner) {
     gsap.from(banner, { opacity: 0, y: 20, duration: 0.9, ease: 'power2.out', delay: 0.2 });
