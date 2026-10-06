@@ -88,6 +88,7 @@ export function createSpecimenScene(canvas: HTMLCanvasElement, opts: Options): S
 
   // Antennas: a playful nod, magenta
   const antennas = new THREE.Group();
+  //sounds
   [-1, 1].forEach((s) => {
     const a = wire(new THREE.ConeGeometry(0.14, 3.4, 10, 8), mats.pink);
     a.position.set(s * 0.9, 3.9, -0.4);
