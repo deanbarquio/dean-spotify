@@ -1,48 +1,28 @@
 ---
-// Hero.astro — Liquid Glass card grid over the WebGL glass scene, giant wide headline below
-const chips = ['Angular', 'Svelte', 'Three.js', 'GSAP'];
-const stats = [
-  { v: '10', k: 'Projects' },
-  { v: '03', k: 'Roles' },
-  { v: 'Magna', k: 'Cum Laude' },
-];
+// Hero.astro — plain three-column intro over the WebGL glass scene, giant wide headline below
 ---
 
 <section class="hero" id="top" aria-label="Intro">
-  <div class="hero-cards">
-    <article class="glass card card--intro" data-tilt="5" data-in>
-      <p class="card-label mono-2"><span data-scramble>Frontend &amp; Motion</span></p>
-      <p class="card-lead">Thinking in components.<br />Moving with intent.</p>
-      <ul class="chips" aria-label="Core stack">
-        {chips.map((c) => <li class="chip">{c}</li>)}
-      </ul>
-    </article>
+  <div class="hero-intro">
+    <p class="hero-label" data-in><span data-scramble>Frontend &amp;</span><br /><span data-scramble>Motion</span></p>
 
-    <article class="glass card card--bio" data-tilt="5" data-in>
-      <p class="card-label mono-2"><span data-scramble>About</span></p>
-      <p class="card-body mono">
+    <div class="hero-col" data-in>
+      <p class="hero-lead mono">Thinking in components.<br />Moving with intent.</p>
+      <p class="status mono-2"><i class="pulse" aria-hidden="true"></i><span data-scramble>Available for work</span></p>
+    </div>
+
+    <div class="hero-col" data-in>
+      <p class="hero-bio mono">
         I'm Dean Barquio, a software engineer at
         <span class="redact" role="button" tabindex="0" aria-label="Hidden: click to reveal" data-redact="N-Compass">■■■■■■■■■</span>,
         building Angular and Svelte products that ship to production. After hours, I make cinematic, scroll-driven sites with
         Three.js and GSAP.
       </p>
-    </article>
-
-    <article class="glass card card--status" data-tilt="5" data-in>
-      <p class="status mono-2"><i class="pulse" aria-hidden="true"></i><span data-scramble>Available for work</span></p>
-      <dl class="stats">
-        {stats.map((s) => (
-          <div class="stat">
-            <dt class="mono-2">{s.k}</dt>
-            <dd>{s.v}</dd>
-          </div>
-        ))}
-      </dl>
-      <div class="card-actions">
+      <div class="hero-actions">
         <a href="#work" class="btn-glass btn-glass--primary">View work <span aria-hidden="true">↓</span></a>
         <a href="#contact" class="btn-glass">Say hi</a>
       </div>
-    </article>
+    </div>
   </div>
 
   <h1 class="hero-title wide" aria-label="I build interfaces that move">

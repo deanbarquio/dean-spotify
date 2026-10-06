@@ -1,7 +1,7 @@
 /**
- * Time-aware greeting set in Fredoka Bold (SIL OFL, self-hosted) and built as
- * inflated glass letters: thin slab, deep rounded bevel, so the faces stay
- * clear and the refraction gathers at the rims (Apple Liquid Glass style).
+ * Time-aware greeting set in Pacifico (connected script, SIL OFL, self-hosted)
+ * and built as inflated glass letters: thin slab, deep rounded bevel, so the
+ * strokes read as puffy tubes and the refraction gathers at the rims.
  */
 import * as THREE from 'three';
 import { TTFLoader } from 'three/examples/jsm/loaders/TTFLoader.js';
@@ -21,7 +21,7 @@ export function daypart(date = new Date()): Daypart {
 const LABEL: Record<Daypart, string> = { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' };
 
 let fontPromise: Promise<Font> | null = null;
-export function loadGreetingFont(url = '/fonts/fredoka-bold.ttf') {
+export function loadGreetingFont(url = '/fonts/pacifico.ttf') {
   fontPromise ??= new TTFLoader().loadAsync(url).then((json) => new Font(json));
   return fontPromise;
 }
@@ -46,7 +46,7 @@ function line(text: string, font: Font) {
 export function greetingGroup(part: Daypart, material: THREE.Material, oneLine: boolean, font: Font) {
   const group = new THREE.Group();
   const texts = oneLine ? [`Good ${LABEL[part]}`] : ['Good', LABEL[part]];
-  const lead = 1.18;
+  const lead = 1.5; // script ascenders/descenders need more room than a sans
   texts.forEach((t, i) => {
     const mesh = new THREE.Mesh(line(t, font), material);
     mesh.position.y = ((texts.length - 1) / 2 - i) * lead;

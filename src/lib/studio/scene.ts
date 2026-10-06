@@ -114,7 +114,7 @@ const glassFrag = /* glsl */ `
 precision highp float;
 uniform sampler2D tMap;
 uniform vec2 uRes;
-uniform float uIor, uPower, uAberration, uTintAmt, uShine, uFresnel, uLift, uGloss;
+uniform float uIor, uPower, uAberration, uTintAmt, uShine, uFresnel, uFresK, uLift, uGloss;
 uniform vec3 uTint, uLight;
 varying vec3 vN;
 varying vec3 vEye;
@@ -148,17 +148,15 @@ void main() {
   float spec = pow(max(dot(n, H), 0.0), uShine);
   float fres = pow(1.0 - facing, 5.0);
   float side = smoothstep(-0.5, 0.5, dot(n, normalize(vec3(-1.0, 0.3, 1.0))));
-  col += spec * 1.1 + fres * side * uFresnel * vec3(0.86, 0.93, 1.0);
+  col += spec * 1.1 + fres * side * uFresnel * uFresK * vec3(0.86, 0.93, 1.0);
 
-  // "Liquid glass" finish (uGloss): crisp white rim all the way round the
-  // silhouette, a soft counter-light from below, and a lifted, clearer body
+  // "Liquid glass" finish (uGloss): thin bright rim round the silhouette and a
+  // small counter-light from below; the body stays clear (no milky lift)
   if (uGloss > 0.0) {
-    float rim = smoothstep(0.6, 0.98, 1.0 - facing);
+    float rim = smoothstep(0.8, 0.99, 1.0 - facing);
     vec3 L2 = normalize(vec3(4.0, -7.0, 5.0));
-    float spec2 = pow(max(dot(n, normalize(V + L2)), 0.0), uShine * 0.5);
-    float sheen = smoothstep(0.2, 0.9, n.y) * 0.12;
-    col = mix(col, col * 1.08 + 0.07, uGloss);
-    col += (rim * 0.38 + spec2 * 0.35 + sheen) * uGloss;
+    float spec2 = pow(max(dot(n, normalize(V + L2)), 0.0), uShine * 0.6);
+    col += (rim * 0.22 + spec2 * 0.3) * uGloss;
   }
   gl_FragColor = vec4(col, 1.0);
 }`;
@@ -433,8 +431,9 @@ export function createScene(canvas: HTMLCanvasElement, { reducedMotion = false, 
         uAberration: { value: overrides.aberration ?? 0.26 },
         uTint: { value: rgb(theme.tint) },
         uTintAmt: { value: overrides.tint ?? 0.45 },
-        uShine: { value: 40 },
+        uShine: { value: overrides.shine ?? 40 },
         uFresnel: { value: theme.fresnel },
+        uFresK: { value: overrides.fresnel ?? 1 },
         uLift: { value: theme.lift },
         uGloss: { value: overrides.gloss ?? 0 },
         uLight: { value: new THREE.Vector3(-4, 9, 6) },
@@ -450,8 +449,9 @@ export function createScene(canvas: HTMLCanvasElement, { reducedMotion = false, 
     const size = new THREE.Box3().setFromObject(mesh).getSize(new THREE.Vector3());
     return { mesh, size };
   };
-  // Greeting: clear, high-index glass with a gloss rim (Apple liquid-glass look)
-  const wordMat = glassMat({ tint: 0.32, aberration: 0.22, ior: 1.36, gloss: 1 });
+  // Greeting: blue-tinted, strongly refracting glass; tight highlights and a
+  // damped fresnel so the puffy bevels don't wash out white
+  const wordMat = glassMat({ tint: 0.62, aberration: 0.36, ior: 1.3, gloss: 1, shine: 110, fresnel: 0.45 });
   // Greeting follows the visitor's clock; rebuilt when morning → afternoon → evening
   // One line on wide screens, stacked on narrow ones; rebuilt when either changes
   let part = daypart();
@@ -507,7 +507,10 @@ export function createScene(canvas: HTMLCanvasElement, { reducedMotion = false, 
     blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
   });
   type StickerMesh = { mesh: THREE.Mesh; spot: Spot; phase: number };
+  /** Hero confetti state, css px / seconds; flip = tumble angle around the plane's tilt axes */
+  type Bit = { x: number; y: number; vx: number; vy: number; rot: number; spin: number; flip: number; flipV: number };
   const heroStickers: StickerMesh[] = [];
+  const bits: Bit[] = [];
   const footStickers: StickerMesh[] = [];
   const stickerGeo = new THREE.PlaneGeometry(1, 1);
   rasterStickers().then((canvases) => {
@@ -527,6 +530,8 @@ export function createScene(canvas: HTMLCanvasElement, { reducedMotion = false, 
       });
     build(HERO_SPOTS, heroStickers, stickerScene);
     build(FOOTER_SPOTS, footStickers, footScene);
+    // Pop out of the greeting on arrival
+    burst(w * 0.5, w < 1024 ? h * 0.26 : h * 0.57);
   }).catch((err) => console.warn('Stickers failed to load', err));
   const star = add(starGeometry(), glassMat({ tint: 0.7, aberration: 0.32 }));
   const ring = add(new THREE.TorusGeometry(3, 1.05, 64, 180), glassMat({ ior: 1.24 }));
@@ -595,6 +600,14 @@ export function createScene(canvas: HTMLCanvasElement, { reducedMotion = false, 
   const onLeave = () => {
     pointer.has = false;
   };
+  // Clicking empty hero space pops the confetti again from the pointer
+  let heroDeep = 1;
+  const onDown = (e: PointerEvent) => {
+    onMove(e);
+    if (reducedMotion || heroDeep > 0.3) return;
+    if ((e.target as Element | null)?.closest('a, button, input, textarea, select, [role="button"]')) return;
+    burst(e.clientX, e.clientY);
+  };
 
   /** Place a mesh at a css-px screen point with a css-px width */
   const place = (o: Placed, sx: number, sy: number, widthPx: number) => {
@@ -603,17 +616,77 @@ export function createScene(canvas: HTMLCanvasElement, { reducedMotion = false, 
   };
   const visible = (r: DOMRect | undefined, margin = 200) => !!r && r.bottom > -margin && r.top < h + margin;
 
-  /** Stickers float, bob and parallax by depth, pinned to the viewport or riding their anchor section */
-  const layoutStickers = (list: StickerMesh[], rect: DOMRect | undefined, mobile: boolean, t: number, max: number, pinned = false) => {
-    const k = mobile ? 0.58 : THREE.MathUtils.clamp(w / 1440, 0.75, 1.25);
+  const stickerScale = (mobile: boolean) => (mobile ? 0.58 : THREE.MathUtils.clamp(w / 1440, 0.75, 1.25));
+
+  /** Launch every hero sticker from one point, fanned upward like a confetti popper */
+  const burst = (cx: number, cy: number) =>
+    heroStickers.forEach((_, i) => {
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.2;
+      const v = 520 + Math.random() * 680;
+      bits[i] = {
+        x: cx,
+        y: cy,
+        vx: Math.cos(a) * v,
+        vy: Math.sin(a) * v,
+        rot: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 5,
+        flip: Math.random() * Math.PI * 2,
+        flipV: 2 + Math.random() * 3,
+      };
+    });
+
+  /** Hero confetti: gravity and air drag after the burst, then a slow tumbling
+   *  fall with sideways flutter; anything leaving the bottom re-enters at the top.
+   *  Reduced motion keeps the static scatter from HERO_SPOTS. */
+  const confetti = (rect: DOMRect | undefined, mobile: boolean, t: number, dt: number, max: number) => {
+    const k = stickerScale(mobile);
+    heroStickers.forEach(({ mesh, spot, phase }, i) => {
+      const b = bits[i];
+      if (!rect || !b || i >= max) return void (mesh.visible = false);
+      const d = spot.d;
+      const size = spot.s * k;
+      if (reducedMotion) {
+        b.x = spot.x * w;
+        b.y = spot.y * h;
+        b.rot = THREE.MathUtils.degToRad(-spot.r);
+        b.flip = 0;
+      } else {
+        // Nearer stickers (higher d) fall a little faster: cheap depth cue
+        const fall = 70 + (d + 1) * 35;
+        const drag = Math.exp(-1.8 * dt);
+        b.vx *= drag;
+        b.vy = Math.min(b.vy * drag + 1100 * dt, fall);
+        b.x += (b.vx + Math.sin(t * 1.3 + phase) * 40) * dt;
+        b.y += b.vy * dt;
+        b.rot += b.spin * dt;
+        b.flip += b.flipV * dt;
+        if (b.y > h + size) {
+          b.y = -size - Math.random() * h * 0.3;
+          b.x = Math.random() * w;
+          b.vx = 0;
+          b.vy = fall;
+        }
+      }
+      const sx = b.x + pointer.sx * d * 18;
+      const sy = b.y + pointer.sy * d * 12;
+      mesh.visible = sy > -size && sy < h + size;
+      if (!mesh.visible) return;
+      mesh.position.set((sx - w / 2) * unit, -(sy - h / 2) * unit, 0);
+      mesh.scale.setScalar(size * unit * 1.25);
+      // Tilt stays under 90deg so the single-sided plane never turns its back
+      mesh.rotation.set(Math.sin(b.flip) * 1.2, Math.cos(b.flip * 0.7) * 0.9, b.rot);
+    });
+  };
+
+  /** Footer stickers float, bob and parallax by depth, riding their anchor section */
+  const layoutStickers = (list: StickerMesh[], rect: DOMRect | undefined, mobile: boolean, t: number, max: number) => {
+    const k = stickerScale(mobile);
     list.forEach(({ mesh, spot, phase }, i) => {
       if (!rect || i >= max) return void (mesh.visible = false);
       const d = spot.d;
       const bob = Math.sin(t * 0.8 + phase) * 6;
       const sx = spot.x * w + pointer.sx * d * 18;
-      // Pinned: keep the scattered layout fixed to the viewport (only a hint of
-      // depth parallax); otherwise scroll along with the anchor section
-      const sy = (pinned ? spot.y * h + Math.max(rect.top, -h) * d * 0.04 : rect.top * (1 - d * 0.12) + spot.y * h) + pointer.sy * d * 12 + bob;
+      const sy = rect.top * (1 - d * 0.12) + spot.y * h + pointer.sy * d * 12 + bob;
       const size = spot.s * k;
       mesh.visible = sy > -size && sy < h + size;
       if (!mesh.visible) return;
@@ -722,8 +795,9 @@ export function createScene(canvas: HTMLCanvasElement, { reducedMotion = false, 
       m.uniforms.uFresnel.value = theme.fresnel + (THEMES.dark.fresnel - theme.fresnel) * deep;
     });
     backdrop.render(rtBack);
-    // Hero stickers: pinned scatter → own target → composited crisp or as halftone ghosts
-    layoutStickers(heroStickers, heroR ?? caseR, mobile, tAnim, mobile ? 9 : Infinity, true);
+    // Hero stickers: confetti over the viewport → own target → composited crisp or as halftone ghosts
+    heroDeep = deep;
+    confetti(heroR ?? caseR, mobile, tAnim, dt, mobile ? 9 : Infinity);
     renderer.setRenderTarget(rtStickers);
     renderer.setClearColor(0x000000, 0);
     renderer.clear();
@@ -741,7 +815,7 @@ export function createScene(canvas: HTMLCanvasElement, { reducedMotion = false, 
     if (heroR && mono.mesh.visible) {
       const prog = THREE.MathUtils.clamp(-heroR.top / Math.max(heroR.height, 1), 0, 1);
       // scrollSync < 1: drifts slower than the page, like haoqi's 0.72
-      // Centred in the open band between the glass cards and the headline
+      // Centred in the open band between the intro text and the headline
       const y = heroR.top * 0.72 + (mobile ? h * 0.26 : h * 0.57);
       const aspect = mono.size.x / Math.max(mono.size.y, 1e-3);
       place(mono, w * 0.5, y, mobile ? Math.min(w * 0.94, h * 0.34 * aspect) : Math.min(w * 0.86, h * 0.4 * aspect));
@@ -793,7 +867,7 @@ export function createScene(canvas: HTMLCanvasElement, { reducedMotion = false, 
   resize();
   window.addEventListener('resize', resize);
   window.addEventListener('pointermove', onMove, { passive: true });
-  window.addEventListener('pointerdown', onMove, { passive: true });
+  window.addEventListener('pointerdown', onDown, { passive: true });
   document.documentElement.addEventListener('pointerleave', onLeave);
   document.addEventListener('visibilitychange', onVisibility);
   raf = requestAnimationFrame(frame);
@@ -806,7 +880,7 @@ export function createScene(canvas: HTMLCanvasElement, { reducedMotion = false, 
       clearInterval(greetTimer);
       window.removeEventListener('resize', resize);
       window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerdown', onMove);
+      window.removeEventListener('pointerdown', onDown);
       document.documentElement.removeEventListener('pointerleave', onLeave);
       document.removeEventListener('visibilitychange', onVisibility);
       renderer.dispose();
