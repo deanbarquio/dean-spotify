@@ -5,39 +5,37 @@ interface Props {
   description?: string;
 }
 const {
-  title = "Dean Barquio — Software Engineer",
-  description = "Software Engineer & Frontend Developer from Cebu. Building scalable web experiences with Angular, React, NestJS and more."
+  title = 'Dean Barquio • Frontend Developer',
+  description = 'File 026-DB: Dean Barquio, frontend developer from Cebu. Angular, Svelte, Three.js and GSAP.',
 } = Astro.props;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" class="is-loading">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#0a0907" />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Cinematic intro state, set before first paint (full on first visit per session, short after) -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400..900;1,400..900&display=swap"
+    />
     <script is:inline>
+      // Theme before first paint: saved choice, else dark (the specimen lab is dark by default)
       (function () {
-        try {
-          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-          var d = document.documentElement;
-          d.classList.add('intro-playing');
-          if (sessionStorage.getItem('intro-seen')) d.classList.add('intro-short');
-          // Fail-safe: never leave the site hidden if a script fails
-          setTimeout(function () { d.classList.remove('intro-playing'); }, 14000);
-        } catch (e) {}
+        var t;
+        try { t = localStorage.getItem('theme'); } catch (e) {}
+        document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
       })();
+      // Fail-safe: never leave the page behind the loader if a script dies
+      setTimeout(function () { document.documentElement.classList.remove('is-loading'); }, 9000);
     </script>
   </head>
   <body>
     <slot />
-    <script>
-      import { bindHashNavigation } from '../lib/scroll-to-section';
-      bindHashNavigation();
-    </script>
   </body>
 </html>

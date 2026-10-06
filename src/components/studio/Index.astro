@@ -1,0 +1,44 @@
+---
+// Index.astro — experience, education and toolkit as quiet mono ledgers
+import { roles, skillGroups, education } from '../../data/portfolio';
+---
+
+<section class="index grid12" id="index" aria-label="Experience and toolkit">
+  <h2 class="index-head" data-reveal>Index</h2>
+
+  <div class="ledger">
+    <p class="ledger-label mono-2">Experience</p>
+    <ol>
+      {roles.map((r) => (
+        <li class="row" data-reveal>
+          <span class="row-period mono-2">{r.period}</span>
+          <span class="row-main">
+            <span class="row-title">{r.role}</span>
+            <span class="row-note">{r.note}</span>
+          </span>
+          <span class="row-side mono-2">{r.company}{r.current && <i class="now">●</i>}</span>
+        </li>
+      ))}
+      <li class="row" data-reveal>
+        <span class="row-period mono-2">{education.period}</span>
+        <span class="row-main">
+          <span class="row-title">{education.degree}</span>
+          <span class="row-note">{education.honors.join(' · ')}. {education.org}.</span>
+        </span>
+        <span class="row-side mono-2">{education.school}</span>
+      </li>
+    </ol>
+  </div>
+
+  <div class="ledger">
+    <p class="ledger-label mono-2">Toolkit</p>
+    <div class="kit">
+      {skillGroups.map((g) => (
+        <div class="kit-col" data-reveal>
+          <p class="kit-label mono-2">{g.label}</p>
+          <ul>{g.items.map((s) => <li>{s}</li>)}</ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,59 @@
+---
+import Studio from '../../layouts/Studio.astro';
+import { projects, type Project } from '../../data/portfolio';
+
+export function getStaticPaths() {
+  return projects.map((p, i) => ({ params: { id: p.id }, props: { p, next: projects[(i + 1) % projects.length] } }));
+}
+
+const { p, next } = Astro.props as { p: Project; next: Project };
+const shots = p.gallery ?? (p.image ? [p.image] : []);
+---
+
+<Studio title={`${p.title.toUpperCase()} — DEAN©2026`} description={p.summary}>
+  <main class="case">
+    <section class="case-hero grid12">
+      <p class="case-kind mono-2" data-in><span data-scramble>{p.kind}</span> · {p.year}</p>
+      <h1 class="case-title wide"><span data-line>{p.title}</span></h1>
+    </section>
+
+    <section class="case-body grid12">
+      <dl class="case-facts mono-2" data-in>
+        <div><dt>Year</dt><dd>{p.year}</dd></div>
+        <div><dt>Type</dt><dd>{p.kind}</dd></div>
+        <div><dt>Stack</dt><dd>{p.stack.join(', ')}</dd></div>
+        {p.url && (
+          <div><dt>Live</dt><dd><a href={p.url} target="_blank" rel="noopener noreferrer" class="ul">Visit site ↗</a></dd></div>
+        )}
+      </dl>
+      <div class="case-copy">
+        <p class="statement" data-words>{p.summary}</p>
+        <p class="case-detail" data-reveal>{p.detail}</p>
+      </div>
+    </section>
+
+    {shots.length > 0 ? (
+      <section class="case-gallery grid12">
+        {shots.map((src, i) => (
+          <figure class={`shot ${i === 0 ? 'shot--lead' : ''}`} data-reveal>
+            <img src={src} alt={`${p.title} screenshot ${i + 1}`} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+          </figure>
+        ))}
+      </section>
+    ) : (
+      <section class="case-gallery grid12">
+        <figure class="shot shot--lead" data-reveal>
+          <div class="square poster" style={`--paint:${p.paint}`}><span class="wide">{p.title}</span></div>
+        </figure>
+      </section>
+    )}
+
+    <nav class="case-next grid12" aria-label="Next project">
+      <a href="/#work" class="hit mono-2"><span data-scramble>← All work</span></a>
+      <a href={`/work/${next.id}`} class="case-next-link">
+        <span class="mono-2">Next</span>
+        <span class="wide">{next.title}</span>
+      </a>
+    </nav>
+  </main>
+</Studio>

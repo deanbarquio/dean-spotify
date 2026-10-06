@@ -1,0 +1,35 @@
+---
+// Words.astro — witness statements: pick a witness, statement types in
+import { recommendations } from '../../data/recommendations';
+const first = recommendations[0];
+---
+
+<section class="section" id="words" data-mode="Witnesses">
+  <header class="section-head">
+    <p class="label">Lab report 05 <i>//</i> Witness statements <i>//</i> {recommendations.length} on file</p>
+    <h2 class="headline" data-split>Witness<br /><em>statements</em></h2>
+  </header>
+
+  <div class="words">
+    <ol class="words-tabs" role="tablist" aria-label="Witnesses">
+      {recommendations.map((r, i) => (
+        <li>
+          <button type="button" role="tab" class={`words-tab${i === 0 ? ' is-active' : ''}`} aria-selected={i === 0 ? 'true' : 'false'} data-word={i}>
+            <span class="words-no">W-{String(i + 1).padStart(2, '0')}</span>
+            <span class="words-name">{r.name}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+    <figure class="panel words-box" role="tabpanel">
+      <p class="label">Statement <i>//</i> <span id="words-date">{first.date}</span></p>
+      <blockquote class="words-text" id="words-text">{first.quote[0]}</blockquote>
+      <figcaption class="words-by">
+        <b id="words-name">{first.name}</b>
+        <span id="words-title">{first.title}</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <script type="application/json" id="words-data" set:html={JSON.stringify(recommendations.map((r) => ({ name: r.name, title: r.title, date: r.date, quote: r.quote[0] })))} />
+</section>

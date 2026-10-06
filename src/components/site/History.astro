@@ -1,0 +1,31 @@
+---
+// History.astro — medical history: vertical timeline traced by an ECG line that draws on scroll
+import { milestones } from '../../data/portfolio';
+const items = milestones.filter((m) => !m.now);
+---
+
+<section class="section" id="history" data-mode="History">
+  <header class="section-head">
+    <p class="label">Lab report 03 <i>//</i> Medical history</p>
+    <h2 class="headline" data-split>Case<br /><em>history</em></h2>
+  </header>
+
+  <div class="history">
+    <svg class="history-ecg" viewBox="0 0 40 1000" preserveAspectRatio="none" aria-hidden="true">
+      <path id="history-ecg" d="M20 0 V120 L8 140 L32 170 L14 190 L20 200 V420 L8 440 L32 470 L14 490 L20 500 V720 L8 740 L32 770 L14 790 L20 800 V1000" />
+    </svg>
+    <ol class="history-list">
+      {items.map((m) => (
+        <li class="history-item" data-reveal>
+          <p class="history-tag">{m.tag}</p>
+          <div class="panel history-card">
+            <h3>{m.title}</h3>
+            <p class="history-sub">{m.sub}</p>
+            <p class="history-note">{m.note}</p>
+            <div class="chips">{m.stack.map((s) => <span class="chip">{s}</span>)}</div>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

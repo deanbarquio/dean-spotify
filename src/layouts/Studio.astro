@@ -1,0 +1,54 @@
+---
+import '../styles/studio.css';
+import Frame from '../components/studio/Frame.astro';
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = 'DEAN©2026',
+  description = 'Dean Barquio — Frontend Developer & Creative Engineer © 2026. Angular, Svelte, Three.js and GSAP from Cebu, PH.',
+} = Astro.props;
+---
+<!doctype html>
+<html lang="en" class="is-loading">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#bfdcf0" />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=TikTok+Sans:opsz,wdth,wght@12..36,75..150,300..900&family=Martian+Mono:wdth,wght@75..112.5,300..700&family=Geist+Mono:wght@400..600&display=swap"
+    />
+    <script is:inline>
+      // Theme before first paint: A = follow system, L / D = forced
+      (function () {
+        var t;
+        try { t = localStorage.getItem('theme-mode'); } catch (e) {}
+        var mode = t === 'L' || t === 'D' ? t : 'A';
+        var dark = mode === 'D' || (mode === 'A' && matchMedia('(prefers-color-scheme: dark)').matches);
+        var root = document.documentElement;
+        root.dataset.mode = mode;
+        root.dataset.theme = dark ? 'dark' : 'light';
+      })();
+      // Fail-safe: never strand the page behind the loader if a script dies
+      setTimeout(function () { document.documentElement.classList.remove('is-loading'); }, 6000);
+    </script>
+  </head>
+  <body>
+    <canvas class="field" id="field" aria-hidden="true"></canvas>
+    <canvas class="veil" id="veil" aria-hidden="true"></canvas>
+    <div class="loader" id="loader" aria-hidden="true"><i id="loader-bar"></i></div>
+    <Frame />
+    <slot />
+    <script>
+      import { boot } from '../lib/studio/motion';
+      boot();
+    </script>
+  </body>
+</html>

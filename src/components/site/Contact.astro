@@ -1,0 +1,27 @@
+---
+// Contact.astro — end of dissection: hazard tape, giant email, links, footer
+const links = [
+  { href: 'https://github.com/deanbarquio', label: 'GitHub' },
+  { href: 'https://linkedin.com/in/deanbarquio', label: 'LinkedIn' },
+  { href: 'tel:+639480080380', label: '+63 948 008 0380' },
+  { href: '/Cover Letter.pdf', label: 'Cover letter' },
+];
+---
+
+<section class="section contact" id="contact" data-mode="End">
+  <div class="tape tape--end" aria-hidden="true"><span>End dissection <i>//</i> Subject available for hire</span><i></i></div>
+
+  <p class="label">Lab report 06 <i>//</i> Contact</p>
+  <h2 class="headline contact-head" data-split>Let's build<br /><em>something alive.</em></h2>
+  <a href="mailto:deanbarquio@gmail.com" class="contact-mail">deanbarquio@gmail.com</a>
+  <ul class="contact-links">
+    {links.map((l) => (
+      <li><a href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener">{l.label} <span aria-hidden="true">↗</span></a></li>
+    ))}
+  </ul>
+
+  <footer class="foot">
+    <span>© 2026 Dean Barquio — All rights reserved — Consolacion, Cebu, PH</span>
+    <a href="#contact" class="hire">Hire me</a>
+  </footer>
+</section>

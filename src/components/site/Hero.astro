@@ -1,0 +1,53 @@
+---
+// Hero.astro — case-file intake: subject data, hazard tape, intake band; specimen dissects on scroll
+const marquee = ['Motion', 'Scrollytelling', 'Interaction', 'Performance', 'Pixel-perfect', 'Creative development', 'Design systems'];
+---
+
+<section class="hero" id="top" aria-label="Intake">
+  <div class="hero-panel" aria-hidden="true"></div>
+  <div class="barcode" aria-hidden="true"></div>
+
+  <div class="intake">
+    <p class="intake-meta" data-in>Hazard class - A <i>//</i> <span id="intake-clock">2026.10.05 - 00:00:00</span></p>
+    <dl class="intake-data">
+      <div data-in><dt>Name:</dt><dd>Dean Barquio</dd></div>
+      <div data-in>
+        <dt>Occupation:</dt>
+        <dd class="intake-role"><span data-glitch>Frontend</span><br /><span data-glitch>Developer</span></dd>
+      </div>
+      <div data-in><dt class="threat">+Threat</dt><dd class="threat-level">Ships to production</dd></div>
+    </dl>
+    <dl class="intake-specs">
+      <div data-in><dt>Blood type:</dt><dd>CSS</dd></div>
+      <div data-in><dt>DNA spec:</dt><dd>Angular-Svelte</dd></div>
+      <div data-in><dt>Mutation:</dt><dd>GSAP-Three.js</dd></div>
+    </dl>
+  </div>
+
+  <div class="tape tape--hero" data-tape-in aria-hidden="true">
+    <span>Scroll to start dissection</span><i></i>
+  </div>
+
+  <aside class="vitals panel" data-in aria-label="Subject vitals">
+    <p class="vitals-status">Status: <b id="vitals-status">Subject caffeinated</b></p>
+    <p><span>FPS</span><b id="vitals-fps">60</b></p>
+    <p><span>LCP</span><b>1.2s</b></p>
+    <p><span>CLS</span><b>0.01</b></p>
+    <svg viewBox="0 0 160 26" aria-hidden="true"><path id="vitals-ecg" d="M0 13 H160" /></svg>
+  </aside>
+
+  <div class="acquired" data-acquired aria-label="Subject photo">
+    <p class="acquired-label">Subject acquired</p>
+    <div class="acquired-photo"><img src="/profile.png" alt="Dean Barquio" width="640" height="640" /></div>
+    <p class="acquired-sub">Sub &gt; Cebu, PH</p>
+  </div>
+
+  <div class="band" aria-hidden="true">
+    <div class="band-track" data-band>
+      {[0, 1].map(() => marquee.map((m) => <span>{m}<i>✦</i></span>))}
+    </div>
+  </div>
+  <p class="intake-year" data-intake aria-hidden="true">Intake 2021 —</p>
+
+  <p class="core-hint" data-core-hint>Click the core to start debug</p>
+</section>

@@ -1,0 +1,23 @@
+---
+// Frame.astro — fixed four-corner chrome: glass wordmark + nav pills, local clock, cursor readout
+---
+
+<header class="frame" id="frame">
+  <div class="frame-row">
+    <a href="/" class="glass pill frame-logo" data-bezel="14" data-refract="26" aria-label="Dean Barquio, home">
+      <span data-scramble>dean</span><span data-scramble>.barquio</span>
+    </a>
+    <nav class="glass pill frame-nav" data-bezel="14" data-refract="26" aria-label="Primary">
+      <a href="/#work" class="pill-link"><span data-scramble>Work</span></a>
+      <a href="/#index" class="pill-link pill-link--wide"><span data-scramble>Index</span></a>
+      <a href="/#contact" class="pill-link pill-link--wide"><span data-scramble>Contact</span></a>
+      <button type="button" class="pill-link" id="theme-toggle" aria-label="Theme: system">
+        <span data-scramble id="theme-label">THEME[A]</span>
+      </button>
+    </nav>
+  </div>
+  <div class="frame-row frame-row--foot">
+    <span class="frame-clock"><span class="frame-tz">GMT+8 PH </span><span id="clock">--:--</span></span>
+    <span class="frame-xy" aria-hidden="true"><span id="cursor-xy">0001 X 0001 Y</span></span>
+  </div>
+</header>

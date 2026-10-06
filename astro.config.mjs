@@ -15,7 +15,18 @@ export default defineConfig({
     },
     optimizeDeps: {
       // Pre-bundle heavy deps so the first page load doesn't 504 with "Outdated Optimize Dep"
-      include: ["three", "gsap", "lenis", "react", "react-dom"],
+      include: [
+        "three",
+        "three/examples/jsm/postprocessing/EffectComposer.js",
+        "three/examples/jsm/postprocessing/RenderPass.js",
+        "three/examples/jsm/postprocessing/UnrealBloomPass.js",
+        "three/examples/jsm/postprocessing/OutputPass.js",
+        "gsap",
+        "gsap/ScrollTrigger",
+        "lenis",
+        "react",
+        "react-dom",
+      ],
     },
   },
 });

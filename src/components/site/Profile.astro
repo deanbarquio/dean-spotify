@@ -1,0 +1,34 @@
+---
+// Profile.astro — lab report 01: subject profile + readings
+const readings = [
+  { k: 'Levels shipped', v: '10+' },
+  { k: 'In production', v: '1yr+' },
+  { k: 'Components authored', v: '50+' },
+  { k: 'Graduated', v: 'Magna cum laude' },
+];
+---
+
+<section class="section" id="profile" data-mode="Profile">
+  <header class="section-head">
+    <p class="label">Lab report 01 <i>//</i> Subject profile</p>
+    <h2 class="headline" data-split>Builds interfaces<br />you can <em>feel</em>.</h2>
+  </header>
+
+  <div class="profile">
+    <div class="panel profile-body" data-reveal>
+      <p class="label">Observation</p>
+      <div data-words>
+        <p>Subject treats the browser like a set: bold type, honest motion and details you notice only after they've done their job.</p>
+        <p>By day ships production frontends in Angular and Svelte at N-Compass TV. After hours builds cinematic, scroll-driven sites with Three.js and GSAP.</p>
+      </div>
+    </div>
+    <dl class="readings">
+      {readings.map((r) => (
+        <div class="reading panel panel--line" data-reveal>
+          <dt>{r.k}</dt>
+          <dd>{r.v}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>

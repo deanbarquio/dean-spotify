@@ -1,0 +1,35 @@
+---
+// About.astro — portrait with a hand-drawn lime signature, oversized statement copy
+const links = [
+  { href: 'https://phoenix-web-phi.vercel.app/', label: 'Fenghuang' },
+  { href: 'https://house-of-dragons-hazel.vercel.app/', label: 'Fire & Blood' },
+];
+---
+
+<section class="about grid12" id="about" aria-label="About">
+  <div class="about-photo">
+    <svg class="sign" viewBox="0 0 320 154" fill="none" aria-hidden="true" data-sign>
+      <path d="M62 28C60 68 54 108 47 140" />
+      <path d="M36 42C118 8 176 58 142 106C120 136 70 142 30 128" />
+      <path d="M150 100C170 96 182 80 170 74C157 69 147 93 156 104C165 114 185 104 197 90C190 80 176 86 178 100C180 112 196 106 204 92L206 108C214 92 226 82 232 90C236 98 232 108 237 110C251 112 271 90 302 68" />
+      <path d="M44 146C124 138 222 135 300 126" />
+    </svg>
+    <div class="square">
+      <img src="/profile.png" alt="Portrait of Dean Barquio" width="640" height="640" loading="lazy" />
+    </div>
+  </div>
+  <div class="about-copy">
+    <p class="statement" data-words>
+      I craft interfaces where motion carries meaning, turning complex systems into products that feel calm, fast and alive.
+    </p>
+    <p class="statement statement--dim" data-reveal>
+      I'm shipping production frontends at N-Compass TV, and after hours I build cinematic web stories like
+      {links.map((l, i) => (
+        <>
+          <a href={l.href} target="_blank" rel="noopener noreferrer" class="ul">{l.label}</a>{i === 0 ? ' and ' : '.'}
+        </>
+      ))}
+      Magna Cum Laude, BS Information Technology.
+    </p>
+  </div>
+</section>

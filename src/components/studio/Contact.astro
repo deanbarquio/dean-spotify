@@ -1,0 +1,24 @@
+---
+// Contact.astro — staggered full-screen sign-off, email and socials in the bottom band
+const links = [
+  { href: 'https://github.com/deanbarquio', label: 'GitHub' },
+  { href: 'https://linkedin.com/in/deanbarquio', label: 'LinkedIn' },
+  { href: '/Cover Letter.pdf', label: 'Cover letter' },
+];
+---
+
+<footer class="contact" id="contact">
+  <h2 class="contact-title wide" aria-label="Let's build something remarkable">
+    <span class="c-row c-row--a"><span data-line>Let's</span><span data-line>Build</span></span>
+    <span class="c-row c-row--b"><span data-line>Something</span></span>
+    <span class="c-row c-row--c"><span data-line>Remarkable</span></span>
+  </h2>
+  <div class="contact-foot mono-2">
+    <a href="mailto:deanbarquio@gmail.com" class="hit"><span data-scramble>deanbarquio@gmail.com</span></a>
+    <div class="contact-links">
+      {links.map((l) => (
+        <a href={l.href} target="_blank" rel="noopener noreferrer" class="hit"><span data-scramble>{l.label}</span></a>
+      ))}
+    </div>
+  </div>
+</footer>

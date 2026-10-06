@@ -1,0 +1,28 @@
+---
+// Chrome.astro — fixed layers: specimen canvas, loader, case-file header, side label
+---
+
+<canvas class="specimen" id="specimen" aria-hidden="true"></canvas>
+<div class="scanlines" aria-hidden="true"></div>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <p class="loader-line">Loading specimen <span id="loader-pct">000</span></p>
+</div>
+
+<header class="topbar">
+  <a href="#top" class="topbar-file" aria-label="Back to top">
+    File 026-DB <i>//</i> Classified <i>//</i> <span id="topbar-mode">Dive</span>
+  </a>
+  <span class="topbar-rule" aria-hidden="true"></span>
+  <nav class="topbar-nav" aria-label="Primary">
+    <a href="#profile">Profile</a>
+    <a href="#cases">Case files</a>
+    <a href="#history">History</a>
+    <a href="#contact" class="hire">Hire me</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to light mode">◐</button>
+  </nav>
+</header>
+
+<p class="sidebar-label" aria-hidden="true">
+  Specimen 027 <i>//</i> Submerged Era <i>—</i> <b id="sidebar-state">Surface</b>
+</p>

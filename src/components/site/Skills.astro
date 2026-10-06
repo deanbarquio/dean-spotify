@@ -1,0 +1,25 @@
+---
+// Skills.astro — lab equipment: one marquee band per toolbox, alternating direction
+import { skillGroups } from '../../data/portfolio';
+---
+
+<section class="section section--bleed" id="toolkit" data-mode="Equipment" aria-label="Toolkit">
+  <header class="section-head">
+    <p class="label">Lab report 04 <i>//</i> Equipment</p>
+    <h2 class="headline" data-split>Lab<br /><em>equipment</em></h2>
+  </header>
+
+  {skillGroups.map((g, i) => (
+    <div class={`kit${i % 2 ? ' kit--alt' : ''}`} data-kit={i % 2 ? 1 : -1}>
+      <p class="sr-only">{g.label}: {g.items.join(', ')}</p>
+      <div class="kit-track" aria-hidden="true">
+        {[0, 1].map(() => (
+          <span class="kit-set">
+            <b>{g.label}</b>
+            {g.items.map((s) => <span>{s}<i>✦</i></span>)}
+          </span>
+        ))}
+      </div>
+    </div>
+  ))}
+</section>

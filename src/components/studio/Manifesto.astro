@@ -1,0 +1,12 @@
+---
+// Manifesto.astro — sticky centered words that resolve one by one as you scroll
+const words = ['Craft', 'over', 'noise'];
+---
+
+<div class="manifesto" id="manifesto" aria-label={words.join(' ')}>
+  <div class="manifesto-pin">
+    <p class="manifesto-words wide" aria-hidden="true">
+      {words.map((w) => <span data-mword>{w}</span>)}
+    </p>
+  </div>
+</div>

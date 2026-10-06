@@ -1,0 +1,92 @@
+---
+// Cases.astro — specimen reel: pinned horizontal scroll of full case panels under a "microscope" overlay
+import { projects } from '../../data/portfolio';
+const items = [...projects].sort((a, b) => b.at - a.at);
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="reel" id="cases" data-mode="Case files" aria-label="Case files">
+  <header class="reel-head">
+    <div>
+      <p class="label">Lab report 02 <i>//</i> Case files <i>//</i> {items.length} specimens</p>
+      <h2 class="headline reel-title" data-split>Selected<br /><em>case files</em></h2>
+    </div>
+    <p class="reel-hint label">Scroll to examine <span aria-hidden="true">→</span></p>
+  </header>
+
+  <div class="reel-viewport">
+    <ol class="reel-track" data-reel-track>
+      {items.map((p, i) => (
+        <li class="specimen-card panel" data-reel-card={i}>
+          <div class="scope" data-case={p.id} role="button" tabindex="-1" aria-hidden="true">
+            {p.image ? (
+              <img src={p.image} alt="" loading={i < 2 ? 'eager' : 'lazy'} decoding="async" data-scope-img />
+            ) : (
+              <div class="scope-poster" style={`--paint:${p.paint};`}><span>{p.title}</span></div>
+            )}
+            <span class="scope-scan" aria-hidden="true"></span>
+            <span class="scope-corner tl" aria-hidden="true"></span>
+            <span class="scope-corner tr" aria-hidden="true"></span>
+            <span class="scope-corner bl" aria-hidden="true"></span>
+            <span class="scope-corner br" aria-hidden="true"></span>
+            <span class="scope-mag" aria-hidden="true">Mag ×{(i % 3) * 20 + 40} <i>//</i> Sample {pad(i + 1)}</span>
+            {p.url && <span class="scope-live"><i></i>Live</span>}
+          </div>
+
+          <div class="specimen-data">
+            <p class="specimen-no">Case {pad(i + 1)} <i>/</i> {pad(items.length)}</p>
+            <h3 class="specimen-title">{p.title}</h3>
+            <dl class="specimen-meta">
+              <div><dt>Class</dt><dd>{p.kind}</dd></div>
+              <div><dt>Intake</dt><dd>{p.year}</dd></div>
+            </dl>
+            <p class="specimen-sum">{p.summary}</p>
+            <p class="label specimen-compounds">Compounds</p>
+            <div class="chips">{p.stack.slice(0, 5).map((s) => <span class="chip">{s}</span>)}</div>
+            <div class="specimen-actions">
+              <button type="button" class="btn" data-case={p.id}>Open case file</button>
+              {p.url && (
+                <a class="btn btn--ghost" href={p.url} target="_blank" rel="noopener">Visit live ↗</a>
+              )}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  <footer class="reel-foot">
+    <p class="reel-count label"><span data-reel-count>Case 01</span> <i>/</i> {pad(items.length)}</p>
+    <div class="reel-bar" aria-hidden="true"><i data-reel-bar></i></div>
+    <ol class="reel-index">
+      {items.map((p, i) => (
+        <li><button type="button" data-reel-jump={i}>{pad(i + 1)} {p.title}</button></li>
+      ))}
+    </ol>
+  </footer>
+
+  <script type="application/json" id="case-data" set:html={JSON.stringify(projects)} />
+</section>
+
+<div class="case" id="case" role="dialog" aria-modal="true" aria-labelledby="case-title" hidden>
+  <div class="case-backdrop" data-case-close></div>
+  <article class="case-panel panel">
+    <header class="case-top">
+      <p class="label" id="case-kind"></p>
+      <button type="button" class="case-close" data-case-close aria-label="Close case file">✕</button>
+    </header>
+    <h3 class="headline case-heading" id="case-title"></h3>
+    <div class="case-cols">
+      <div>
+        <p id="case-summary" class="case-lead"></p>
+        <p id="case-detail" class="case-detail"></p>
+        <a id="case-link" class="btn" target="_blank" rel="noopener" hidden>Open live specimen ↗</a>
+      </div>
+      <div>
+        <p class="label">Compounds</p>
+        <div class="chips" id="case-stack"></div>
+      </div>
+    </div>
+    <div class="case-gallery" id="case-gallery"></div>
+  </article>
+</div>
