@@ -9,6 +9,15 @@ const links = [
   { href: 'https://linkedin.com/in/deanbarquio', label: 'LinkedIn' },
   { href: '/Cover Letter.pdf', label: 'Cover letter' },
 ];
+const byId = new Map(projects.map((p) => [p.id, p]));
+/** One row per place for the projects menu; `image` feeds the hover scratch */
+const rows = PLACES.map((pl) => {
+  const p = byId.get(pl.id);
+  if (p) return { id: pl.id, title: p.title, year: p.year, kind: p.kind, image: p.image, paint: p.paint };
+  return pl.id === 'about'
+    ? { id: pl.id, title: 'Studio', year: '2021 — Now', kind: 'About Dean', image: '/profile.png', paint: pl.paint }
+    : { id: pl.id, title: 'Signal', year: 'Now', kind: 'Contact', image: undefined, paint: pl.paint };
+});
 ---
 
 <World>
@@ -22,6 +31,12 @@ const links = [
         <span class="marker-label"><span class="marker-num">{num(i)}</span>{p.label}</span>
       </button>
     ))}
+  </div>
+
+  <!-- Guardian name tags: appear over the turtle and dragon while a beacon is open -->
+  <div class="markers" aria-hidden="true">
+    <span class="gtag is-off" data-guardian="turtle"><b>Aetherwing</b><i>Guardian · click</i></span>
+    <span class="gtag is-off" data-guardian="dragon"><b>Prowler</b><i>Guardian · click</i></span>
   </div>
 
   <header class="hud hud--top">
@@ -49,7 +64,7 @@ const links = [
   <h1 class="headline">Building<br />interfaces<br />that move</h1>
 
   <footer class="hud hud--foot">
-    <button type="button" class="list-btn" id="nav-list" aria-expanded="false" aria-controls="drawer" aria-label="All places">
+    <button type="button" class="list-btn" id="nav-list" aria-expanded="false" aria-controls="drawer" aria-label="All projects">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h1M2 8h1M2 12h1M6 4h8M6 8h8M6 12h8" /></svg>
     </button>
     <p class="hint" aria-hidden="true">
@@ -58,19 +73,34 @@ const links = [
     </p>
   </footer>
 
-  <nav class="drawer" id="drawer" aria-label="Places in the valley" hidden>
-    <p class="eyebrow">Places · {PLACES.length}</p>
-    <ol>
-      {PLACES.map((p, i) => (
+  <!-- Night veil shared by the menu and project view: mist, vignette, lightning -->
+  <div class="atmos" aria-hidden="true">
+    <i class="fog"></i>
+    <i class="fog fog--b"></i>
+    <i class="bolt-flash" id="bolt-flash"></i>
+  </div>
+
+  <!-- Hover preview for the projects menu: the project behind a pane of ice, mirrored below -->
+  <div class="menu-scratch" id="menu-scratch" aria-hidden="true">
+    <div class="ice-pane"><i class="ice-img"></i><i class="ice-frost"></i><i class="ice-sheen"></i></div>
+    <div class="ice-reflect"><i class="ice-img"></i></div>
+  </div>
+
+  <!-- Projects menu: full-screen list; hovering a row scratches its project into view -->
+  <nav class="menu" id="drawer" aria-label="All projects" hidden>
+    <ol class="menu-list">
+      {rows.map((r) => (
         <li>
-          <button type="button" data-place={p.id} style={`--paint:${p.paint}`}>
-            <span class="drawer-num">{num(i)}</span>
-            <span class="drawer-name">{p.label}</span>
-            <span class="drawer-sub">{p.sub}</span>
+          <button type="button" class="menu-row" data-place={r.id} data-image={r.image ?? ''} style={`--paint:${r.paint}`}>
+            <span class="menu-title">{r.title}</span>
+            <span class="menu-year">{r.year}</span>
+            <span class="menu-kind">{r.kind}</span>
+            <span class="menu-go"><span aria-hidden="true">▶</span> View</span>
           </button>
         </li>
       ))}
     </ol>
+    <button type="button" class="overview-btn" id="menu-close"><span aria-hidden="true">←</span> To overview</button>
   </nav>
 
   <section class="caption" id="caption" aria-live="polite" aria-label="Selected place" hidden>
@@ -91,15 +121,24 @@ const links = [
 
   <div class="flash" aria-hidden="true"></div>
 
-  <aside class="panel" id="panel" aria-label="Place details" hidden>
-    <div class="panel-bar">
-      <button type="button" class="icon-btn" id="panel-prev" aria-label="Previous place">←</button>
-      <span class="panel-count" id="panel-count">01 / 12</span>
-      <button type="button" class="icon-btn" id="panel-next" aria-label="Next place">→</button>
-      <button type="button" class="icon-btn panel-close" id="panel-close" aria-label="Close">✕</button>
-    </div>
+  <!-- Intro cinematic: letterbox bars and a single line over the phoenix -->
+  <div class="letterbox" aria-hidden="true"><i></i><i></i></div>
+  <div class="intro-cut" id="intro-cut" aria-hidden="true"></div>
+  <p class="intro-line" aria-hidden="true">
+    <span>Above the mist, a phoenix keeps watch</span>
+    <small>Click to skip</small>
+  </p>
+
+  <!-- Project view: what you find on the other side of a portal -->
+  <article class="panel" id="panel" aria-label="Project" hidden>
     <div class="panel-body" id="panel-body"></div>
-  </aside>
+    <button type="button" class="overview-btn" id="panel-close"><span aria-hidden="true">←</span> To overview</button>
+    <div class="panel-step">
+      <span class="panel-count" id="panel-count">01 / 12</span>
+      <button type="button" class="cap-btn" id="panel-prev" aria-label="Previous project">←</button>
+      <button type="button" class="cap-btn" id="panel-next" aria-label="Next project">→</button>
+    </div>
+  </article>
 
   <div class="gate" id="gate">
     <div class="gate-inner">
@@ -109,87 +148,87 @@ const links = [
         <span class="gate-track"><i id="gate-bar"></i></span>
         <span id="gate-pct">Shaping the valley…</span>
       </div>
-      <div class="gate-actions">
-        <button type="button" class="gate-btn" id="gate-sound" disabled>Enter with sound</button>
-        <button type="button" class="gate-btn gate-btn--quiet" id="gate-quiet" disabled>Enter without sound</button>
-      </div>
-      <p class="gate-note">Best with headphones</p>
     </div>
   </div>
 
-  <!-- Panel content, one per place; cloned into the panel on open -->
+  <!-- Project view content, one per place; cloned into the panel on open -->
   <div class="tpls" hidden>
     <section data-tpl="about">
-      <p class="eyebrow">01 · Studio</p>
-      <h2 tabindex="-1">Hi, I'm Dean.</h2>
-      <figure class="shot shot--square"><img src="/profile.png" alt="Portrait of Dean Barquio" width="640" height="640" loading="lazy" /></figure>
-      <p class="lead">I craft interfaces where motion carries meaning, turning complex systems into products that feel calm, fast and alive.</p>
-      <p>
-        Shipping production frontends at N-Compass TV by day; after hours I build cinematic web stories with Three.js and GSAP.
-        {education.honors[0]}, {education.degree}.
-      </p>
-      <h3>Now</h3>
-      <ul class="rows">
-        {roles.map((r) => (
-          <li>
-            <span class="meta">{r.period}</span>
-            <strong>{r.role}</strong>
-            <span>{r.company}</span>
-          </li>
-        ))}
-      </ul>
-      <h3>Journey</h3>
-      <ol class="rows">
-        {milestones.map((m) => (
-          <li>
-            <span class="meta">{m.tag}</span>
-            <strong>{m.title}</strong>
-            <span>{m.sub}</span>
-          </li>
-        ))}
-      </ol>
-      <h3>Toolbox</h3>
-      {skillGroups.map((g) => (
-        <div class="group">
-          <span class="meta">{g.label}</span>
-          <ul class="chips">{g.items.map((s) => <li>{s}</li>)}</ul>
+      <figure class="pv-hero"><img src="/profile.png" alt="Portrait of Dean Barquio" loading="lazy" /></figure>
+      <div class="pv-intro">
+        <h2 tabindex="-1">Hi, I'm Dean.</h2>
+        <div class="pv-main">
+          <p class="pv-lead">I craft interfaces where motion carries meaning, turning complex systems into products that feel calm, fast and alive.</p>
+          <dl class="pv-facts">
+            <div><dt>Based</dt><dd>Cebu, PH</dd></div>
+            <div><dt>Now</dt><dd>{roles[0].role}<br />{roles[0].company}</dd></div>
+            <div><dt>Education</dt><dd>{education.degree}<br />{education.honors[0]}</dd></div>
+            <div><dt>Toolbox</dt><dd>{skillGroups.slice(0, 3).map((g) => <span>{g.items.slice(0, 4).join(', ')}<br /></span>)}</dd></div>
+          </dl>
+          <p class="pv-text">Shipping production frontends at N-Compass TV by day; after hours I build cinematic web stories with Three.js and GSAP.</p>
+          <h3>Journey</h3>
+          <ol class="pv-rows">
+            {milestones.map((m) => (
+              <li>
+                <span class="pv-meta">{m.tag}</span>
+                <strong>{m.title}</strong>
+                <span>{m.sub}</span>
+              </li>
+            ))}
+          </ol>
         </div>
-      ))}
+      </div>
     </section>
 
     {projects.map((p) => {
-      const i = PLACES.findIndex((k) => k.id === p.id);
+      const shots = p.gallery ?? (p.image ? [p.image] : []);
       return (
         <section data-tpl={p.id}>
-          <p class="eyebrow" style={`--paint:${p.paint}`}><i class="dot"></i>{num(i)} · {p.kind} · {p.year}</p>
-          <h2 tabindex="-1">{p.title}</h2>
           {p.image ? (
-            <figure class="shot"><img src={p.image} alt={`${p.title} screenshot`} loading="lazy" decoding="async" /></figure>
+            <figure class="pv-hero"><img src={p.image} alt={`${p.title} screenshot`} loading="lazy" decoding="async" /></figure>
           ) : (
-            <figure class="shot shot--poster" style={`--paint:${p.paint}`}><span>{p.title}</span></figure>
+            <figure class="pv-hero pv-hero--poster" style={`--paint:${p.paint}`}><span>{p.title}</span></figure>
           )}
-          <p class="lead">{p.summary}</p>
-          <p>{p.detail}</p>
-          <ul class="chips">{p.stack.map((s) => <li>{s}</li>)}</ul>
-          <div class="actions">
-            <a class="action action--primary" href={`/work/${p.id}`}>Case study</a>
-            {p.url && <a class="action" href={p.url} target="_blank" rel="noopener noreferrer">Live site ↗</a>}
+          <div class="pv-intro">
+            <h2 tabindex="-1">{p.title}</h2>
+            <div class="pv-main">
+              <p class="pv-lead">{p.summary}</p>
+              <dl class="pv-facts">
+                <div><dt>Year</dt><dd>{p.year}</dd></div>
+                <div class="pv-span"><dt>Stack</dt><dd>{p.stack.map((s) => <span>{s}<br /></span>)}</dd></div>
+                <div><dt>Type</dt><dd>{p.kind}</dd></div>
+              </dl>
+              <p class="pv-text">{p.detail}</p>
+              <div class="pv-actions">
+                <a class="action action--primary" href={`/work/${p.id}`}>Case study</a>
+                {p.url && <a class="action" href={p.url} target="_blank" rel="noopener noreferrer">Live site ↗</a>}
+              </div>
+            </div>
           </div>
+          {shots.length > 1 && (
+            <div class="pv-gallery">
+              {shots.slice(1).map((src, i) => (
+                <figure class="pv-shot"><img src={src} alt={`${p.title} screenshot ${i + 2}`} loading="lazy" decoding="async" /></figure>
+              ))}
+            </div>
+          )}
         </section>
       );
     })}
 
     <section data-tpl="contact">
-      <p class="eyebrow">{num(PLACES.length - 1)} · Signal</p>
-      <h2 tabindex="-1">Let's build something remarkable.</h2>
-      <p class="lead">Open to roles and collabs with teams that care about craft, motion and the details.</p>
-      <a class="mail" href="mailto:deanbarquio@gmail.com">deanbarquio@gmail.com</a>
-      <div class="actions">
-        {links.map((l) => (
-          <a class="action" href={l.href} target="_blank" rel="noopener noreferrer">{`${l.label} ↗`}</a>
-        ))}
+      <figure class="pv-hero pv-hero--poster" style="--paint:#ff5ab4"><span>Say hi</span></figure>
+      <div class="pv-intro">
+        <h2 tabindex="-1">Let's build something remarkable.</h2>
+        <div class="pv-main">
+          <p class="pv-lead">Open to roles and collabs with teams that care about craft, motion and the details.</p>
+          <a class="mail" href="mailto:deanbarquio@gmail.com">deanbarquio@gmail.com</a>
+          <dl class="pv-facts">
+            <div><dt>Based</dt><dd>Cebu, PH · GMT+8</dd></div>
+            <div><dt>Elsewhere</dt><dd>{links.map((l) => <span><a href={l.href} target="_blank" rel="noopener noreferrer">{`${l.label} ↗`}</a><br /></span>)}</dd></div>
+          </dl>
+        </div>
       </div>
-      <p class="meta">Based in Cebu, PH · GMT+8</p>
     </section>
   </div>
 </World>

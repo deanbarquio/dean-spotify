@@ -8,6 +8,7 @@ export type Sound = {
   setOn: (on: boolean) => void;
   blip: (kind: 'hover' | 'open' | 'close') => void;
   thunder: (strength: number) => void;
+  screech: () => void;
 };
 
 const hz = (midi: number) => 440 * 2 ** ((midi - 69) / 12);
@@ -168,6 +169,42 @@ export function createSound(): Sound {
       src.connect(low).connect(g).connect(master);
       src.start(t);
       src.stop(t + 6);
+    },
+    /** Phoenix cry: a gliding, rasped tone with a breathy hiss, rising then falling */
+    screech() {
+      if (!on || !ctx) return;
+      const t = ctx.currentTime;
+      const o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(900, t);
+      o.frequency.exponentialRampToValueAtTime(2300, t + 0.18);
+      o.frequency.exponentialRampToValueAtTime(1100, t + 0.75);
+      const vib = ctx.createOscillator();
+      vib.frequency.value = 28;
+      const vibAmt = ctx.createGain();
+      vibAmt.gain.value = 70;
+      vib.connect(vibAmt).connect(o.frequency);
+      const band = ctx.createBiquadFilter();
+      band.type = 'bandpass';
+      band.frequency.value = 2000;
+      band.Q.value = 1.4;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.11, t + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
+      o.connect(band).connect(g).connect(fx);
+      // Breath: high-passed noise riding along
+      const n = ctx.createBufferSource();
+      n.buffer = noiseBuf;
+      const hp = ctx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 3000;
+      const ng = ctx.createGain();
+      ng.gain.setValueAtTime(0, t);
+      ng.gain.linearRampToValueAtTime(0.05, t + 0.04);
+      ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+      n.connect(hp).connect(ng).connect(fx);
+      [o, vib, n].forEach((s) => (s.start(t), s.stop(t + 0.9)));
     },
     blip(kind) {
       if (!on || !ctx) return;

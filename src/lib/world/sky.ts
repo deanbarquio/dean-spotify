@@ -7,6 +7,7 @@
  */
 import * as THREE from 'three';
 import { rng } from './nature';
+import { createLightning } from './lightning';
 
 type StormOpts = {
   scene: THREE.Scene;
@@ -14,31 +15,6 @@ type StormOpts = {
   fog: THREE.FogExp2;
   onThunder?: (strength: number, delay: number) => void;
 };
-
-/** Midpoint-displaced polyline with a couple of side branches, as line segments */
-function boltGeometry(rand: () => number, from: THREE.Vector3, to: THREE.Vector3) {
-  const pts: number[] = [];
-  const fork = (a: THREE.Vector3, b: THREE.Vector3, depth: number, spread: number) => {
-    if (depth === 0) {
-      pts.push(a.x, a.y, a.z, b.x, b.y, b.z);
-      return;
-    }
-    const m = a.clone().lerp(b, 0.5);
-    m.x += (rand() - 0.5) * spread;
-    m.z += (rand() - 0.5) * spread * 0.3;
-    fork(a, m, depth - 1, spread * 0.55);
-    fork(m, b, depth - 1, spread * 0.55);
-    // Side branch off the midpoint, shorter and fainter by being split further
-    if (depth > 3 && rand() < 0.45) {
-      const end = m.clone().add(new THREE.Vector3((rand() - 0.5) * spread * 1.6, (b.y - a.y) * 0.35, 0));
-      fork(m, end, depth - 2, spread * 0.4);
-    }
-  };
-  fork(from, to, 7, 36);
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-  return g;
-}
 
 export function buildStorm({ scene, hemi, fog, onThunder }: StormOpts) {
   const rand = rng(41);
@@ -49,8 +25,9 @@ export function buildStorm({ scene, hemi, fog, onThunder }: StormOpts) {
   const baseFog = fog.color.clone();
   const litFog = new THREE.Color('#6f93c4');
 
-  const boltMat = new THREE.LineBasicMaterial({ color: new THREE.Color(3.2, 3.6, 4.4), transparent: true, opacity: 0, fog: false, toneMapped: false });
-  let bolt: THREE.LineSegments | null = null;
+  // Same ribbon bolts as the summon strike, cold blue-white
+  const bolt = createLightning(new THREE.Color('#9fc4ff'));
+  scene.add(bolt.mesh);
 
   let next = 4 + rand() * 4;
   let pulses: { at: number; amp: number }[] = [];
@@ -58,17 +35,11 @@ export function buildStorm({ scene, hemi, fog, onThunder }: StormOpts) {
   const strike = (t: number) => {
     const n = 2 + Math.floor(rand() * 3);
     pulses = Array.from({ length: n }, (_, i) => ({ at: t + i * (0.07 + rand() * 0.12), amp: i === 0 ? 1 : 0.4 + rand() * 0.6 }));
-    if (bolt) {
-      scene.remove(bolt);
-      bolt.geometry.dispose();
-    }
-    // Somewhere across the far horizon, behind the maze
+    // Somewhere across the far horizon, behind the maze; ends above the far
+    // ridgeline so it reads against the sky, not hidden behind mountains
     const x = (rand() - 0.5) * 360;
     const z = -320 - rand() * 80;
-    // Ends above the far ridgeline so it reads against the sky, not hidden behind mountains
-    bolt = new THREE.LineSegments(boltGeometry(rand, new THREE.Vector3(x, 210, z), new THREE.Vector3(x + (rand() - 0.5) * 60, 70, z)), boltMat);
-    bolt.frustumCulled = false;
-    scene.add(bolt);
+    bolt.strike(new THREE.Vector3(x, 210, z), new THREE.Vector3(x + (rand() - 0.5) * 60, 70, z), 3.2, 4, rand);
     flash.position.set(x * 0.6, 160, z * 0.8);
     const strength = 0.5 + rand() * 0.5;
     onThunder?.(strength, 0.8 + rand() * 2.2);
@@ -85,8 +56,10 @@ export function buildStorm({ scene, hemi, fog, onThunder }: StormOpts) {
       hemi.intensity = baseHemi + f * 1.6;
       fog.color.copy(baseFog).lerp(litFog, f * 0.55);
       scene.backgroundIntensity = 1 + f * 1.3;
-      boltMat.opacity = f > 0.25 ? Math.min(1, f * 1.4) : 0;
+      bolt.alpha = f > 0.2 ? Math.min(1, f * 1.3) : 0;
     },
+    setSize: bolt.setSize,
+    prewarm: bolt.prewarm,
   };
 }
 

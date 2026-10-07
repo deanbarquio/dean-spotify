@@ -67,10 +67,8 @@ img {
 .meta,
 .hint,
 .panel-count,
-.drawer-sub,
 .chips li,
 .action,
-.gate-btn,
 .marker-label {
   font-family: var(--sans);
   font-size: 10.5px;
@@ -330,203 +328,476 @@ body.is-close .headline {
   pointer-events: none;
 }
 
-/* ───────── Frosted surfaces ───────── */
-.drawer,
+/* Guardian tags: a quiet name that brightens on hover */
+.gtag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  translate: -50% -100%;
+  white-space: nowrap;
+  text-align: center;
+  opacity: 0.55;
+  transition: opacity 0.4s;
+  will-change: transform;
+}
+.gtag b {
+  font: 400 15px/1 var(--serif);
+  color: var(--fg);
+  text-shadow: 0 2px 14px rgba(4, 7, 14, 0.9);
+}
+.gtag i {
+  font: 500 8.5px/1 var(--sans);
+  font-style: normal;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.gtag.is-hover {
+  opacity: 1;
+}
+.gtag.is-off,
+body.has-panel .gtag,
+body.has-menu .gtag {
+  opacity: 0;
+}
+
+/* ───────── Shared atmosphere for the menu and project view ─────────
+   A dark veil over the still-running valley (its storm keeps flashing
+   through), two banks of mist rolling across, a heavy vignette, grain,
+   and a lightning flicker on every strike. */
+.atmos {
+  position: fixed;
+  inset: 0;
+  z-index: 18;
+  pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(ellipse 70% 55% at 50% 40%, rgba(16, 28, 50, 0.62), rgba(6, 9, 18, 0.9) 75%);
+  backdrop-filter: blur(5px) saturate(0.8);
+  -webkit-backdrop-filter: blur(5px) saturate(0.8);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.7s var(--ease), visibility 0.7s;
+}
+body.has-menu .atmos,
+body.has-panel .atmos {
+  opacity: 1;
+  visibility: visible;
+}
+.fog {
+  position: absolute;
+  inset: -30% -60%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='500'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.009' numOctaves='4' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.68  0 0 0 0 0.9  0 0 0 1.6 -0.75'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  background-size: 900px 500px;
+  filter: blur(18px);
+  opacity: 0.2;
+  animation: fog-drift 70s linear infinite;
+}
+.fog--b {
+  top: 20%;
+  opacity: 0.13;
+  background-size: 1300px 720px;
+  animation-duration: 110s;
+  animation-direction: reverse;
+}
+@keyframes fog-drift {
+  from { translate: 0 0; }
+  to { translate: 900px 0; }
+}
+.atmos::before {
+  /* Vignette: the edges fall away into black like a cinematic */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 85% 75% at 50% 45%, transparent 45%, rgba(2, 4, 10, 0.85));
+}
+.atmos::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* Lightning: a cold flicker from the top of the sky, 2–3 pulses */
+.bolt-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 60% at var(--bx, 50%) -10%, rgba(190, 215, 255, 0.55), rgba(120, 160, 230, 0.12) 50%, transparent 75%);
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+.bolt-flash.is-strike {
+  animation: strike 1.1s linear;
+}
+@keyframes strike {
+  0% { opacity: 0; }
+  3% { opacity: 1; }
+  9% { opacity: 0.15; }
+  14% { opacity: 0.85; }
+  22% { opacity: 0.1; }
+  30% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+.menu,
 .panel {
   position: fixed;
-  z-index: 30;
-  border: var(--hair);
-  border-radius: 4px;
-  background: var(--glass);
-  backdrop-filter: blur(18px) saturate(1.2);
-  -webkit-backdrop-filter: blur(18px) saturate(1.2);
-}
-
-.drawer {
-  left: var(--gut);
-  bottom: calc(max(26px, env(safe-area-inset-bottom)) + 60px);
-  width: min(360px, calc(100vw - 40px));
-  max-height: calc(100svh - 220px);
-  overflow: auto;
-  padding: 18px 10px 10px;
-}
-.drawer .eyebrow {
-  margin: 0 0 10px 12px;
-}
-.drawer ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.drawer button {
-  display: grid;
-  grid-template-columns: 28px 1fr auto;
-  align-items: baseline;
-  gap: 8px;
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 3px;
-  text-align: left;
-  transition: background-color 0.2s;
-}
-.drawer button:hover {
-  background: rgba(232, 238, 248, 0.06);
-}
-.drawer-num {
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  color: var(--paint);
-}
-.drawer-name {
-  font: 400 19px/1.1 var(--serif);
-}
-.drawer-sub {
-  color: var(--fg-3);
-  letter-spacing: 0.16em;
-  font-size: 9.5px;
-}
-
-/* Through the portal: a centred sheet that grows out of the light */
-.panel {
-  top: calc(max(28px, env(safe-area-inset-top)) + 64px);
-  bottom: max(26px, env(safe-area-inset-bottom));
-  left: 50%;
-  width: min(720px, calc(100vw - 40px));
-  display: flex;
-  flex-direction: column;
+  inset: 0;
+  z-index: 19; /* under the top HUD, which stays usable */
   opacity: 0;
-  translate: -50% 0;
-  scale: 0.94;
-  transition: opacity 0.5s var(--ease) 0.15s, scale 0.7s var(--ease) 0.15s;
+  transition: opacity 0.6s var(--ease), visibility 0.6s;
 }
+.menu.is-open,
 .panel.is-open {
   opacity: 1;
-  scale: 1;
 }
-.panel-bar {
-  display: flex;
+body.has-menu .hud--foot,
+body.has-panel .hud--foot,
+body.has-menu .caption,
+body.has-menu .headline {
+  opacity: 0;
+  visibility: hidden;
+}
+.overview-btn {
+  position: fixed;
+  z-index: 21;
+  left: var(--gut);
+  bottom: max(26px, env(safe-area-inset-bottom));
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 12px 12px 16px;
-  border-bottom: var(--hair);
+  gap: 14px;
+  padding: 16px 26px;
+  border: 1px solid rgba(232, 238, 248, 0.3);
+  border-radius: 2px;
+  background: rgba(13, 18, 32, 0.5);
+  font: 500 10.5px/1 var(--sans);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  transition: border-color 0.3s, background-color 0.3s;
 }
-.panel-count {
-  color: var(--fg-2);
-  letter-spacing: 0.18em;
-  font-variant-numeric: tabular-nums;
-}
-.icon-btn {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border: var(--hair);
-  border-radius: 50%;
-  font-size: 12px;
-  transition: border-color 0.2s, background-color 0.2s;
-}
-.icon-btn:hover {
-  border-color: var(--fg-2);
+.overview-btn:hover {
+  border-color: var(--fg);
   background: rgba(232, 238, 248, 0.06);
 }
-.panel-close {
-  margin-left: auto;
-}
-.panel-body {
-  flex: 1;
+
+/* ───────── Projects menu ───────── */
+.menu {
   overflow: auto;
-  padding: 22px 24px 30px;
   overscroll-behavior: contain;
+  padding: max(110px, 14vh) var(--gut) 140px;
 }
-.panel-body h2 {
-  margin: 12px 0 0;
-  font: 400 clamp(34px, 3.4vw, 46px) / 1 var(--serif);
+.menu-list {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: 0;
+}
+.menu-row {
+  display: grid;
+  grid-template-columns: minmax(0, 4.6fr) minmax(0, 1.5fr) minmax(0, 4fr) auto;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(232, 238, 248, 0.07);
+  text-align: left;
+  color: var(--fg-2);
+  transition: color 0.35s;
+}
+.menu-row:hover,
+.menu-row:focus-visible {
+  color: var(--fg);
+  outline: none;
+}
+.menu-title {
+  font: 400 clamp(20px, 1.55vw, 25px) / 1.1 var(--serif);
+  letter-spacing: -0.01em;
+  color: rgba(232, 238, 248, 0.82);
+  transition: color 0.35s;
+}
+.menu-row:hover .menu-title,
+.menu-row:focus-visible .menu-title {
+  color: #fff;
+}
+.menu-year,
+.menu-kind {
+  font: 400 13px/1.2 var(--sans);
+}
+.menu-go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 96px;
+  padding: 12px 0;
+  border: 1px solid rgba(232, 238, 248, 0.18);
+  border-radius: 2px;
+  font: 500 10px/1 var(--sans);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  transition: border-color 0.35s, background-color 0.35s;
+}
+.menu-go span {
+  font-size: 8px;
+}
+.menu-row:hover .menu-go,
+.menu-row:focus-visible .menu-go {
+  border-color: rgba(232, 238, 248, 0.6);
+  background: rgba(232, 238, 248, 0.05);
+}
+/* Behind the hovered row: its project, smeared on with a dry brush */
+/* Hover preview: the project seen through a pane of ice, mirrored in it below */
+.menu-scratch {
+  position: fixed;
+  z-index: 18; /* over the night veil, under the menu text */
+  left: 50%;
+  top: 50%;
+  width: min(720px, 64vw);
+  translate: -50% -32%;
+  opacity: 0;
+  scale: 0.97;
+  filter: blur(8px);
+  transition: opacity 0.9s var(--ease), filter 0.9s var(--ease), scale 1.2s var(--ease), top 1.1s var(--ease);
+  pointer-events: none;
+}
+.menu-scratch.is-on {
+  opacity: 1;
+  scale: 1;
+  filter: blur(0);
+  transition: opacity 1.2s var(--ease), filter 1.4s var(--ease), scale 2s var(--ease), top 1.1s var(--ease);
+}
+.ice-pane,
+.ice-reflect {
+  position: relative;
+  aspect-ratio: 16 / 7;
+  overflow: hidden;
+}
+/* Edges thaw into the mist instead of stopping on a hard frame */
+.ice-pane {
+  -webkit-mask: radial-gradient(ellipse 50% 50% at 50% 50%, #000 52%, transparent 100%);
+  mask: radial-gradient(ellipse 50% 50% at 50% 50%, #000 52%, transparent 100%);
+}
+.ice-img {
+  position: absolute;
+  inset: 0;
+  background: var(--img, none) center 25% / cover no-repeat, color-mix(in srgb, var(--paint, #3573a5) 50%, #142c47);
+  /* Cold grade: cooled, slightly lifted blacks, still clearly readable */
+  filter: saturate(0.75) contrast(0.95) brightness(0.85) hue-rotate(-8deg);
+}
+.ice-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(170deg, rgba(120, 200, 230, 0.32), rgba(30, 70, 120, 0.42));
+  mix-blend-mode: soft-light;
+}
+/* Frost: fine crystalline grain, thicker toward the edges, plus hairline cracks */
+.ice-frost {
+  position: absolute;
+  inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='315' fill='none' stroke='white' stroke-width='0.7' stroke-opacity='0.35'%3E%3Cpath d='M40 20 L150 110 L190 95 L300 180 M150 110 L130 200 M520 0 L470 80 L560 150 L640 140 M470 80 L400 95 M600 315 L560 230 L620 190 L700 240 M560 230 L480 260'/%3E%3C/svg%3E") center / 100% 100% no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.85  0 0 0 0 0.95  0 0 0 0 1  0 0 0 2.2 -1.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  -webkit-mask: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0, 0, 0, 0.25) 30%, #000 95%);
+  mask: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0, 0, 0, 0.25) 30%, #000 95%);
+  mix-blend-mode: screen;
+  opacity: 0.8;
+}
+/* A slow band of light gliding across the ice */
+.ice-sheen {
+  position: absolute;
+  inset: -20% -40%;
+  background: linear-gradient(105deg, transparent 40%, rgba(210, 240, 255, 0.16) 48%, rgba(255, 255, 255, 0.26) 50%, rgba(210, 240, 255, 0.16) 52%, transparent 60%);
+  mix-blend-mode: screen;
+  translate: -60% 0;
+}
+.menu-scratch.is-on .ice-sheen {
+  animation: sheen 6s var(--ease) 0.6s infinite;
+}
+@keyframes sheen {
+  0% { translate: -60% 0; }
+  55%, 100% { translate: 60% 0; }
+}
+/* Reflection: flipped, rippled, fading away from the edge of the ice */
+.ice-reflect {
+  margin-top: 4px;
+  aspect-ratio: 16 / 4;
+  -webkit-mask: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 85%), radial-gradient(ellipse 50% 100% at 50% 0%, #000 50%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 85%) intersect, radial-gradient(ellipse 50% 100% at 50% 0%, #000 50%, transparent 100%);
+}
+.ice-reflect .ice-img {
+  inset: 0 0 -75% 0;
+  scale: 1 -1;
+  transform-origin: top;
+  filter: saturate(0.6) brightness(0.6) blur(1.5px);
+}
+.menu-scratch.is-blank .ice-img {
+  background: radial-gradient(ellipse at 50% 45%, color-mix(in srgb, var(--paint) 60%, #3573a5), #142c47 75%);
+}
+/* Rows sit over the ice: lift their text off it */
+.menu-row {
+  text-shadow: 0 2px 18px rgba(4, 7, 14, 0.9);
+}
+
+/* ───────── Project view (through the portal) ───────── */
+.panel-body {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 160px;
+  /* Content dissolves as it scrolls up under the nav instead of colliding with it */
+  -webkit-mask: linear-gradient(180deg, transparent 0, transparent 70px, #000 150px);
+  mask: linear-gradient(180deg, transparent 0, transparent 70px, #000 150px);
+}
+/* Hero: the project painted onto the dark, its brush edge feathered out into the night */
+.pv-hero {
+  position: relative;
+  margin: 0 auto;
+  width: min(1200px, 100%);
+  height: min(58vh, 600px);
+  -webkit-mask:
+    var(--mask-hero) center / 100% 100% no-repeat,
+    radial-gradient(ellipse 50% 50% at 50% 44%, #000 40%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask:
+    var(--mask-hero) center / 100% 100% no-repeat intersect,
+    radial-gradient(ellipse 50% 50% at 50% 44%, #000 40%, transparent 100%);
+}
+.pv-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  /* Cold cinematic grade: cooled, deep shadows, a little crushed */
+  filter: saturate(0.8) contrast(1.08) brightness(0.8) hue-rotate(-6deg);
+  scale: 1.04;
+  transition: scale 1.6s var(--ease);
+}
+/* Teal light over the image, darkening to navy at the foot so it sinks into the page */
+.pv-hero::before,
+.pv-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pv-hero::before {
+  z-index: 1;
+  background: linear-gradient(160deg, rgba(90, 200, 210, 0.5), rgba(30, 60, 110, 0.6));
+  mix-blend-mode: soft-light;
+}
+.pv-hero::after {
+  z-index: 1;
+  background: linear-gradient(180deg, transparent 50%, rgba(13, 18, 32, 0.85));
+}
+.panel.is-open .pv-hero img {
+  scale: 1;
+}
+.pv-hero--poster {
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse 55% 60% at 50% 45%, color-mix(in srgb, var(--paint) 60%, #0d1220), #0d1220 75%);
+}
+.pv-hero--poster span {
+  font: 400 clamp(40px, 5.5vw, 84px) / 1 var(--serif);
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.85);
+}
+.pv-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 40px;
+  width: min(1040px, calc(100% - 2 * var(--gut)));
+  margin: -24px auto 0;
+  position: relative;
+}
+.pv-intro h2 {
+  margin: 0;
+  font: 400 clamp(30px, 2.5vw, 40px) / 1.05 var(--serif);
   letter-spacing: -0.015em;
   outline: none;
 }
-.panel-body h3 {
-  margin: 30px 0 0;
-  font: 500 10.5px/1 var(--sans);
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--fg-2);
+.pv-lead {
+  margin: 4px 0 0;
+  max-width: 30ch;
+  font: 400 clamp(18px, 1.45vw, 23px) / 1.35 var(--serif);
 }
-.panel-body p {
-  margin: 14px 0 0;
-  color: rgba(232, 238, 248, 0.78);
-}
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  color: var(--fg-2);
-}
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--paint);
-  box-shadow: 0 0 10px var(--paint);
-}
-.panel-body .lead {
-  font: 400 21px/1.32 var(--serif);
-  color: var(--fg);
-}
-.shot {
-  margin: 20px 0 0;
-  overflow: hidden;
-  border: var(--hair);
-  border-radius: 3px;
-  background: rgba(232, 238, 248, 0.04);
-}
-.shot img {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  object-position: top;
-}
-.shot--square img {
-  aspect-ratio: 1;
-  object-position: center;
-}
-.shot--poster {
+.pv-facts {
   display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 10;
-  background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--paint) 45%, transparent), transparent 70%), #0d1626;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 36px;
+  margin: 46px 0 0;
 }
-.shot--poster span {
-  font: 400 34px/1 var(--serif);
+.pv-span {
+  grid-row: span 2;
+  grid-column: 2;
 }
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+.pv-facts dt {
+  margin-bottom: 8px;
+  font: 400 11px/1 var(--sans);
+  text-transform: uppercase;
+  color: rgba(150, 175, 210, 0.75);
+}
+.pv-facts dd {
+  margin: 0;
+  font: 400 14.5px/1.85 var(--sans);
+}
+.pv-facts a {
+  text-decoration: none;
+}
+.pv-facts a:hover {
+  text-decoration: underline;
+}
+.pv-text {
+  margin: 40px 0 0;
+  max-width: 58ch;
+  font: 400 14.5px/1.7 var(--sans);
+  color: rgba(232, 238, 248, 0.72);
+}
+.pv-main h3 {
+  margin: 56px 0 0;
+  font: 400 13px/1 var(--sans);
+  text-transform: uppercase;
+  color: rgba(150, 175, 210, 0.75);
+}
+.pv-rows {
   list-style: none;
-  margin: 18px 0 0;
+  margin: 16px 0 0;
   padding: 0;
 }
-.chips li {
-  padding: 6px 10px;
-  border: var(--hair);
-  border-radius: 2px;
-  font-size: 9.5px;
-  letter-spacing: 0.16em;
-  color: var(--fg-2);
+.pv-rows li {
+  display: grid;
+  gap: 4px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(232, 238, 248, 0.08);
+  color: rgba(232, 238, 248, 0.65);
 }
-.actions {
+.pv-rows strong {
+  font: 400 20px/1.2 var(--serif);
+  color: var(--fg);
+}
+.pv-meta {
+  font: 400 12px/1.4 var(--sans);
+  text-transform: uppercase;
+  color: rgba(150, 175, 210, 0.7);
+}
+.pv-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 24px;
+  gap: 12px;
+  margin-top: 40px;
 }
 .action {
-  padding: 12px 16px;
-  border: 1px solid rgba(232, 238, 248, 0.4);
+  padding: 16px 24px;
+  border: 1px solid rgba(232, 238, 248, 0.3);
   border-radius: 2px;
   text-decoration: none;
-  transition: background-color 0.25s, color 0.25s, border-color 0.25s;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 .action:hover {
   border-color: var(--fg);
@@ -540,40 +811,158 @@ body.is-close .headline {
   background: transparent;
   color: var(--fg);
 }
-.rows {
-  list-style: none;
-  margin: 10px 0 0;
-  padding: 0;
-}
-.rows li {
+.pv-gallery {
   display: grid;
-  gap: 3px;
-  padding: 12px 0;
-  border-top: var(--hair);
-  color: rgba(232, 238, 248, 0.78);
+  gap: 60px;
+  width: min(1040px, calc(100% - 2 * var(--gut)));
+  margin: 80px auto 0;
 }
-.rows strong {
-  font: 400 18px/1.2 var(--serif);
-  color: var(--fg);
+.pv-shot {
+  margin: 0;
+  -webkit-mask: var(--mask-hero) center / 100% 100% no-repeat;
+  mask: var(--mask-hero) center / 100% 100% no-repeat;
 }
-.meta {
-  color: var(--fg-3);
-  letter-spacing: 0.18em;
-  font-size: 9.5px;
+.pv-shot img {
+  width: 100%;
+  max-height: 80vh;
+  object-fit: cover;
+  object-position: top;
+  filter: saturate(0.85) brightness(0.9);
 }
-.group {
-  margin-top: 16px;
+/* Next project: a round paint blot opening onto the next world */
+.pv-next {
+  display: grid;
+  justify-items: center;
+  width: min(640px, 100%);
+  margin: 140px auto 0;
+  text-align: center;
 }
-.group .chips {
-  margin-top: 8px;
+.pv-next-blot {
+  position: relative;
+  width: min(560px, 80vw);
+  aspect-ratio: 1;
+  background: radial-gradient(ellipse at 50% 45%, color-mix(in srgb, var(--paint) 55%, #3573a5), #142c47 75%) center / cover no-repeat;
+  -webkit-mask:
+    var(--mask-blot) center / 100% 100% no-repeat,
+    radial-gradient(circle at 50% 50%, #000 34%, transparent 60%);
+  -webkit-mask-composite: source-in;
+  mask:
+    var(--mask-blot) center / 100% 100% no-repeat intersect,
+    radial-gradient(circle at 50% 50%, #000 34%, transparent 60%);
+  filter: saturate(0.8) contrast(1.05) brightness(0.8) hue-rotate(-6deg);
+  scale: 0.96;
+  transition: scale 1.4s var(--ease), filter 0.8s var(--ease);
+}
+/* Same cold grade as the hero: teal light, then a fall to night at the foot under the title */
+.pv-next-blot::before,
+.pv-next-blot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.pv-next-blot::before {
+  background: linear-gradient(160deg, rgba(60, 170, 190, 0.6), rgba(25, 50, 100, 0.75));
+  mix-blend-mode: multiply;
+}
+.pv-next-blot::after {
+  background: radial-gradient(ellipse 60% 40% at 50% 85%, rgba(10, 14, 26, 0.85), transparent);
+}
+.pv-next:hover .pv-next-blot,
+.pv-next:focus-visible .pv-next-blot {
+  scale: 1;
+  filter: saturate(0.95) contrast(1.05) brightness(0.95) hue-rotate(-6deg);
+}
+.pv-next-label {
+  margin-top: -170px;
+  font: 500 10px/1 var(--sans);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  position: relative;
+}
+.pv-next-title {
+  /* Grid rows can't go negative, so pull the title up to sit under its label inside the blot */
+  margin-top: -144px;
+  font: 400 clamp(30px, 2.6vw, 42px) / 1 var(--serif);
+  text-shadow: 0 2px 24px rgba(5, 9, 18, 0.9);
+  position: relative;
 }
 .mail {
   display: inline-block;
-  margin-top: 18px;
-  font: 400 clamp(22px, 2.4vw, 28px) / 1.2 var(--serif);
+  margin-top: 30px;
+  font: 400 clamp(22px, 2.4vw, 30px) / 1.2 var(--serif);
   text-decoration-thickness: 1px;
   text-underline-offset: 6px;
   word-break: break-all;
+}
+.panel-step {
+  position: fixed;
+  z-index: 21;
+  right: var(--gut);
+  bottom: max(26px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.panel-count {
+  margin-right: 8px;
+  color: var(--fg-3);
+  letter-spacing: 0.18em;
+  font-variant-numeric: tabular-nums;
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--fg-2);
+}
+/* Entrance: copy rises in after the portal flash */
+.pv-intro,
+.pv-gallery {
+  opacity: 0;
+  translate: 0 24px;
+  transition: opacity 0.8s var(--ease) 0.35s, translate 1s var(--ease) 0.35s;
+}
+.panel.is-open .pv-intro,
+.panel.is-open .pv-gallery {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (max-width: 760px) {
+  .menu {
+    padding-top: 130px;
+  }
+  .menu-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 16px;
+    padding: 20px 0;
+  }
+  .menu-title {
+    grid-column: 1 / -1;
+  }
+  .menu-kind,
+  .menu-go {
+    display: none;
+  }
+  .pv-hero {
+    height: 52vh;
+  }
+  .pv-intro {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: -10px;
+  }
+  .pv-facts {
+    margin-top: 40px;
+  }
+  .overview-btn {
+    padding: 13px 18px;
+  }
+  .panel-count {
+    display: none;
+  }
 }
 
 /* ───────── Focus caption: centred under the orb ───────── */
@@ -762,6 +1151,88 @@ body.has-panel .caption {
   }
 }
 
+/* ───────── Intro cinematic ───────── */
+/* Cut between montage shots: a quick dip through black */
+.intro-cut {
+  position: fixed;
+  inset: 0;
+  z-index: 22;
+  background: #03060c;
+  opacity: 0;
+  pointer-events: none;
+}
+.intro-cut.is-cut {
+  animation: dip 0.55s ease-out;
+}
+@keyframes dip {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.letterbox {
+  position: fixed;
+  inset: 0;
+  z-index: 23;
+  pointer-events: none;
+}
+.letterbox i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 11vh;
+  background: #03060c;
+  transition: translate 1.4s var(--ease);
+}
+.letterbox i:first-child {
+  top: 0;
+  translate: 0 -100%;
+}
+.letterbox i:last-child {
+  bottom: 0;
+  translate: 0 100%;
+}
+body.is-intro .letterbox i {
+  translate: 0 0;
+  transition-duration: 1.1s;
+}
+.intro-line {
+  position: fixed;
+  z-index: 24;
+  left: 0;
+  right: 0;
+  bottom: calc(11vh + 26px);
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin: 0;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s var(--ease);
+}
+.intro-line span {
+  font: italic 400 clamp(20px, 1.8vw, 28px) / 1.2 var(--serif);
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 24px rgba(4, 7, 14, 0.9);
+}
+.intro-line small {
+  font: 500 9px/1 var(--sans);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+body.is-intro .intro-line {
+  opacity: 1;
+  transition: opacity 1.6s var(--ease) 1s;
+}
+/* The HUD, headline and beacon labels wait for the shot to land */
+body.is-intro .hud,
+body.is-intro .headline,
+body.is-intro .markers {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
 /* ───────── Gate ───────── */
 .gate {
   position: fixed;
@@ -810,40 +1281,6 @@ body.has-panel .caption {
   transform-origin: left;
   transition: transform 1.2s var(--ease);
 }
-.gate-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  opacity: 0.3;
-  transition: opacity 0.6s 0.8s;
-}
-.gate.is-ready .gate-actions {
-  opacity: 1;
-}
-.gate-btn {
-  padding: 15px 22px;
-  border: 1px solid rgba(232, 238, 248, 0.5);
-  border-radius: 2px;
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-}
-.gate-btn:not(:disabled):hover {
-  background: var(--fg);
-  color: var(--night);
-}
-.gate-btn--quiet {
-  border-color: transparent;
-  color: var(--fg-2);
-}
-.gate-btn--quiet:not(:disabled):hover {
-  background: none;
-  color: var(--fg);
-}
-.gate-note {
-  margin: 0;
-  font: italic 400 15px/1 var(--serif);
-  color: var(--fg-3);
-}
 
 /* ───────── Small screens ───────── */
 @media (max-width: 760px) {
@@ -867,24 +1304,6 @@ body.has-panel .caption {
     bottom: 120px;
     left: 20px;
     font-size: 36px;
-  }
-  .panel {
-    top: auto;
-    left: 10px;
-    right: 10px;
-    bottom: max(10px, env(safe-area-inset-bottom));
-    width: auto;
-    max-height: 82svh;
-    translate: 0 24px;
-  }
-  .panel.is-open {
-    translate: 0 0;
-  }
-  .drawer {
-    left: 10px;
-    right: 10px;
-    width: auto;
-    max-height: 60svh;
   }
   .hint {
     display: none;

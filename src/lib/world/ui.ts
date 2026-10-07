@@ -7,6 +7,7 @@
 import { createWorld, type World } from './world';
 import { createSound } from './audio';
 import { PLACES } from './places';
+import { installBrushMasks } from './brush';
 
 const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
 
@@ -14,6 +15,7 @@ export function boot() {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sound = createSound();
   const ids = PLACES.map((p) => p.id);
+  installBrushMasks();
 
   const gate = $('#gate');
   const panel = $('#panel');
@@ -44,6 +46,28 @@ export function boot() {
     panelBody.scrollTop = 0;
     const i = ids.indexOf(id);
     panelCount.textContent = `${String(i + 1).padStart(2, '0')} / ${String(ids.length).padStart(2, '0')}`;
+    panelBody.append(nextBlock(ids[(i + 1) % ids.length]));
+  };
+  /** Foot of every project view: the next project glimpsed through a paint blot */
+  const nextBlock = (nextId: string) => {
+    const place = PLACES.find((p) => p.id === nextId)!;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pv-next';
+    btn.style.setProperty('--paint', place.paint);
+    const blot = document.createElement('span');
+    blot.className = 'pv-next-blot';
+    const img = portalImage(nextId);
+    if (img) blot.style.backgroundImage = `url("${img}")`;
+    const label = document.createElement('span');
+    label.className = 'pv-next-label';
+    label.textContent = 'Next project';
+    const title = document.createElement('span');
+    title.className = 'pv-next-title';
+    title.textContent = place.label;
+    btn.append(blot, label, title);
+    btn.addEventListener('click', () => step(1));
+    return btn;
   };
   /* Portal dive: 0 = looking at the orb, 1 = through it (the detail sheet opens) */
   let dive = 0;
@@ -67,7 +91,7 @@ export function boot() {
     };
     diveAnim = requestAnimationFrame(tick);
   };
-  const portalImage = (id: string) => document.querySelector<HTMLImageElement>(`.tpls [data-tpl="${id}"] .shot img`)?.getAttribute('src') ?? undefined;
+  const portalImage = (id: string) => document.querySelector<HTMLImageElement>(`.tpls [data-tpl="${id}"] .pv-hero img`)?.getAttribute('src') ?? undefined;
 
   const showDetail = () => {
     if (!current) return;
@@ -156,7 +180,7 @@ export function boot() {
   window.addEventListener(
     'wheel',
     (e) => {
-      if (!current || (detail && panelBody.scrollTop > 0)) return;
+      if (!current || !drawer.hidden || (detail && panelBody.scrollTop > 0)) return;
       // Normalise line / page deltas; one notch ≈ 8% of the dive
       const px = e.deltaMode === 1 ? e.deltaY * 32 : e.deltaMode === 2 ? e.deltaY * h() : e.deltaY;
       nudgeDive(Math.max(-0.2, Math.min(0.2, px * 0.0008)));
@@ -169,7 +193,7 @@ export function boot() {
   window.addEventListener(
     'touchmove',
     (e) => {
-      if (touchY === null || !current || e.touches.length > 1) return;
+      if (touchY === null || !current || !drawer.hidden || e.touches.length > 1) return;
       const y = e.touches[0].clientY;
       // Swipe up = forward, like scrolling down
       if (!detail || panelBody.scrollTop <= 0) nudgeDive((touchY - y) / (h() * 0.6));
@@ -189,19 +213,57 @@ export function boot() {
   let drawerFrom: HTMLElement = listBtns[0];
   const openDrawer = (from: HTMLElement = listBtns[0]) => {
     drawerFrom = from;
+    // The menu sits over everything: leave any project view first
+    if (detail) hideDetail();
     drawer.hidden = false;
+    document.body.classList.add('has-menu');
+    requestAnimationFrame(() => drawer.classList.add('is-open'));
     listBtns.forEach((b) => b.setAttribute('aria-expanded', 'true'));
-    drawer.querySelector<HTMLElement>('button')?.focus();
+    drawer.querySelector<HTMLElement>('.menu-row')?.focus({ preventScroll: true });
   };
   function closeDrawer() {
-    drawer.hidden = true;
+    if (drawer.hidden) return;
+    drawer.classList.remove('is-open');
+    document.body.classList.remove('has-menu');
+    scratchOff();
+    window.setTimeout(() => !drawer.classList.contains('is-open') && (drawer.hidden = true), reduced ? 0 : 400);
     listBtns.forEach((b) => b.setAttribute('aria-expanded', 'false'));
   }
   listBtns.forEach((b) => b.addEventListener('click', () => (drawer.hidden ? openDrawer(b) : closeDrawer())));
+  $('#menu-close').addEventListener('click', () => (closeDrawer(), drawerFrom.focus({ preventScroll: true })));
   drawer.addEventListener('click', (e) => {
     const b = (e.target as Element).closest<HTMLElement>('[data-place]');
     if (b) open(b.dataset.place!, drawerFrom);
   });
+
+  /* Hover preview: the row's project seen through ice behind the list */
+  const scratch = $('#menu-scratch');
+  let scratchUrl = '';
+  const scratchOn = (row: HTMLElement) => {
+    const url = row.dataset.image ?? '';
+    const r = row.getBoundingClientRect();
+    // Follow the row, but keep the pane and its reflection on screen
+    const y = Math.min(Math.max(r.top + r.height / 2, 200), window.innerHeight - 320);
+    scratch.style.top = `${y}px`;
+    scratch.style.setProperty('--paint', row.style.getPropertyValue('--paint'));
+    if (url !== scratchUrl) {
+      scratchUrl = url;
+      scratch.style.setProperty('--img', url ? `url("${url}")` : 'none');
+      // Restart the fade-in so each new project surfaces rather than swapping
+      scratch.classList.remove('is-on');
+      void scratch.offsetWidth;
+    }
+    scratch.classList.toggle('is-blank', !url);
+    scratch.classList.add('is-on');
+  };
+  function scratchOff() {
+    scratch.classList.remove('is-on');
+  }
+  drawer.querySelectorAll<HTMLElement>('.menu-row').forEach((row) => {
+    row.addEventListener('pointerenter', () => (scratchOn(row), sound.blip('hover')));
+    row.addEventListener('focus', () => scratchOn(row));
+  });
+  drawer.querySelector('.menu-list')!.addEventListener('pointerleave', scratchOff);
 
   /* ───────── Nav, markers, sound ───────── */
   document.querySelectorAll<HTMLElement>('[data-open]').forEach((b) => b.addEventListener('click', () => open(b.dataset.open!, b)));
@@ -222,13 +284,18 @@ export function boot() {
   const PAN: Record<string, [number, number]> = {
     ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0], ArrowUp: [0, 1], w: [0, 1], ArrowDown: [0, -1], s: [0, -1],
   };
+  /* Any input during the intro fast-forwards it into the home view */
+  const skip = () => world?.playingIntro() && world.skipIntro();
+  ['pointerdown', 'wheel', 'touchstart'].forEach((ev) => window.addEventListener(ev, skip, { passive: true }));
+
   window.addEventListener('keydown', (e) => {
+    if (world?.playingIntro()) return void skip();
     // Escape peels one layer at a time: drawer → detail panel → focused place
     if (e.key === 'Escape') return void (!drawer.hidden ? closeDrawer() : detail ? hideDetail() : close());
     const typing = (e.target as Element).closest('input, textarea, [contenteditable]');
     if (typing || e.metaKey || e.ctrlKey || e.altKey || !document.body.classList.contains('is-in')) return;
-    // Arrow keys scroll the panel when focus is inside it
-    if (panel.contains(e.target as Node) && e.key.startsWith('Arrow')) return;
+    // Arrow keys scroll the project view / menu list instead of steering the camera
+    if (!drawer.hidden || (panel.contains(e.target as Node) && e.key.startsWith('Arrow'))) return;
     // While a place is focused, left / right step between places
     if (current && !detail && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) return void (e.preventDefault(), step(e.key === 'ArrowLeft' ? -1 : 1));
     const pan = PAN[e.key];
@@ -244,36 +311,54 @@ export function boot() {
     else if (h === 'work' || h === 'index') openDrawer();
   };
 
+  /* Lightning seen through the night veil (menu / project view); never for reduced motion */
+  const bolt = $('#bolt-flash');
+  const strikeFlash = () => {
+    if (reduced || !document.body.matches('.has-menu, .has-panel')) return;
+    bolt.style.setProperty('--bx', `${15 + Math.random() * 70}%`);
+    bolt.classList.remove('is-strike');
+    void bolt.offsetWidth;
+    bolt.classList.add('is-strike');
+  };
+
   /* ───────── World + gate ───────── */
   const canvas = $<HTMLCanvasElement>('#world');
-  const enter = (withSound: boolean) => {
+  const enter = (withSound: boolean, returning = false) => {
     gate.classList.add('is-gone');
     document.body.classList.add('is-in');
     window.setTimeout(() => (gate.hidden = true), reduced ? 0 : 700);
-    try {
-      sessionStorage.setItem('world-entered', '1');
-    } catch {}
     setSound(withSound);
-    world?.enter();
+    // The phoenix intro plays on a fresh entry; not when returning or deep-linking into a place
+    world?.enter(!returning && !location.hash);
     window.setTimeout(() => (route(), !world && drawer.hidden && openDrawer()), reduced ? 0 : 900);
   };
-  $('#gate-sound').addEventListener('click', () => enter(true));
-  $('#gate-quiet').addEventListener('click', () => enter(false));
-
   const bar = $('#gate-bar');
   const pct = $('#gate-pct');
+  /**
+   * Loaded: the loading screen dissolves straight into the phoenix intro, no click needed.
+   * Sound starts off (browsers block audio until the visitor interacts); the HUD toggle turns it on.
+   */
   const ready = () => {
     bar.style.transform = 'scaleX(1)';
-    pct.textContent = '100%';
-    gate.classList.add('is-ready');
-    gate.querySelectorAll('button').forEach((b) => (b.disabled = false));
-    let seen = false;
+    pct.textContent = '';
+    // Only a hop back from a case study skips the intro; any fresh load plays it
+    let fromCase = false;
     try {
-      seen = sessionStorage.getItem('world-entered') === '1';
+      const ref = document.referrer ? new URL(document.referrer) : null;
+      fromCase = !!ref && ref.origin === location.origin && ref.pathname.startsWith('/work/');
     } catch {}
-    // Coming back from a case study: skip the gate (sound stays off until asked for)
-    if (seen) enter(false);
-    else $('#gate-quiet').focus();
+    window.setTimeout(() => enter(false, fromCase), fromCase || reduced ? 0 : 400);
+  };
+  /** Hold the loading screen until the phoenix has landed in memory, so the intro can always play */
+  const readyWhenPhoenix = () => {
+    pct.textContent = 'Summoning the phoenix…';
+    const t0 = performance.now();
+    const wait = () => {
+      // Give up after 10 s on a very slow connection: enter without the intro
+      if (!world || world.introReady() || performance.now() - t0 > 10000) ready();
+      else requestAnimationFrame(wait);
+    };
+    wait();
   };
 
   // Let the gate paint before the (synchronous) island build
@@ -284,20 +369,43 @@ export function boot() {
           reducedMotion: reduced,
           markers,
           onPick: (id) => (current === id ? close() : open(id)),
+          onIntro: (playing) => document.body.classList.toggle('is-intro', playing),
+          onIntroCut: () => {
+            const cut = $('#intro-cut');
+            cut.classList.remove('is-cut');
+            void cut.offsetWidth;
+            cut.classList.add('is-cut');
+          },
+          onPhoenix: () => {
+            sound.screech();
+            window.setTimeout(() => sound.thunder(0.4), 350);
+          },
+          onPhoenixHover: () => sound.blip('hover'),
           onHover: (id) => {
             markers.forEach((el, k) => el.classList.toggle('is-hover', k === id));
             if (id) sound.blip('hover');
           },
           // Headline steps aside once the visitor dives into the valley
           onMove: (_x, _z, dist) => document.body.classList.toggle('is-close', dist < 80),
-          onThunder: (strength, delay) => window.setTimeout(() => sound.thunder(strength), delay * 1000),
+          guardianTags: new Map(
+            [...document.querySelectorAll<HTMLElement>('[data-guardian]')].map((el) => [el.dataset.guardian as 'turtle' | 'dragon', el])
+          ),
+          onGuardianHover: (g) => g && sound.blip('hover'),
+          // Close strike: the clap lands almost with the flash
+          onSummon: () => window.setTimeout(() => sound.thunder(1), 120),
+          // Turtle answers with a bright chirp, the dragon with a low rumble
+          onGuardian: (g) => (g === 'turtle' ? sound.blip('open') : sound.thunder(0.35)),
+          onThunder: (strength, delay) => {
+            strikeFlash();
+            window.setTimeout(() => sound.thunder(strength), delay * 1000);
+          },
         });
       } catch (err) {
         // No WebGL: the drawer becomes the way around
         console.warn('Overworld unavailable', err);
         document.body.classList.add('no-world');
       }
-      ready();
+      readyWhenPhoenix();
     }, 60)
   );
 }

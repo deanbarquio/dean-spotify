@@ -139,7 +139,9 @@ function buildOrb() {
   portal.position.y = ORB_LIFT;
   // Drawn before the additive shell so the glow sits over the picture
   portal.renderOrder = 3;
-  group.add(shell, beam, light, portal);
+  // The light is not a child of the (often hidden) group: lights under an invisible parent don't
+  // count, so showing the orb would change the light count and recompile every material in the scene
+  group.add(shell, beam, portal);
   group.visible = false;
   return { group, shell, beam, light, portal, portalU, color, u: shared };
 }
@@ -175,41 +177,78 @@ async function loadPhoenix(url: string): Promise<Bird> {
   return { model, mixer };
 }
 
-type GuardianOpts = { reducedMotion: boolean; renderer: THREE.WebGLRenderer; camera: THREE.Camera };
+type GuardianOpts = {
+  reducedMotion: boolean;
+  renderer: THREE.WebGLRenderer;
+  camera: THREE.Camera;
+  /** One render through the real (post-processed) pipeline, so shaders compile in the right variant */
+  warm: () => void;
+};
 
-export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, camera }: GuardianOpts) {
+/** Intro flight: from far out in the mist beyond the labyrinth, sweeping in to join its patrol */
+const INTRO_FROM = new THREE.Vector3(-34, 74, -150);
+const INTRO_VIA = new THREE.Vector3(22, 58, -85);
+/** Provoked: windup, lunge, recover */
+const PROVOKE = 1.8;
+const lungeCurve = (k: number) => Math.pow(Math.sin(Math.PI * k), 1.5) - 0.18 * Math.sin(2 * Math.PI * Math.min(k * 2, 1));
+
+export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, camera, warm }: GuardianOpts) {
   const orb = buildOrb();
-  scene.add(orb.group);
+  scene.add(orb.group, orb.light);
   // Root and its fire light join the scene up front: the light count never changes later,
   // so no material in the scene has to recompile when the model arrives
   const root = new THREE.Group();
   const fireLight = new THREE.PointLight('#ff9a40', 0, 40, 1.6);
   root.add(fireLight);
+  // Pick volume for the visitor's clicks
+  const proxy = new THREE.Mesh(new THREE.SphereGeometry(6, 10, 8), new THREE.MeshBasicMaterial({ visible: false }));
+  proxy.userData.phoenix = true;
+  root.add(proxy);
   scene.add(root);
-  // Compile the orb and beam now rather than on the first click
-  orb.group.visible = true;
-  renderer.compile(scene, camera);
-  orb.group.visible = false;
 
   let bird: Bird | null = null;
+  let headBone: THREE.Object3D | null = null;
+  let tailBone: THREE.Object3D | null = null;
+  const glows: THREE.MeshStandardMaterial[] = [];
   loadPhoenix('/phoenix_bird.glb')
-    .then(async (b) => {
-      // Compile its shaders in the background (parallel compile) before it appears
-      await renderer.compileAsync(b.model, camera, scene);
+    .then((b) => {
+      b.model.traverse((o) => {
+        const m = o as THREE.Mesh;
+        if (m.isMesh) ([] as THREE.Material[]).concat(m.material).forEach((mt) => 'emissive' in mt && glows.push(mt as THREE.MeshStandardMaterial));
+      });
       root.add(b.model);
+      // Bones the intro camera frames: the head, and the far end of the tail plumes
+      b.model.traverse((o) => {
+        if (!(o as THREE.Bone).isBone) return;
+        if (!headBone && /head/i.test(o.name)) headBone = o;
+        if (/tail_5/i.test(o.name)) tailBone = o;
+      });
+      // Compile in the variant actually used, before it flies into view
+      warm();
       bird = b;
     })
     .catch((err) => console.warn('Phoenix failed to load', err));
 
+  // Intro flight and provocation
+  let intro: { t: number; dur: number } | null = null;
+  let provoked = 0; // seconds into the provocation (0 = calm)
+  const lungeAt = new THREE.Vector3();
+  let hoverGlow = 0;
+  let hoverWant = 0;
+
   let target: THREE.Vector3 | null = null; // focused beacon base
   let dive = 0;
   let portalImage: string | null = null;
-  const loader = new THREE.TextureLoader();
+  // ImageBitmapLoader decodes off the main thread (TextureLoader decodes on it, stalling a frame)
+  const loader = new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY' });
   const textures = new Map<string, Promise<THREE.Texture>>();
   const texture = (url: string) => {
     let p = textures.get(url);
     if (!p) {
-      p = loader.loadAsync(url).then((tex) => {
+      p = loader.loadAsync(url).then((bitmap) => {
+        const tex = new THREE.Texture(bitmap as ImageBitmap);
+        tex.flipY = false; // already flipped during decode
+        tex.needsUpdate = true;
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
         // Upload now so the first portal frame doesn't stall on it
@@ -228,6 +267,8 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
   const vel = new THREE.Vector3();
   const look = new THREE.Vector3();
   const bank = new THREE.Vector3();
+  const push = new THREE.Vector3();
+  const disp = new THREE.Vector3().copy(pos); // shown position
 
   return {
     /** Point the orb (and the phoenix) at a beacon, or release with null; `image` fills the portal */
@@ -235,6 +276,7 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
       if (base) {
         target = base.clone();
         orb.group.position.copy(base);
+        orb.light.position.copy(base).y += ORB_LIFT;
         if (color) orb.color.copy(color);
         const pu = orb.portalU;
         pu.uHas.value = 0;
@@ -257,6 +299,47 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
     /** 0 = orb seen from outside, 1 = through the portal */
     setDive(p: number) {
       dive = p;
+    },
+    /** Show the orb (fully transparent) for the world's warm-up render; returns the undo */
+    prewarm() {
+      orb.group.visible = true;
+      return () => {
+        orb.group.visible = show > 0.01;
+      };
+    },
+    /** Where the phoenix is right now (the guardians track it) */
+    birdPos: () => disp,
+    /** Unit heading of the phoenix */
+    birdDir: () => vel,
+    hasBird: () => !!bird,
+    /** World position of the head (falls back to the body) */
+    headPos: (out: THREE.Vector3) => (headBone ? headBone.getWorldPosition(out) : out.copy(disp)),
+    /** World position of the tail plumes' far end (falls back to the body) */
+    tailPos: (out: THREE.Vector3) => (tailBone ? tailBone.getWorldPosition(out) : out.copy(disp)),
+    proxy,
+    /** Fly the intro path over `dur` seconds (from deep in the mist into the patrol) */
+    startIntro(dur: number) {
+      intro = { t: 0, dur };
+      pos.copy(INTRO_FROM);
+      disp.copy(INTRO_FROM);
+      prev.copy(INTRO_FROM).add(new THREE.Vector3(0, 0, -1));
+    },
+    endIntro() {
+      intro = null;
+    },
+    /** Visitor clicked it: rear, flare, then lunge at `at` and swing back */
+    provoke(at: THREE.Vector3) {
+      if (provoked > 0) return false;
+      provoked = 1e-4;
+      lungeAt.copy(at);
+      return true;
+    },
+    setHover(on: boolean) {
+      hoverWant = on ? 1 : 0;
+    },
+    /** A guardian's strike: knocks the phoenix off its line for a moment */
+    shove(v: THREE.Vector3) {
+      push.add(v);
     },
     tick(t: number, dt: number) {
       orb.portalU.uDive.value = dive;
@@ -285,20 +368,49 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
         return out.set(Math.sin(a) * 50, 32 + Math.sin(s * 0.3) * 5, Math.sin(a * 2) * 32 - 6);
       };
       at(t, want);
-      // Ease toward the path so switching between patrol and orbit is a swoop, not a jump
-      pos.lerp(want, 1 - Math.exp(-dt * (target ? 1.4 : 0.8)));
+      if (intro) {
+        // Scripted: a long curve from the mist into the patrol path, followed exactly (the camera chases it)
+        intro.t = Math.min(intro.dur, intro.t + dt);
+        const u = intro.t / intro.dur;
+        const e = u * u * (3 - 2 * u);
+        const k = 1 - e;
+        pos.copy(INTRO_FROM).multiplyScalar(k * k).addScaledVector(INTRO_VIA, 2 * k * e).addScaledVector(want, e * e);
+        if (intro.t >= intro.dur) intro = null;
+      } else {
+        // Ease toward the path so switching between patrol and orbit is a swoop, not a jump
+        pos.lerp(want, 1 - Math.exp(-dt * (target ? 1.4 : 0.8)));
+      }
+      // Knock-back from the guardians, dying away over about a second
+      pos.addScaledVector(push, dt);
+      push.multiplyScalar(Math.exp(-dt * 2.5));
       at(t + 0.4, ahead);
-      root.position.copy(pos);
-      vel.subVectors(pos, prev);
-      prev.copy(pos);
+      // Shown position = flight path + provocation offset (windup back, lunge at the target, swing home)
+      disp.copy(pos);
+      if (provoked > 0) {
+        provoked += dt;
+        const k = Math.min(1, provoked / PROVOKE);
+        disp.addScaledVector(look.subVectors(lungeAt, pos), lungeCurve(k) * 0.85);
+        if (k >= 1) provoked = 0;
+      }
+      root.position.copy(disp);
+      vel.subVectors(disp, prev);
+      prev.copy(disp);
       if (vel.lengthSq() > 1e-6) {
         vel.normalize();
-        root.lookAt(look.copy(pos).add(vel).lerp(ahead, 0.1));
+        root.lookAt(look.copy(disp).add(vel).lerp(ahead, provoked > 0 ? 0 : 0.1));
         // Bank into turns
-        const turn = bank.copy(vel).cross(look.subVectors(ahead, pos).normalize()).y;
+        const turn = bank.copy(vel).cross(look.subVectors(ahead, disp).normalize()).y;
         root.rotateZ(THREE.MathUtils.clamp(-turn * 2, -0.6, 0.6));
       }
-      fireLight.intensity = 90 + Math.sin(t * 9) * 12;
+      // Fire: flares while provoked or hovered, and burns brighter in its close-up
+      hoverGlow += (hoverWant - hoverGlow) * (1 - Math.exp(-dt * 8));
+      const rage = provoked > 0 ? Math.sin(Math.PI * Math.min(1, provoked / PROVOKE)) : 0;
+      const hero = intro ? 1 - intro.t / intro.dur : 0;
+      // Cooler up close in the intro: at arm's length the wings would bloom out the frame
+      const heat = 1 + rage * 2.5 + hoverGlow * 0.8 - hero * 0.5;
+      glows.forEach((m) => (m.emissiveIntensity = 1.6 * heat));
+      // Dimmer light in the close-up: at a few metres the camera would sit inside its glow
+      fireLight.intensity = (90 + Math.sin(t * 9) * 12) * heat * (1 - hero * 0.6);
     },
   };
 }
