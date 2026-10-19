@@ -297,7 +297,22 @@ const EMAIL = 'deanbarquio@gmail.com';
       const shots = p.gallery ?? (p.image ? [p.image] : []);
       return (
         <section data-tpl={p.id}>
-          {p.image ? (
+          {p.url ? (
+            <figure class="pv-hero pv-live" style={`--paint:${p.paint}`}>
+              <div class="pv-live-bar">
+                <span class="pv-live-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="pv-live-url">{p.url.replace(/^https?:\/\/|\/$/g, '')}</span>
+                <a class="pv-live-open" href={p.url} target="_blank" rel="noopener noreferrer">Open ↗</a>
+              </div>
+              <div class="pv-live-screen">
+                {p.image ? <img src={p.image} alt={`${p.title} screenshot`} loading="lazy" decoding="async" /> : <span class="pv-live-poster">{p.title}</span>}
+                {/* src is set when the panel opens, so hidden templates never load the site */}
+                <iframe data-src={p.url} title={`${p.title} live preview`} tabindex="-1"></iframe>
+                <span class="pv-live-load" aria-hidden="true"><span>Loading live preview</span></span>
+                <button type="button" class="pv-live-cover" aria-label={`Interact with the ${p.title} preview`}><span>Click to interact</span></button>
+              </div>
+            </figure>
+          ) : p.image ? (
             <figure class="pv-hero"><img src={p.image} alt={`${p.title} screenshot`} loading="lazy" decoding="async" /></figure>
           ) : (
             <figure class="pv-hero pv-hero--poster" style={`--paint:${p.paint}`}><span>{p.title}</span></figure>
@@ -308,10 +323,17 @@ const EMAIL = 'deanbarquio@gmail.com';
               <p class="pv-lead">{p.summary}</p>
               <dl class="pv-facts">
                 <div><dt>Year</dt><dd>{p.year}</dd></div>
-                <div class="pv-span"><dt>Stack</dt><dd>{p.stack.map((s) => <span>{s}<br /></span>)}</dd></div>
                 <div><dt>Type</dt><dd>{p.kind}</dd></div>
               </dl>
               <p class="pv-text">{p.detail}</p>
+              <h3>What it does</h3>
+              <ul class="pv-features" style={`--paint:${p.paint}`}>
+                {p.features.map((f) => <li>{f}</li>)}
+              </ul>
+              <h3>Built with</h3>
+              <ul class="pv-stack" style={`--paint:${p.paint}`}>
+                {p.stack.map((s) => <li>{s}</li>)}
+              </ul>
               <div class="pv-actions">
                 <a class="action action--primary" href={`/work/${p.id}`}>Case study</a>
                 {p.url && <a class="action" href={p.url} target="_blank" rel="noopener noreferrer">Live site ↗</a>}

@@ -12,6 +12,8 @@ export type Project = {
   paint: string;
   summary: string;
   detail: string;
+  /** Key features, shown as a list in the beacon's project view */
+  features: string[];
   stack: string[];
 };
 
@@ -27,7 +29,34 @@ export const projects: Project[] = [
     paint: '#ffb800',
     summary: 'A myth in five colours. Scroll-driven storytelling site about the Chinese phoenix.',
     detail: 'Pairs a 3D Fenghuang model with calligraphic motifs and scroll-triggered chapters. Built as a cinematic single-page experience.',
+    features: [
+      '3D Fenghuang model as the hero, rendered with Three.js',
+      'Scroll-triggered chapters driven by GSAP ScrollTrigger',
+      'Calligraphic motifs woven through the layout',
+      'The myth told across five colours',
+    ],
     stack: ['Three.js', 'GSAP', 'ScrollTrigger', 'Vite'],
+  },
+  {
+    id: 'class-record',
+    title: 'Class Record',
+    kind: 'Web App',
+    year: '2026',
+    at: 2026.7,
+    url: 'https://class-record-five.vercel.app/',
+    paint: '#10e09a',
+    summary: 'A class record for teachers: rosters, attendance and grades in one place.',
+    detail: 'Built for my own classes. Import a class list from a spreadsheet, take roll every meeting, record scores per student or per group, and let the app compute midterm and semestral grades. A voice assistant powered by Claude helps along the way.',
+    features: [
+      'Class records with subject, EDP code, schedule and units',
+      'Import class lists from Excel or CSV',
+      'Attendance roll per meeting, with configurable late rules',
+      'Graded items by category, with midterm and semestral computation',
+      'Drag-and-drop groups, scored by student or by group',
+      'Dashboard with term progress, grade distribution and students who need attention',
+      'Voice assistant powered by Claude',
+    ],
+    stack: ['SvelteKit', 'Supabase', 'Claude API', 'SheetJS', 'Web Speech API', 'TailwindCSS', 'Vercel'],
   },
   {
     id: 'fire-and-blood',
@@ -40,6 +69,11 @@ export const projects: Project[] = [
     paint: '#ff2e2e',
     summary: 'House of the Dragon tribute with a 3D dragon hero and chaptered lore.',
     detail: 'A scroll-driven tribute to the dragons of the Dance: Vhagar, Sunfyre and Caraxes, each with their own chapter.',
+    features: [
+      '3D dragon hero rendered in WebGL',
+      'One chapter each for Vhagar, Sunfyre and Caraxes',
+      'Scroll-driven storytelling with GSAP',
+    ],
     stack: ['Three.js', 'GSAP', 'WebGL'],
   },
   {
@@ -53,6 +87,13 @@ export const projects: Project[] = [
     paint: '#f6a800',
     summary: 'Cross-platform project management for construction tracking.',
     detail: 'React frontend with a NestJS API. Real-time updates, AI-assisted task generation, milestone tracking, manpower costing and Firebase on Google Cloud.',
+    features: [
+      'Web and mobile clients on one NestJS API',
+      'Real-time project updates',
+      'AI-assisted task generation',
+      'Milestone tracking and manpower costing',
+      'Firebase on Google Cloud',
+    ],
     stack: ['React', 'NestJS', 'Firebase', 'GCP', 'Prisma', 'TailwindCSS'],
   },
   {
@@ -66,6 +107,12 @@ export const projects: Project[] = [
     paint: '#29e3ff',
     summary: 'Internal control system for N-Compass features and operations.',
     detail: 'Solo-built during internship. Elasticsearch/OpenSearch for fast search, Next.js App Router, TanStack Query for server state, Docker deployment.',
+    features: [
+      'Solo-built during my internship',
+      'Fast search with Elasticsearch / OpenSearch',
+      'Next.js App Router with TanStack Query for server state',
+      'Shipped in Docker containers',
+    ],
     stack: ['Next.js', 'NestJS', 'Elasticsearch', 'Docker', 'TanStack Query'],
   },
   {
@@ -77,6 +124,12 @@ export const projects: Project[] = [
     paint: '#5b3dff',
     summary: 'In-house Angular component library shared across teams.',
     detail: '50+ Angular components (charts, form controls, data tables, design tokens) published to an internal Verdaccio registry. Cut frontend dev time by roughly 40%.',
+    features: [
+      '50+ shared Angular components',
+      'Charts, form controls, data tables and design tokens',
+      'Published to an internal Verdaccio registry',
+      'Cut frontend dev time by roughly 40%',
+    ],
     stack: ['Angular', 'Verdaccio', 'TailwindCSS', 'ApexCharts'],
   },
   {
@@ -90,6 +143,12 @@ export const projects: Project[] = [
     paint: '#2f6bff',
     summary: 'Membership workflow and merch shop for a student org.',
     detail: 'Handles admissions, receipt validation, generated membership cards and event registration with financial reporting.',
+    features: [
+      'Membership admissions with receipt validation',
+      'Generated membership cards',
+      'Event registration',
+      'Merch shop with financial reporting',
+    ],
     stack: ['React', 'Node.js', 'MongoDB', 'TailwindCSS'],
   },
   {
@@ -103,6 +162,12 @@ export const projects: Project[] = [
     paint: '#ff6a1a',
     summary: 'Hiking companion with topo trails and offline maps.',
     detail: 'Flutter with MapLibre, geolocated pace metrics, elevation profiles, route recording and trail search.',
+    features: [
+      'Topo trails and offline maps with MapLibre',
+      'Geolocated pace metrics and elevation profiles',
+      'Route recording',
+      'Trail search',
+    ],
     stack: ['Flutter', 'Kotlin', 'MapLibre', 'GPS'],
   },
   {
@@ -116,6 +181,12 @@ export const projects: Project[] = [
     paint: '#c6ff00',
     summary: 'Pairs construction workers with community service requests.',
     detail: 'Custom bookings, worker workspace and feedback loop to close employment gaps for independent laborers.',
+    features: [
+      'Matches construction workers with community service requests',
+      'Custom bookings',
+      'Workspace for workers to manage their jobs',
+      'Feedback loop between clients and workers',
+    ],
     stack: ['Flutter', 'Node.js', 'PostgreSQL', 'Socket.io'],
   },
   {
@@ -129,6 +200,13 @@ export const projects: Project[] = [
     paint: '#29e3ff',
     summary: 'Corporate meeting-room scheduler that kills double bookings.',
     detail: 'Business-rules engine, interactive calendars, authorization tiers, automated invites and room utilization analytics.',
+    features: [
+      'Business-rules engine that blocks double bookings',
+      'Interactive calendars',
+      'Authorization tiers',
+      'Automated invites',
+      'Room utilization analytics',
+    ],
     stack: ['React', 'Express', 'SQLite', 'TailwindCSS'],
   },
   {
@@ -140,6 +218,12 @@ export const projects: Project[] = [
     paint: '#10e09a',
     summary: 'HR tracking for inventory and manpower with live updates.',
     detail: 'NestJS backend, Next.js frontend and Prisma ORM. Employee records, inventory movements and automated reports.',
+    features: [
+      'Employee records',
+      'Inventory movement tracking',
+      'Live updates',
+      'Automated reports',
+    ],
     stack: ['NestJS', 'Next.js', 'Prisma', 'MySQL'],
   },
 ];
@@ -154,6 +238,14 @@ export type Role = {
 };
 
 export const roles: Role[] = [
+  {
+    period: '2026 — NOW',
+    role: 'Instructor',
+    company: 'University of Cebu Banilad',
+    note: 'Teaches Android development with Kotlin and Software Testing & Quality Assurance.',
+    stack: ['Android', 'Kotlin', 'Software Testing', 'QA'],
+    current: true,
+  },
   {
     period: '2025 — NOW',
     role: 'Software Engineer / Frontend Developer',
@@ -254,6 +346,15 @@ export const milestones: Milestone[] = [
     note: 'Scroll-driven storytelling sites with 3D models and GSAP.',
     stack: ['Three.js', 'GSAP', 'WebGL'],
     era: 'After hours: the cinematic web.',
+  },
+  {
+    at: 2026.6,
+    tag: '2026 · Co-op mode',
+    title: 'Instructor',
+    sub: 'University of Cebu Banilad',
+    note: 'Teaching Android Kotlin and Software Testing & Quality Assurance.',
+    stack: ['Android', 'Kotlin', 'QA'],
+    era: 'Passing the controller to the next players.',
   },
   {
     at: 2026.76,

@@ -47,6 +47,19 @@ export function boot() {
     const i = ids.indexOf(id);
     panelCount.textContent = `${String(i + 1).padStart(2, '0')} / ${String(ids.length).padStart(2, '0')}`;
     panelBody.append(nextBlock(ids[(i + 1) % ids.length]));
+    panelBody.querySelectorAll<HTMLElement>('.pv-live').forEach(wireLive);
+  };
+  /** Live preview: load the site now, and only let it take the pointer after a click */
+  const wireLive = (live: HTMLElement) => {
+    const frame = live.querySelector('iframe')!;
+    frame.addEventListener('load', () => live.classList.add('is-loaded'), { once: true });
+    frame.src = frame.dataset.src!;
+    live.querySelector('.pv-live-cover')!.addEventListener('click', () => {
+      live.classList.add('is-live');
+      frame.tabIndex = 0;
+      frame.focus();
+    });
+    live.addEventListener('pointerleave', () => live.classList.remove('is-live'));
   };
   /** Foot of every project view: the next project glimpsed through a paint blot */
   const nextBlock = (nextId: string) => {
@@ -109,7 +122,12 @@ export function boot() {
     detail = false;
     document.body.classList.remove('has-panel');
     panel.classList.remove('is-open');
-    window.setTimeout(() => !detail && (panel.hidden = true), reduced ? 0 : 320);
+    window.setTimeout(() => {
+      if (detail) return;
+      panel.hidden = true;
+      // Stop any live preview so its site isn't running behind the valley
+      panelBody.querySelectorAll('iframe').forEach((f) => (f.src = 'about:blank'));
+    }, reduced ? 0 : 320);
     // Step back out through the portal
     if (backOut) glideDive(0);
     capView.focus({ preventScroll: true });

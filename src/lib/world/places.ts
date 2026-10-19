@@ -12,6 +12,7 @@ const SPOTS: Record<string, { r: number; a: number }> = {
   fenghuang: { r: 27, a: 205 },
   'fire-and-blood': { r: 27, a: 330 },
   'meeting-room': { r: 27, a: 95 },
+  'class-record': { r: 27, a: 35 },
   constrack: { r: 45, a: 160 },
   'control-panel': { r: 45, a: 15 },
   'ntv-dashboard': { r: 45, a: 255 },
