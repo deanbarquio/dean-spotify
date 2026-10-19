@@ -209,6 +209,49 @@ body:not(.is-in) .headline {
   height: 46px;
   border-radius: 3px;
 }
+.hud-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* Day / night toggle: sun and moon trade places with a quarter turn */
+.sky-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(232, 238, 248, 0.45);
+  border-radius: 50%;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+.sky-btn:hover {
+  border-color: var(--fg);
+  background: rgba(232, 238, 248, 0.06);
+}
+.sky-btn svg {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: var(--fg);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity 0.5s var(--ease), rotate 0.7s var(--ease), scale 0.7s var(--ease);
+}
+/* Shows what you'd switch to: the sun at night, the moon by day */
+.sky-moon,
+body.is-day .sky-sun {
+  opacity: 0;
+  rotate: -90deg;
+  scale: 0.6;
+}
+body.is-day .sky-moon {
+  opacity: 1;
+  rotate: 0deg;
+  scale: 1;
+}
 .list-btn svg {
   width: 13px;
   height: 13px;
@@ -250,6 +293,356 @@ body.has-panel .headline,
 body.is-close .headline {
   opacity: 0;
   translate: 0 -12px;
+}
+
+/* ───────── Day: ink instead of moonlight for whatever sits straight on the bright valley ─────────
+   Menu and project view keep their dark veil, so the top HUD switches back to light over them.
+   Cards, marker labels and the caption carry their own dark backing and need nothing. */
+body.is-day:not(.has-menu):not(.has-panel) .hud--top,
+body.is-day .hud--foot,
+body.is-day .headline {
+  --fg: #0e1c2e;
+  --fg-2: rgba(14, 28, 46, 0.68);
+  --fg-3: rgba(14, 28, 46, 0.5);
+  color: var(--fg);
+}
+body.is-day .headline {
+  text-shadow: 0 1px 24px rgba(240, 246, 250, 0.7);
+}
+body.is-day:not(.has-menu):not(.has-panel) .hud--top :is(.sound, .sky-btn),
+body.is-day .list-btn {
+  border-color: rgba(14, 28, 46, 0.4);
+}
+body.is-day:not(.has-menu):not(.has-panel) .hud--top :is(.sound, .sky-btn):hover,
+body.is-day .list-btn:hover {
+  border-color: var(--fg);
+  background: rgba(14, 28, 46, 0.06);
+}
+
+/* ───────── Me: a pill in the foot bar that unfolds into a profile + contact card ───────── */
+.foot-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.me {
+  position: relative;
+}
+.me-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 16px 0 9px;
+  border: 1px solid rgba(232, 238, 248, 0.45);
+  border-radius: 23px;
+  font: 500 10.5px/1 var(--sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+.me-pill:hover,
+.me-pill[aria-expanded='true'] {
+  border-color: var(--fg);
+  background: rgba(232, 238, 248, 0.06);
+}
+.me-pill img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.me-status {
+  display: inline-flex;
+  align-items: center;
+  color: var(--fg-2);
+  letter-spacing: 0.16em;
+}
+.me-status .profile-dot {
+  margin-right: 6px;
+}
+body.is-day .me-pill {
+  border-color: rgba(14, 28, 46, 0.4);
+}
+/* The card grows out of the pill: unfolds from its corner, contents arriving one after another */
+.profile {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 12px);
+  width: min(340px, calc(100vw - 2 * var(--gut)));
+  padding: 18px 20px;
+  display: grid;
+  gap: 14px;
+  /* Its own dark glass and ink, whatever the day / night HUD colours around it */
+  --fg: #e8eef8;
+  --fg-2: rgba(232, 238, 248, 0.56);
+  --fg-3: rgba(232, 238, 248, 0.32);
+  color: var(--fg);
+  background: var(--glass);
+  border: var(--hair);
+  border-radius: 4px;
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  clip-path: inset(calc(100% - 46px) calc(100% - 46px) 0 0 round 23px);
+  opacity: 0;
+  transition: clip-path 0.6s var(--ease), opacity 0.3s, border-color 0.6s, box-shadow 0.6s;
+}
+.profile.is-open {
+  clip-path: inset(0 0 0 0 round 4px);
+  opacity: 1;
+}
+.profile > * {
+  opacity: 0;
+  translate: 0 8px;
+  transition: opacity 0.3s, translate 0.3s;
+}
+.profile.is-open > * {
+  opacity: 1;
+  translate: 0 0;
+  transition: opacity 0.5s var(--ease), translate 0.6s var(--ease);
+}
+.profile.is-open > :nth-child(2) { transition-delay: 0.08s; }
+.profile.is-open > :nth-child(3) { transition-delay: 0.14s; }
+.profile.is-open > :nth-child(4) { transition-delay: 0.2s; }
+.profile.is-open > :nth-child(5) { transition-delay: 0.26s; }
+/* While the card is out, whatever it would sit on steps back */
+@media (max-width: 760px), (max-height: 820px) {
+  body.has-me .headline,
+  body.has-me .reviews {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+.profile-id {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.profile-photo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(232, 238, 248, 0.25);
+}
+.profile-who {
+  margin: 0;
+  display: grid;
+  gap: 3px;
+}
+.profile-who b {
+  font: 400 19px/1.1 var(--serif);
+}
+.profile-who span {
+  font-size: 12px;
+  color: var(--fg-2);
+}
+.profile-bio {
+  margin: 0;
+  font: 400 14.5px/1.5 var(--serif);
+  color: rgba(232, 238, 248, 0.84);
+}
+.profile-facts {
+  display: flex;
+  margin: 0;
+  border-top: var(--hair);
+  border-bottom: var(--hair);
+}
+.profile-facts div {
+  flex: 1;
+  padding: 10px 0 10px 14px;
+  border-left: var(--hair);
+}
+.profile-facts div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.profile-facts dt {
+  font: 500 9.5px/1 var(--sans);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.profile-facts dd {
+  margin: 7px 0 0;
+  font-size: 13px;
+}
+/* Pulsing green: open to work */
+.profile-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6);
+  animation: avail 2.4s var(--ease) infinite;
+}
+@keyframes avail {
+  70% { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+.profile-mail {
+  justify-self: start;
+  font: 400 18px/1.2 var(--serif);
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 0.5s var(--ease);
+}
+.profile-mail:hover,
+.profile-mail:focus-visible {
+  background-size: 100% 1px;
+}
+.profile-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  font: 500 10px/1 var(--sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.profile-links a {
+  color: var(--fg-2);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.profile-links a:hover {
+  color: var(--fg);
+}
+.profile-more {
+  margin-left: auto;
+  padding: 8px 12px;
+  border: 1px solid rgba(232, 238, 248, 0.3);
+  border-radius: 2px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 10px;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+.profile-more:hover {
+  border-color: var(--fg);
+  background: rgba(232, 238, 248, 0.06);
+}
+/* Contact pressed: the card answers with a brief glow */
+.profile.is-ping {
+  animation: ping 1.6s var(--ease);
+}
+@keyframes ping {
+  0%, 30% { border-color: #ff5ab4; box-shadow: 0 0 0 1px #ff5ab4, 0 0 32px -4px #ff5ab4; }
+  100% { border-color: rgba(232, 238, 248, 0.16); box-shadow: none; }
+}
+
+/* ───────── Referral reviews: a frosted card on the overview ───────── */
+.reviews {
+  position: fixed;
+  z-index: 15;
+  right: var(--gut);
+  bottom: calc(max(26px, env(safe-area-inset-bottom)) + 64px);
+  width: min(360px, calc(100vw - 2 * var(--gut)));
+  padding: 20px 22px 18px;
+  display: grid;
+  gap: 14px;
+  background: var(--glass);
+  border: var(--hair);
+  border-radius: 4px;
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  transition: opacity 0.8s var(--ease), visibility 0.8s, translate 0.8s var(--ease);
+}
+.reviews-head {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  font: 500 10.5px/1 var(--sans);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+.reviews-count {
+  color: var(--fg-3);
+}
+.review {
+  margin: 0;
+  display: grid;
+  gap: 14px;
+  animation: review-in 0.6s var(--ease);
+}
+@keyframes review-in {
+  from { opacity: 0; translate: 0 6px; }
+}
+.review blockquote {
+  margin: 0;
+  font: 400 16px/1.45 var(--serif);
+  color: var(--fg);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  overflow: hidden;
+}
+.review blockquote::before {
+  content: '“';
+}
+.review blockquote::after {
+  content: '”';
+}
+.review figcaption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.review-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font: 600 10.5px/1 var(--sans);
+  letter-spacing: 0.08em;
+}
+.review-who {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.review-who b {
+  font-size: 13px;
+  font-weight: 600;
+}
+.review-who i {
+  font-style: normal;
+  font-size: 11.5px;
+  color: var(--fg-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.reviews-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.reviews-nav .cap-btn {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+}
+body:not(.is-in) .reviews,
+body.is-intro .reviews,
+body.is-close .reviews,
+body.has-focus .reviews,
+body.has-menu .reviews,
+body.has-panel .reviews {
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 12px;
+}
+.no-world .reviews {
+  display: none;
 }
 
 /* ───────── Markers: a quiet ring, the label surfaces on hover / focus ───────── */
@@ -548,99 +941,426 @@ body.has-menu .headline {
   border-color: rgba(232, 238, 248, 0.6);
   background: rgba(232, 238, 248, 0.05);
 }
-/* Behind the hovered row: its project, smeared on with a dry brush */
-/* Hover preview: the project seen through a pane of ice, mirrored in it below */
-.menu-scratch {
-  position: fixed;
-  z-index: 18; /* over the night veil, under the menu text */
-  left: 50%;
-  top: 50%;
-  width: min(720px, 64vw);
-  translate: -50% -32%;
+/* Rows sit over the night veil: lift their text off it */
+.menu-row {
+  position: relative;
+  text-shadow: 0 2px 18px rgba(4, 7, 14, 0.9);
+}
+/* Hover: the beacon's paint sweeps along the row's rule instead of a preview */
+.menu-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--paint), color-mix(in srgb, var(--paint) 30%, transparent) 70%, transparent);
+  scale: 0 1;
+  transform-origin: left;
+  transition: scale 0.7s var(--ease);
+}
+.menu-row:hover::after,
+.menu-row:focus-visible::after {
+  scale: 1 1;
+}
+.menu-row[aria-expanded='true']::after {
+  scale: 0 1;
+}
+.menu-title {
+  transform-origin: left center;
+  transition: color 0.35s, translate 0.6s var(--ease), scale 0.6s var(--ease);
+}
+.menu-row:hover .menu-title,
+.menu-row:focus-visible .menu-title {
+  translate: 6px 0;
+}
+/* The open title swells, a heading for what unfolds beneath it */
+.menu-row[aria-expanded='true'] .menu-title {
+  translate: 0 0;
+  scale: 1.32;
+}
+
+/* ───────── Accordion: a row unfolds in place, lit by its beacon's paint ───────── */
+.menu-item {
+  position: relative;
+  transition: opacity 0.5s var(--ease);
+}
+/* A thread of the beacon's light draws down the open item's edge */
+.menu-item::before {
+  content: '';
+  position: absolute;
+  left: -22px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, var(--paint), transparent);
+  box-shadow: 0 0 12px var(--paint);
+  scale: 1 0;
+  transform-origin: top;
+  transition: scale 0.9s var(--ease);
+}
+/* …and its colour pools faintly behind the unfolded content */
+.menu-item::after {
+  content: '';
+  position: absolute;
+  inset: 0 -22px;
+  z-index: -1;
+  background: radial-gradient(ellipse 70% 60% at 25% 60%, color-mix(in srgb, var(--paint) 14%, transparent), transparent 70%);
   opacity: 0;
-  scale: 0.97;
-  filter: blur(8px);
-  transition: opacity 0.9s var(--ease), filter 0.9s var(--ease), scale 1.2s var(--ease), top 1.1s var(--ease);
+  transition: opacity 0.8s var(--ease);
   pointer-events: none;
 }
-.menu-scratch.is-on {
+.menu-item.is-open::before {
+  scale: 1 1;
+}
+.menu-item.is-open::after {
   opacity: 1;
-  scale: 1;
-  filter: blur(0);
-  transition: opacity 1.2s var(--ease), filter 1.4s var(--ease), scale 2s var(--ease), top 1.1s var(--ease);
 }
-.ice-pane,
-.ice-reflect {
-  position: relative;
-  aspect-ratio: 16 / 7;
+.menu-list.has-open .menu-item:not(.is-open) {
+  opacity: 0.42;
+}
+.menu-list.has-open .menu-item:not(.is-open):hover {
+  opacity: 0.85;
+}
+.menu-num {
+  display: inline-block;
+  width: 0;
   overflow: hidden;
+  vertical-align: 0.35em;
+  font: 500 10px/1 var(--sans);
+  letter-spacing: 0.2em;
+  color: var(--paint);
+  opacity: 0;
+  transition: width 0.5s var(--ease), opacity 0.5s var(--ease);
 }
-/* Edges thaw into the mist instead of stopping on a hard frame */
-.ice-pane {
-  -webkit-mask: radial-gradient(ellipse 50% 50% at 50% 50%, #000 52%, transparent 100%);
-  mask: radial-gradient(ellipse 50% 50% at 50% 50%, #000 52%, transparent 100%);
+.menu-row:hover .menu-num,
+.menu-row:focus-visible .menu-num,
+.menu-row[aria-expanded='true'] .menu-num {
+  width: 3.2em;
+  opacity: 1;
 }
-.ice-img {
+.menu-row[aria-expanded='true'] .menu-title {
+  color: #fff;
+}
+.menu-row[aria-expanded='true'] {
+  color: var(--fg);
+  border-bottom-color: transparent;
+  padding: 26px 0 22px;
+}
+.menu-row {
+  transition: color 0.35s, padding 0.6s var(--ease);
+}
+/* Year and type move down into the fold's facts strip; the header keeps just the title */
+.menu-year,
+.menu-kind {
+  transition: opacity 0.4s var(--ease);
+}
+.menu-row[aria-expanded='true'] .menu-year,
+.menu-row[aria-expanded='true'] .menu-kind {
+  opacity: 0;
+}
+.menu-row[aria-expanded='true'] .menu-go {
+  border-color: var(--paint);
+  background: color-mix(in srgb, var(--paint) 12%, transparent);
+}
+/* Plus that turns into a cross */
+.menu-plus {
+  position: relative;
+  width: 9px;
+  height: 9px;
+  transition: rotate 0.5s var(--ease);
+}
+.menu-plus::before,
+.menu-plus::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 9px;
+  height: 1px;
+  background: currentColor;
+}
+.menu-plus::after {
+  rotate: 90deg;
+}
+.menu-row[aria-expanded='true'] .menu-plus {
+  rotate: 135deg;
+}
+.menu-go {
+  width: 112px;
+}
+
+/* Height animates through grid rows, so the fold opens to whatever it holds */
+.menu-fold {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.7s var(--ease), visibility 0.7s;
+  visibility: hidden;
+  border-bottom: 1px solid transparent;
+}
+.menu-item.is-open .menu-fold {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  border-bottom-color: rgba(232, 238, 248, 0.07);
+}
+.fold {
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+  transition: padding 0.7s var(--ease);
+}
+.menu-item.is-open .fold {
+  padding: 6px 0 34px;
+}
+/* The shot develops from the bottom up, settling out of a slight zoom */
+.fold-shot {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--paint) 30%, #0b1424);
+  clip-path: inset(100% 0 0 0);
+  /* Pointer tilt (set from ui.ts; rests flat) */
+  transform: perspective(900px) rotateX(calc(var(--ty, 0) * -5deg)) rotateY(calc(var(--tx, 0) * 7deg));
+  transition: clip-path 0.9s var(--ease), transform 0.6s var(--ease);
+}
+.fold-media {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+/* Glare follows the pointer across the glass */
+.fold-glare {
   position: absolute;
   inset: 0;
-  background: var(--img, none) center 25% / cover no-repeat, color-mix(in srgb, var(--paint, #3573a5) 50%, #142c47);
-  /* Cold grade: cooled, slightly lifted blacks, still clearly readable */
-  filter: saturate(0.75) contrast(0.95) brightness(0.85) hue-rotate(-8deg);
+  z-index: 1;
+  background: radial-gradient(circle at calc(50% + var(--tx, 0) * 100%) calc(50% + var(--ty, 0) * 100%), rgba(255, 255, 255, 0.16), transparent 45%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
 }
-.ice-img::after {
+.fold-shot:hover .fold-glare {
+  opacity: 1;
+}
+.fold-shot img.is-swapping {
+  opacity: 0;
+  scale: 1.04;
+}
+.menu-item.is-open .fold-shot img {
+  transition: scale 1.6s var(--ease), filter 0.6s, opacity 0.22s;
+}
+.fold-thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.fold-thumb {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 2px;
+  opacity: 0;
+  translate: 0 8px;
+  transition: opacity 0.3s, translate 0.3s;
+}
+.fold-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  filter: saturate(0.4) brightness(0.55);
+  transition: filter 0.4s;
+}
+.fold-thumb::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(170deg, rgba(120, 200, 230, 0.32), rgba(30, 70, 120, 0.42));
-  mix-blend-mode: soft-light;
+  border: 1px solid rgba(232, 238, 248, 0.14);
+  border-radius: inherit;
+  transition: border-color 0.4s;
 }
-/* Frost: fine crystalline grain, thicker toward the edges, plus hairline cracks */
-.ice-frost {
+.fold-thumb:hover img,
+.fold-thumb[aria-pressed='true'] img {
+  filter: none;
+}
+.fold-thumb[aria-pressed='true']::after {
+  border-color: var(--paint);
+  box-shadow: inset 0 -2px 0 var(--paint);
+}
+.menu-item.is-open .fold-thumb {
+  opacity: 1;
+  translate: 0 0;
+  transition: opacity 0.6s var(--ease), translate 0.6s var(--ease);
+  transition-delay: calc(0.55s + var(--k) * 0.06s);
+}
+/* Facts strip: hairline-separated, small caps over serif values */
+.fold-facts {
+  display: flex;
+  margin: 0;
+  border-top: var(--hair);
+  border-bottom: var(--hair);
+}
+.fold-facts div {
+  flex: 1;
+  padding: 12px 0 12px 14px;
+  border-left: var(--hair);
+}
+.fold-facts div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.fold-facts dt {
+  font: 500 9.5px/1 var(--sans);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.fold-facts dd {
+  margin: 8px 0 0;
+  font: 400 15px/1.2 var(--serif);
+  color: var(--fg);
+}
+.fold-facts div:first-child dd {
+  color: var(--paint);
+}
+.fold-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  scale: 1.12;
+  filter: saturate(0.85) brightness(0.9);
+  transition: scale 1.6s var(--ease), filter 0.6s;
+}
+.fold-shot::after {
+  content: '';
   position: absolute;
   inset: 0;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='315' fill='none' stroke='white' stroke-width='0.7' stroke-opacity='0.35'%3E%3Cpath d='M40 20 L150 110 L190 95 L300 180 M150 110 L130 200 M520 0 L470 80 L560 150 L640 140 M470 80 L400 95 M600 315 L560 230 L620 190 L700 240 M560 230 L480 260'/%3E%3C/svg%3E") center / 100% 100% no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.85  0 0 0 0 0.95  0 0 0 0 1  0 0 0 2.2 -1.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
-  -webkit-mask: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0, 0, 0, 0.25) 30%, #000 95%);
-  mask: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0, 0, 0, 0.25) 30%, #000 95%);
-  mix-blend-mode: screen;
-  opacity: 0.8;
+  background: linear-gradient(180deg, transparent 45%, rgba(5, 9, 18, 0.75));
+  pointer-events: none;
 }
-/* A slow band of light gliding across the ice */
-.ice-sheen {
+.fold-shot:hover img {
+  filter: saturate(1) brightness(1);
+}
+.menu-item.is-open .fold-shot {
+  clip-path: inset(0 0 0 0);
+  transition-delay: 0.15s;
+}
+.menu-item.is-open .fold-shot img {
+  scale: 1;
+}
+.fold-poster {
   position: absolute;
-  inset: -20% -40%;
-  background: linear-gradient(105deg, transparent 40%, rgba(210, 240, 255, 0.16) 48%, rgba(255, 255, 255, 0.26) 50%, rgba(210, 240, 255, 0.16) 52%, transparent 60%);
-  mix-blend-mode: screen;
-  translate: -60% 0;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 400 clamp(28px, 3vw, 44px) / 1 var(--serif);
+  background: radial-gradient(ellipse at 50% 45%, color-mix(in srgb, var(--paint) 55%, #3573a5), #142c47 75%);
 }
-.menu-scratch.is-on .ice-sheen {
-  animation: sheen 6s var(--ease) 0.6s infinite;
+/* Outlined index number, stamped over the corner of the shot */
+.fold-num {
+  position: absolute;
+  z-index: 1;
+  right: 14px;
+  bottom: -0.16em;
+  font: 400 clamp(64px, 7vw, 108px) / 1 var(--serif);
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--paint) 70%, #fff);
+  opacity: 0;
+  translate: 0 20px;
+  transition: opacity 0.8s var(--ease), translate 0.9s var(--ease);
 }
-@keyframes sheen {
-  0% { translate: -60% 0; }
-  55%, 100% { translate: 60% 0; }
+.menu-item.is-open .fold-num {
+  opacity: 0.85;
+  translate: 0 0;
+  transition-delay: 0.45s;
 }
-/* Reflection: flipped, rippled, fading away from the edge of the ice */
-.ice-reflect {
-  margin-top: 4px;
-  aspect-ratio: 16 / 4;
-  -webkit-mask: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 85%), radial-gradient(ellipse 50% 100% at 50% 0%, #000 50%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 85%) intersect, radial-gradient(ellipse 50% 100% at 50% 0%, #000 50%, transparent 100%);
+.fold-copy {
+  display: grid;
+  gap: 22px;
+  align-content: center;
 }
-.ice-reflect .ice-img {
-  inset: 0 0 -75% 0;
-  scale: 1 -1;
-  transform-origin: top;
-  filter: saturate(0.6) brightness(0.6) blur(1.5px);
+.fold-copy > * {
+  opacity: 0;
+  translate: 0 14px;
+  transition: opacity 0.4s var(--ease), translate 0.4s var(--ease);
 }
-.menu-scratch.is-blank .ice-img {
-  background: radial-gradient(ellipse at 50% 45%, color-mix(in srgb, var(--paint) 60%, #3573a5), #142c47 75%);
+.menu-item.is-open .fold-copy > * {
+  opacity: 1;
+  translate: 0 0;
+  transition-duration: 0.8s;
 }
-/* Rows sit over the ice: lift their text off it */
-.menu-row {
-  text-shadow: 0 2px 18px rgba(4, 7, 14, 0.9);
+.menu-item.is-open .fold-facts {
+  transition-delay: 0.25s;
+}
+.menu-item.is-open .fold-lead {
+  transition-delay: 0.32s;
+}
+.menu-item.is-open .fold-stack {
+  transition-delay: 0.4s;
+}
+.menu-item.is-open .fold-actions {
+  transition-delay: 0.75s;
+}
+.fold-lead {
+  margin: 0;
+  font: 400 clamp(17px, 1.35vw, 21px) / 1.45 var(--serif);
+  color: rgba(232, 238, 248, 0.88);
+}
+.fold-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Chips light up one after another, like beacons along a path */
+.fold-stack li {
+  padding: 7px 11px;
+  border: 1px solid rgba(232, 238, 248, 0.16);
+  border-radius: 2px;
+  font: 500 10px/1 var(--sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  opacity: 0;
+  translate: 0 6px;
+  transition: opacity 0.3s, translate 0.3s, border-color 0.3s;
+}
+.menu-item.is-open .fold-stack li {
+  opacity: 1;
+  translate: 0 0;
+  transition: opacity 0.6s var(--ease), translate 0.6s var(--ease), border-color 0.3s;
+  transition-delay: calc(0.45s + var(--k) * 0.07s);
+}
+.fold-stack li:hover {
+  border-color: var(--paint);
+}
+.fold-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.fold-actions .action {
+  padding: 14px 20px;
+}
+.fold-actions .action--primary {
+  background: var(--paint);
+  border-color: var(--paint);
+  color: #07101c;
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--paint) 40%, transparent);
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.5s var(--ease);
+}
+.fold-actions .action--primary:hover {
+  background: transparent;
+  color: var(--fg);
+  box-shadow: 0 0 26px -4px var(--paint);
 }
 
 /* ───────── Project view (through the portal) ───────── */
@@ -943,8 +1663,20 @@ body.has-menu .headline {
     grid-column: 1 / -1;
   }
   .menu-kind,
-  .menu-go {
+  .menu-go-label {
     display: none;
+  }
+  .menu-go {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+  }
+  .menu-item::before {
+    left: -12px;
+  }
+  .fold {
+    grid-template-columns: 1fr;
+    gap: 22px;
   }
   .pv-hero {
     height: 52vh;
@@ -1304,6 +2036,28 @@ body.is-intro .markers {
     bottom: 120px;
     left: 20px;
     font-size: 36px;
+  }
+  /* Phones: the reviews card takes the bottom band, the headline climbs above it */
+  body.is-in:not(.is-close) .headline {
+    bottom: 300px;
+  }
+  /* The pill shrinks to the portrait and its green dot */
+  .me-name,
+  .me-status span {
+    display: none;
+  }
+  .me-pill {
+    padding: 0 12px 0 9px;
+  }
+  .reviews {
+    bottom: calc(max(26px, env(safe-area-inset-bottom)) + 58px);
+    padding: 16px 18px 14px;
+    gap: 10px;
+  }
+  .review blockquote {
+    font-size: 14.5px;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
   }
   .hint {
     display: none;

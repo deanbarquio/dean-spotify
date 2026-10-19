@@ -224,6 +224,21 @@ function groundMesh(seg: number) {
   const HAZE = new THREE.Color('#4073a3');
   const LIT = new THREE.Color('#3573a5');
   const BANK = new THREE.Color('#163655');
+  // Moonlit moss: deep teal-green, still sitting inside the blue night palette
+  const MOSS = new THREE.Color('#1b4a4c');
+  // Day mountains. Kept mid-toned: under full sun ACES pushes anything paler straight to white (snow excepted)
+  const D_GRASS = new THREE.Color('#4f6e38');
+  const D_FOREST = new THREE.Color('#34502c');
+  const D_GRANITE = new THREE.Color('#5f605b');
+  const D_WARM = new THREE.Color('#7a6f5d');
+  const D_SCREE = new THREE.Color('#77715f');
+  const D_SNOW = new THREE.Color('#e6ebee');
+  const D_CREST = new THREE.Color('#8a8c84');
+  const D_MOSS = new THREE.Color('#5f7d2f');
+  const D_MOSS_DEEP = new THREE.Color('#34502a');
+  const D_BANK = new THREE.Color('#3b4433');
+  const rockCol = new THREE.Color();
+  const dayColors = new Float32Array(pos.count * 3);
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
     const y = pos.getY(i);
@@ -237,34 +252,73 @@ function groundMesh(seg: number) {
     col.lerp(LIT, smoothstep(4, 10, y) * smoothstep(0.35, 0.7, ny) * smoothstep(0.95, 0.75, ny) * 0.6);
     // Moonlit crests and the high ground fade toward the haze colour
     col.lerp(HAZE, smoothstep(7, 12, y) * smoothstep(0.7, 0.95, ny) * 0.55 + smoothstep(30, 70, y) * 0.4);
+    // Moss, inside the labyrinth only, in patches: a damp band along each wall's foot above the water,
+    // cushions on the flat crests and trails creeping down the steep faces
+    const patch = smoothstep(0.42, 0.68, fbm(x * 0.18 + 3, z * 0.18 - 7, 3));
+    const inMaze = 1 - smoothstep(80, 90, Math.hypot(x, z));
+    const damp = smoothstep(0.5, 1.3, y) * smoothstep(5, 2, y);
+    const cushion = smoothstep(4, 7, y) * smoothstep(0.8, 0.95, ny);
+    const trail = smoothstep(0.75, 0.4, ny) * smoothstep(2, 6, y) * smoothstep(0.5, 0.8, fbm(x * 0.6, z * 0.6, 2));
+    const moss = inMaze * Math.min(1, (damp * 0.95 + cushion * 0.85) * patch + trail * 0.6);
     // Wet, darker banks just above the waterline
     col.lerp(BANK, smoothstep(WATER + 1.4, WATER, y) * 0.8);
+    col.lerp(MOSS, moss * 0.8);
     col.multiplyScalar(0.82 + v * 0.36);
     col.toArray(colors, i * 3);
+
+    // Day: the same walls in mountain stone. Grass on the valley floor, a scree apron at the foot of
+    // each wall, banded granite cliffs (warmer where weathered), lichen-grey crests with a little moss
+    // clinging to the flat tops, and snow only on the far rim peaks
+    const strata = 0.8 + 0.4 * fbm(x * 0.05 + y * 1.1, z * 0.05 + y * 1.1, 3);
+    rockCol.copy(D_GRANITE).lerp(D_WARM, fbm(x * 0.04 + 9, z * 0.04, 3) * 0.8).multiplyScalar(strata);
+    col.copy(D_GRASS).lerp(D_FOREST, smoothstep(0.95, 0.8, ny) * 0.7);
+    col.lerp(D_SCREE, smoothstep(0.9, 0.7, ny) * smoothstep(3, 0.6, y) * 0.75);
+    // Rock owns every wall: steep faces fully, and the crests too once they stand clear of the floor
+    col.lerp(rockCol, Math.min(1, smoothstep(0.85, 0.6, ny) + smoothstep(1.5, 4, y) * 0.9));
+    col.lerp(D_CREST, smoothstep(5, 11, y) * smoothstep(0.72, 0.95, ny) * 0.65);
+    col.lerp(D_SNOW, smoothstep(34, 60, y) * smoothstep(0.55, 0.85, ny));
+    col.lerp(D_BANK, smoothstep(WATER + 1.4, WATER, y) * 0.8);
+    // Same moss as by night, in sunlit greens: brighter on the crests, deeper in the damp
+    col.lerp(rockCol.copy(D_MOSS_DEEP).lerp(D_MOSS, Math.min(1, cushion + fbm(x * 0.4, z * 0.4, 2) * 0.5)), moss * 0.85);
+    col.multiplyScalar(0.85 + v * 0.3);
+    col.toArray(dayColors, i * 3);
   }
-  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  const nightColors = colors.slice();
+  const attr = new THREE.BufferAttribute(colors, 3);
+  geo.setAttribute('color', attr);
   const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.88, metalness: 0, bumpMap: rockBump(), bumpScale: 2.2 }));
   mesh.castShadow = true;
   mesh.receiveShadow = true;
-  return mesh;
+  /** 0 = night palette, 1 = day stone; the shape never changes */
+  const setDay = (k: number) => {
+    for (let i = 0; i < colors.length; i++) colors[i] = nightColors[i] + (dayColors[i] - nightColors[i]) * k;
+    attr.needsUpdate = true;
+  };
+  return { mesh, setDay };
 }
 
 export function buildTerrain(seg: number) {
   const group = new THREE.Group();
-  group.add(groundMesh(seg));
+  const ground = groundMesh(seg);
+  group.add(ground.mesh);
   const time = { value: 0 };
+  const NIGHT_MIST = new THREE.Color('#33557f');
+  const DAY_MIST = new THREE.Color('#d3e1e8');
+  const sheets: { mesh: THREE.Mesh; color: THREE.Color; alpha: { value: number }; base: number }[] = [];
 
   // Two fog sheets at different heights and scales read as layered mist
   for (const [y, alpha, scale] of [
     [3, 0.26, 0.03],
     [9, 0.15, 0.018],
   ]) {
+    const color = NIGHT_MIST.clone();
+    const a = { value: alpha };
     const sheet = new THREE.Mesh(
       new THREE.PlaneGeometry(520, 520, 1, 1).rotateX(-Math.PI / 2),
       new THREE.ShaderMaterial({
         vertexShader: sheetVert,
         fragmentShader: fogFrag,
-        uniforms: { uTime: time, uAlpha: { value: alpha }, uScale: { value: scale }, uColor: { value: new THREE.Color('#33557f') } },
+        uniforms: { uTime: time, uAlpha: a, uScale: { value: scale }, uColor: { value: color } },
         transparent: true,
         depthWrite: false,
       })
@@ -272,7 +326,20 @@ export function buildTerrain(seg: number) {
     sheet.position.y = y;
     sheet.renderOrder = 2;
     group.add(sheet);
+    sheets.push({ mesh: sheet, color, alpha: a, base: alpha });
   }
 
-  return { group, tick: (t: number) => void (time.value = t) };
+  return {
+    group,
+    tick: (t: number) => void (time.value = t),
+    /** 0 = night, 1 = day: ground palette, and the mist sheets fade out completely by day */
+    setDay(k: number) {
+      ground.setDay(k);
+      for (const s of sheets) {
+        s.color.lerpColors(NIGHT_MIST, DAY_MIST, k);
+        s.alpha.value = s.base * (1 - k);
+        s.mesh.visible = k < 1;
+      }
+    },
+  };
 }

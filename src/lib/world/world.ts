@@ -11,13 +11,15 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { Pass } from 'three/examples/jsm/postprocessing/Pass.js';
 import { PLACES } from './places';
 import { buildTerrain, heightAt } from './terrain';
 import { buildBeacons } from './beacons';
 import { buildTrees, buildMist } from './nature';
 import { buildWater } from './water';
+import { buildDetails } from './details';
 import { buildStorm, buildBirds } from './sky';
-import { buildGuardian, ORB_LIFT } from './phoenix';
+import { buildGuardian, ORB_LIFT, PHOENIX_LAYER } from './phoenix';
 import { buildGuardians, GUARDIAN_AT, type GuardianId } from './guardians';
 
 export type World = {
@@ -32,6 +34,8 @@ export type World = {
   nudge: (right: number, forward: number) => void;
   zoom: (factor: number) => void;
   setHover: (id: string | null) => void;
+  /** Switch between night and day; blends over ~2 s unless `instant`. Safe to call at any time, mid-blend included */
+  setDay: (on: boolean, instant?: boolean) => void;
   destroy: () => void;
 };
 
@@ -71,13 +75,23 @@ const HAZE = '#2a4568';
 // Fog darker than the haze: distance sinks into night instead of washing out white
 const FOG = '#203a5c';
 
+/** Day palette: a clear morning, pale haze on the horizon so the far ridges still dissolve */
+const DAY_SKY = ['#3f7fc2', '#5f9bd2', '#93bddd', '#a9cbe2'];
+const NIGHT_SKY = [SKY_TOP, '#13233e', HAZE, '#33557f'];
+// A clear blue haze, not white, and thinner than the night fog so the valley keeps its colour
+const DAY_FOG = '#8fb3cf';
+const NIGHT_FOG_DENSITY = 0.0042;
+const DAY_FOG_DENSITY = 0.0026;
+/** Blend time between night and day, seconds */
+const DAY_BLEND = 1.8;
+
 const lensShader = {
-  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uRes: { value: new THREE.Vector2(1, 1) } },
+  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uRes: { value: new THREE.Vector2(1, 1) }, uDay: { value: 0 } },
   vertexShader: /* glsl */ `
     varying vec2 vUv;
     void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
   fragmentShader: /* glsl */ `
-    uniform sampler2D tDiffuse; uniform float uTime; uniform vec2 uRes; varying vec2 vUv;
+    uniform sampler2D tDiffuse; uniform float uTime, uDay; uniform vec2 uRes; varying vec2 vUv;
     float rand(vec2 c) { return fract(sin(dot(c, vec2(12.9898, 78.233))) * 43758.5453); }
     void main() {
       vec2 c = vUv - 0.5;
@@ -87,35 +101,45 @@ const lensShader = {
       vec3 col = vec3(texture2D(tDiffuse, vUv + off).r, texture2D(tDiffuse, vUv).g, texture2D(tDiffuse, vUv - off).b);
       // Film grade: pull saturation down and lean the mids toward teal, as in the reference
       float l = dot(col, vec3(0.299, 0.587, 0.114));
-      col = mix(vec3(l), col, 0.78);
-      col *= vec3(0.93, 1.02, 1.04);
+      // By day: more colour kept, a faint warm lean instead of teal, a lighter vignette and finer grain
+      col = mix(vec3(l), col, mix(0.78, 0.92, uDay));
+      col *= mix(vec3(0.93, 1.02, 1.04), vec3(1.03, 1.0, 0.96), uDay);
       col = mix(vec3(0.015, 0.025, 0.05), vec3(1.0), col); // blue-black shadows, only slightly lifted
       col = col * col * (3.0 - 2.0 * col) * 0.35 + col * 0.65; // gentle S-curve: more contrast, less milk
-      col *= mix(1.0, 0.4, smoothstep(0.1, 0.5, d));
+      col *= mix(1.0, mix(0.4, 0.78, uDay), smoothstep(0.1, 0.5, d));
+      // Night depth: the near ground (bottom of frame) sinks into shadow, the far valley
+      // (top) lifts into moonlit haze, so the eye travels in toward the lit maze
+      float fall = (1.0 - uDay);
+      col *= mix(1.0, 0.72, smoothstep(0.45, 0.0, vUv.y) * fall);
+      col += vec3(0.03, 0.05, 0.09) * smoothstep(0.55, 1.0, vUv.y) * fall;
       // Colour grain: per-channel noise reads like film rather than digital static
       vec2 gp = vUv * uRes + fract(uTime * 7.0) * 91.0;
-      col += (vec3(rand(gp), rand(gp + 17.0), rand(gp + 41.0)) - 0.5) * 0.075;
+      col += (vec3(rand(gp), rand(gp + 17.0), rand(gp + 41.0)) - 0.5) * mix(0.075, 0.035, uDay);
       gl_FragColor = vec4(col, 1.0);
     }`,
 };
 
+/** Sky gradient on a tiny canvas; `paint(k)` redraws it anywhere between night (0) and day (1) */
 function skyTexture() {
   const c = document.createElement('canvas');
   c.width = 2;
   c.height = 512;
   const g = c.getContext('2d')!;
-  const grad = g.createLinearGradient(0, 0, 0, 512);
-  // The background spans the screen and the camera looks down, so the ridgeline sits near the top:
-  // keep the upper sky a lit haze (dark only at the very edge) so peaks dissolve into mist
-  grad.addColorStop(0, SKY_TOP);
-  grad.addColorStop(0.25, '#13233e');
-  grad.addColorStop(0.7, HAZE);
-  grad.addColorStop(1, '#33557f');
-  g.fillStyle = grad;
-  g.fillRect(0, 0, 2, 512);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
+  const a = new THREE.Color();
+  const b = new THREE.Color();
+  const paint = (k: number) => {
+    const grad = g.createLinearGradient(0, 0, 0, 512);
+    // The background spans the screen and the camera looks down, so the ridgeline sits near the top:
+    // keep the upper sky a lit haze (dark only at the very edge) so peaks dissolve into mist
+    [0, 0.25, 0.7, 1].forEach((at, i) => grad.addColorStop(at, `#${a.set(NIGHT_SKY[i]).lerp(b.set(DAY_SKY[i]), k).getHexString()}`));
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 2, 512);
+    tex.needsUpdate = true;
+  };
+  paint(0);
+  return { tex, paint };
 }
 
 export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
@@ -127,17 +151,19 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
   renderer.shadowMap.type = THREE.PCFShadowMap;
 
   const scene = new THREE.Scene();
-  scene.background = skyTexture();
+  const sky = skyTexture();
+  scene.background = sky.tex;
   // Thin enough that the maze keeps its contrast; the far rim and mountains still dissolve
-  const fog = new THREE.FogExp2(FOG, 0.0042);
+  const fog = new THREE.FogExp2(FOG, NIGHT_FOG_DENSITY);
   scene.fog = fog;
   const camera = new THREE.PerspectiveCamera(FOV, 1, 1, 1200);
 
   /* Moonlight from behind the maze so crests get a cold rim toward the viewer */
-  // Fill tuned so lit rock lands on the labyrinth palette (#1d4f79 → #3573a5) after grading
-  const hemi = new THREE.HemisphereLight('#6a9ad0', '#142c47', 1.5);
+  // Fill tuned so lit rock lands on the labyrinth palette (#1d4f79 → #3573a5) after grading;
+  // a little lower than the fill alone would want, so the moon's modelling (and the shadows) read
+  const hemi = new THREE.HemisphereLight('#6a9ad0', '#142c47', 1.3);
   scene.add(hemi);
-  const moon = new THREE.DirectionalLight('#b8cff0', 2.2);
+  const moon = new THREE.DirectionalLight('#b8cff0', 2.6);
   moon.position.set(-70, 110, -140);
   moon.castShadow = true;
   moon.shadow.mapSize.setScalar(2048);
@@ -157,7 +183,9 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
   });
   const birds = buildBirds();
   const storm = buildStorm({ scene, hemi, fog, onThunder: opts.onThunder });
-  scene.add(terrain.group, water.mesh, buildTrees(), lights.group, mist.group, birds.group);
+  const trees = buildTrees();
+  const details = buildDetails(PLACES);
+  scene.add(terrain.group, water.mesh, details.group, trees.group, lights.group, mist.group, birds.group);
   const guardian = buildGuardian(scene, { reducedMotion: opts.reducedMotion, renderer, camera, warm: () => warmRender() });
   const guardians = buildGuardians(scene, guardian, { reducedMotion: opts.reducedMotion, renderer, camera, warm: () => warmRender(), onStrike: opts.onSummon });
 
@@ -184,14 +212,88 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
     const prev = renderer.getRenderTarget();
     renderer.setRenderTarget(composer.readBuffer);
     renderer.render(scene, camera);
+    drawPhoenix();
     renderer.setRenderTarget(prev);
   }
+  /**
+   * The phoenix on top of everything: a second draw into the same target with the depth cleared,
+   * seeing only the bird's layer. It still gets the scene's lights and fog (lights join its layer),
+   * but not the sky (it would paint over the frame) or a second shadow pass.
+   */
+  function drawPhoenix() {
+    scene.traverse((o) => (o as THREE.Light).isLight && o.layers.enable(PHOENIX_LAYER));
+    const bg = scene.background;
+    const autoClear = renderer.autoClear;
+    const shadows = renderer.shadowMap.autoUpdate;
+    scene.background = null;
+    renderer.autoClear = false;
+    renderer.shadowMap.autoUpdate = false;
+    camera.layers.set(PHOENIX_LAYER);
+    renderer.clearDepth();
+    renderer.render(scene, camera);
+    camera.layers.set(0);
+    scene.background = bg;
+    renderer.autoClear = autoClear;
+    renderer.shadowMap.autoUpdate = shadows;
+  }
+  class PhoenixPass extends Pass {
+    constructor() {
+      super();
+      this.needsSwap = false;
+    }
+    render(r: THREE.WebGLRenderer, _write: THREE.WebGLRenderTarget, read: THREE.WebGLRenderTarget) {
+      r.setRenderTarget(this.renderToScreen ? null : read);
+      drawPhoenix();
+    }
+  }
   composer.addPass(new RenderPass(scene, camera));
+  composer.addPass(new PhoenixPass());
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.85, 0.7, 0.55);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
   const lens = new ShaderPass(lensShader);
   composer.addPass(lens);
+
+  /* ───────── Day / night ─────────
+     `day` eases toward `dayWant` (0 night, 1 day) every frame, so a toggle can land at any moment,
+     even mid-blend: it simply turns round from wherever the light currently is. */
+  let day = 0;
+  let dayWant = 0;
+  const N = {
+    fog: new THREE.Color(FOG), hemiSky: hemi.color.clone(), hemiGround: hemi.groundColor.clone(), hemi: hemi.intensity,
+    light: moon.color.clone(), lightI: moon.intensity, lightPos: moon.position.clone(),
+  };
+  const D = {
+    fog: new THREE.Color(DAY_FOG), hemiSky: new THREE.Color('#bcd6f2'), hemiGround: new THREE.Color('#4f5c3e'), hemi: 1.05,
+    // The sun swings round to the left so walls throw long shadows across the maze toward the viewer
+    light: new THREE.Color('#ffefd2'), lightI: 2.6, lightPos: new THREE.Vector3(-120, 160, -40),
+  };
+  const lightDir = new THREE.Vector3();
+  const applyDay = (raw: number) => {
+    const k = raw * raw * (3 - 2 * raw);
+    sky.paint(k);
+    storm.base.fog.lerpColors(N.fog, D.fog, k);
+    storm.base.hemi = THREE.MathUtils.lerp(N.hemi, D.hemi, k);
+    storm.base.calm = k;
+    // The storm writes these each frame from its base; set them too so a reduced-motion page (no storm tick) follows
+    fog.color.copy(storm.base.fog);
+    fog.density = THREE.MathUtils.lerp(NIGHT_FOG_DENSITY, DAY_FOG_DENSITY, k);
+    hemi.intensity = storm.base.hemi;
+    hemi.color.lerpColors(N.hemiSky, D.hemiSky, k);
+    hemi.groundColor.lerpColors(N.hemiGround, D.hemiGround, k);
+    moon.color.lerpColors(N.light, D.light, k);
+    moon.intensity = THREE.MathUtils.lerp(N.lightI, D.lightI, k);
+    moon.position.lerpVectors(N.lightPos, D.lightPos, k);
+    terrain.setDay(k);
+    water.setDay(k, lightDir.copy(moon.position));
+    details.setDay(k);
+    mist.setDay(k);
+    trees.setDay(k);
+    // Beacons glow less against daylight: softer bloom, and only the brightest things reach it
+    bloom.strength = THREE.MathUtils.lerp(0.85, 0.32, k);
+    bloom.threshold = THREE.MathUtils.lerp(0.55, 0.82, k);
+    lens.uniforms.uDay.value = k;
+  };
 
   /* Camera rig: `cur` is what's on screen, `want` is where it's easing to */
   let w = 1;
@@ -527,8 +629,14 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
       camera.updateMatrixWorld();
     }
 
+    if (day !== dayWant) {
+      const step = opts.reducedMotion ? 1 : dt / DAY_BLEND;
+      day = dayWant > day ? Math.min(dayWant, day + step) : Math.max(dayWant, day - step);
+      applyDay(day);
+    }
     terrain.tick(anim);
     water.tick(anim);
+    details.tick(anim);
     birds.tick(anim);
     // Lightning is skipped entirely for reduced motion (no flashing)
     if (!opts.reducedMotion) storm.tick(time);
@@ -694,6 +802,10 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
     },
     setHover(id) {
       hoverId = id;
+    },
+    setDay(on, instant = false) {
+      dayWant = on ? 1 : 0;
+      if (instant) applyDay((day = dayWant));
     },
     destroy() {
       running = false;

@@ -37,7 +37,7 @@ export function boot() {
   const capTitle = $('#cap-title');
   const capView = $<HTMLButtonElement>('#cap-view');
   let detail = false;
-  const VIEW: Record<string, string> = { about: 'About me', contact: 'Get in touch' };
+  const VIEW: Record<string, string> = { about: 'About me' };
 
   const fillPanel = (id: string) => {
     const tpl = document.querySelector(`.tpls [data-tpl="${id}"]`);
@@ -124,6 +124,7 @@ export function boot() {
     if (!place) return;
     if (!current) opener = from ?? (document.activeElement as HTMLElement | null);
     closeDrawer();
+    setMe(false);
     current = id;
     capSub.textContent = place.sub;
     capTitle.textContent = place.label;
@@ -215,6 +216,7 @@ export function boot() {
     drawerFrom = from;
     // The menu sits over everything: leave any project view first
     if (detail) hideDetail();
+    setMe(false);
     drawer.hidden = false;
     document.body.classList.add('has-menu');
     requestAnimationFrame(() => drawer.classList.add('is-open'));
@@ -225,48 +227,123 @@ export function boot() {
     if (drawer.hidden) return;
     drawer.classList.remove('is-open');
     document.body.classList.remove('has-menu');
-    scratchOff();
-    window.setTimeout(() => !drawer.classList.contains('is-open') && (drawer.hidden = true), reduced ? 0 : 400);
+    // Fold everything once the menu has faded, so it reopens as a clean list
+    window.setTimeout(() => !drawer.classList.contains('is-open') && ((drawer.hidden = true), foldAll()), reduced ? 0 : 400);
     listBtns.forEach((b) => b.setAttribute('aria-expanded', 'false'));
   }
   listBtns.forEach((b) => b.addEventListener('click', () => (drawer.hidden ? openDrawer(b) : closeDrawer())));
   $('#menu-close').addEventListener('click', () => (closeDrawer(), drawerFrom.focus({ preventScroll: true })));
   drawer.addEventListener('click', (e) => {
     const b = (e.target as Element).closest<HTMLElement>('[data-place]');
-    if (b) open(b.dataset.place!, drawerFrom);
+    if (b) return open(b.dataset.place!, drawerFrom);
+    const row = (e.target as Element).closest<HTMLElement>('[data-row]');
+    if (row) return toggleRow(row);
+    // Gallery thumbs swap the fold's main shot
+    const thumb = (e.target as Element).closest<HTMLElement>('[data-shot]');
+    if (thumb) pickShot(thumb);
   });
 
-  /* Hover preview: the row's project seen through ice behind the list */
-  const scratch = $('#menu-scratch');
-  let scratchUrl = '';
-  const scratchOn = (row: HTMLElement) => {
-    const url = row.dataset.image ?? '';
-    const r = row.getBoundingClientRect();
-    // Follow the row, but keep the pane and its reflection on screen
-    const y = Math.min(Math.max(r.top + r.height / 2, 200), window.innerHeight - 320);
-    scratch.style.top = `${y}px`;
-    scratch.style.setProperty('--paint', row.style.getPropertyValue('--paint'));
-    if (url !== scratchUrl) {
-      scratchUrl = url;
-      scratch.style.setProperty('--img', url ? `url("${url}")` : 'none');
-      // Restart the fade-in so each new project surfaces rather than swapping
-      scratch.classList.remove('is-on');
-      void scratch.offsetWidth;
-    }
-    scratch.classList.toggle('is-blank', !url);
-    scratch.classList.add('is-on');
+  /* Accordion: one row unfolds at a time */
+  const menuList = drawer.querySelector<HTMLElement>('.menu-list')!;
+  const menuRows = [...drawer.querySelectorAll<HTMLElement>('.menu-row')];
+  const setRow = (row: HTMLElement, on: boolean) => {
+    row.setAttribute('aria-expanded', String(on));
+    row.parentElement!.classList.toggle('is-open', on);
   };
-  function scratchOff() {
-    scratch.classList.remove('is-on');
+  const foldAll = () => {
+    menuRows.forEach((r) => setRow(r, false));
+    menuList.classList.remove('has-open');
+  };
+  function toggleRow(row: HTMLElement) {
+    const on = row.getAttribute('aria-expanded') !== 'true';
+    foldAll();
+    if (!on) return void sound.blip('close');
+    setRow(row, true);
+    menuList.classList.add('has-open');
+    sound.blip('open');
+    // Once the fold has opened (and the previous one closed), bring the whole item into view
+    window.setTimeout(() => row.parentElement!.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' }), reduced ? 0 : 720);
   }
-  drawer.querySelectorAll<HTMLElement>('.menu-row').forEach((row) => {
-    row.addEventListener('pointerenter', () => (scratchOn(row), sound.blip('hover')));
-    row.addEventListener('focus', () => scratchOn(row));
+  /* Accordion keys: ↑ / ↓ walk the headers, Home / End jump to the ends */
+  menuList.addEventListener('keydown', (e) => {
+    const i = menuRows.indexOf(e.target as HTMLElement);
+    if (i < 0) return;
+    const to = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: menuRows.length - 1 }[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    menuRows[(to + menuRows.length) % menuRows.length].focus();
   });
-  drawer.querySelector('.menu-list')!.addEventListener('pointerleave', scratchOff);
+  menuRows.forEach((row) => row.addEventListener('pointerenter', () => sound.blip('hover')));
+
+  function pickShot(thumb: HTMLElement) {
+    const fold = thumb.closest('.fold')!;
+    const img = fold.querySelector<HTMLImageElement>('.fold-shot img');
+    if (!img || img.getAttribute('src') === thumb.dataset.shot) return;
+    fold.querySelectorAll('[data-shot]').forEach((t) => t.setAttribute('aria-pressed', String(t === thumb)));
+    // Cross-fade: dip the shot, swap, let it settle back
+    img.classList.add('is-swapping');
+    window.setTimeout(() => {
+      img.src = thumb.dataset.shot!;
+      img.decode().catch(() => {}).finally(() => img.classList.remove('is-swapping'));
+    }, reduced ? 0 : 220);
+  }
+
+  /* The open shot leans toward the pointer, a pane of glass catching the light */
+  if (!reduced && matchMedia('(hover: hover)').matches) {
+    drawer.addEventListener('pointermove', (e) => {
+      const shot = (e.target as Element).closest<HTMLElement>('.menu-item.is-open .fold-shot');
+      if (!shot) return;
+      const r = shot.getBoundingClientRect();
+      shot.style.setProperty('--tx', String((e.clientX - r.left) / r.width - 0.5));
+      shot.style.setProperty('--ty', String((e.clientY - r.top) / r.height - 0.5));
+    });
+    drawer.addEventListener('pointerout', (e) => {
+      const shot = (e.target as Element).closest<HTMLElement>('.fold-shot');
+      if (shot && !shot.contains(e.relatedTarget as Node)) (shot.style.setProperty('--tx', '0'), shot.style.setProperty('--ty', '0'));
+    });
+  }
 
   /* ───────── Nav, markers, sound ───────── */
   document.querySelectorAll<HTMLElement>('[data-open]').forEach((b) => b.addEventListener('click', () => open(b.dataset.open!, b)));
+
+  /* Me: the foot-bar pill unfolds into the profile + contact card */
+  const profile = $('#profile');
+  const mePill = $<HTMLButtonElement>('#me-pill');
+  let meOpen = false;
+  let meTimer = 0;
+  const setMe = (on: boolean) => {
+    if (on === meOpen) return;
+    meOpen = on;
+    clearTimeout(meTimer);
+    mePill.setAttribute('aria-expanded', String(on));
+    document.body.classList.toggle('has-me', on);
+    if (on) {
+      profile.hidden = false;
+      requestAnimationFrame(() => profile.classList.add('is-open'));
+    } else {
+      profile.classList.remove('is-open', 'is-ping');
+      meTimer = window.setTimeout(() => (profile.hidden = true), reduced ? 0 : 600);
+    }
+    sound.blip(on ? 'open' : 'close');
+  };
+  mePill.addEventListener('click', () => setMe(!meOpen));
+  // Anywhere else folds it away (the Contact link opens it, so it doesn't count)
+  document.addEventListener('pointerdown', (e) => {
+    const t = e.target as Element;
+    if (meOpen && !t.closest('.me, #nav-contact')) setMe(false);
+  });
+  /* Contact: clear anything in front, unfold the card and draw the eye to the email */
+  const showContact = () => {
+    closeDrawer();
+    if (current) close();
+    world?.overview();
+    setMe(true);
+    profile.classList.remove('is-ping');
+    void profile.offsetWidth;
+    profile.classList.add('is-ping');
+    window.setTimeout(() => $('#profile-mail').focus({ preventScroll: true }), reduced ? 0 : 350);
+  };
+  $('#nav-contact').addEventListener('click', showContact);
   $('#nav-home').addEventListener('click', () => (close(), world?.overview()));
   markers.forEach((el, id) => {
     el.addEventListener('click', () => (current === id ? close() : open(id, el)));
@@ -280,6 +357,50 @@ export function boot() {
   };
   soundBtn.addEventListener('click', () => setSound(!sound.on));
 
+  /* Day / night: the visitor can flip it whenever they like; the choice is remembered on this device */
+  const skyBtn = $<HTMLButtonElement>('#nav-sky');
+  const SKY_KEY = 'valley-sky';
+  let isDay = false;
+  try {
+    isDay = localStorage.getItem(SKY_KEY) === 'day';
+  } catch {}
+  const setDay = (on: boolean, instant = false) => {
+    isDay = on;
+    document.body.classList.toggle('is-day', on);
+    skyBtn.setAttribute('aria-pressed', String(on));
+    skyBtn.setAttribute('aria-label', on ? 'Switch to night' : 'Switch to day');
+    world?.setDay(on, instant);
+    try {
+      localStorage.setItem(SKY_KEY, on ? 'day' : 'night');
+    } catch {}
+  };
+  skyBtn.addEventListener('click', () => (setDay(!isDay), sound.blip(isDay ? 'open' : 'close')));
+  setDay(isDay, true);
+
+  /* ───────── Referral reviews: rotate on their own, pause while hovered or focused ───────── */
+  const reviews = [...document.querySelectorAll<HTMLElement>('[data-review]')];
+  const reviewsBox = $('#reviews');
+  const reviewsCount = $('#reviews-count');
+  let review = 0;
+  let reviewHold = false;
+  const showReview = (d: number) => {
+    reviews[review].hidden = true;
+    review = (review + d + reviews.length) % reviews.length;
+    reviews[review].hidden = false;
+    reviewsCount.textContent = `${String(review + 1).padStart(2, '0')} / ${String(reviews.length).padStart(2, '0')}`;
+  };
+  $('#reviews-prev').addEventListener('click', () => (showReview(-1), sound.blip('hover')));
+  $('#reviews-next').addEventListener('click', () => (showReview(1), sound.blip('hover')));
+  ['pointerenter', 'focusin'].forEach((ev) => reviewsBox.addEventListener(ev, () => (reviewHold = true)));
+  ['pointerleave', 'focusout'].forEach((ev) => reviewsBox.addEventListener(ev, () => (reviewHold = false)));
+  if (!reduced && reviews.length > 1) {
+    window.setInterval(() => {
+      // Only turn the page while the overview is actually on screen
+      const away = document.hidden || document.body.matches('.has-focus, .has-menu, .has-panel, .is-intro, .is-close');
+      if (!reviewHold && !away) showReview(1);
+    }, 9000);
+  }
+
   /* ───────── Keyboard ───────── */
   const PAN: Record<string, [number, number]> = {
     ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0], ArrowUp: [0, 1], w: [0, 1], ArrowDown: [0, -1], s: [0, -1],
@@ -291,7 +412,10 @@ export function boot() {
   window.addEventListener('keydown', (e) => {
     if (world?.playingIntro()) return void skip();
     // Escape peels one layer at a time: drawer → detail panel → focused place
-    if (e.key === 'Escape') return void (!drawer.hidden ? closeDrawer() : detail ? hideDetail() : close());
+    if (e.key === 'Escape') {
+      if (meOpen) return void (setMe(false), mePill.focus({ preventScroll: true }));
+      return void (!drawer.hidden ? closeDrawer() : detail ? hideDetail() : close());
+    }
     const typing = (e.target as Element).closest('input, textarea, [contenteditable]');
     if (typing || e.metaKey || e.ctrlKey || e.altKey || !document.body.classList.contains('is-in')) return;
     // Arrow keys scroll the project view / menu list instead of steering the camera
@@ -309,6 +433,7 @@ export function boot() {
     const h = decodeURIComponent(location.hash.slice(1));
     if (ids.includes(h)) open(h);
     else if (h === 'work' || h === 'index') openDrawer();
+    else if (h === 'contact') showContact();
   };
 
   /* Lightning seen through the night veil (menu / project view); never for reduced motion */
@@ -400,6 +525,8 @@ export function boot() {
             window.setTimeout(() => sound.thunder(strength), delay * 1000);
           },
         });
+        // Open on whichever sky the visitor left it at
+        world.setDay(isDay, true);
       } catch (err) {
         // No WebGL: the drawer becomes the way around
         console.warn('Overworld unavailable', err);

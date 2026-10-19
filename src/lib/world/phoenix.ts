@@ -149,6 +149,9 @@ function buildOrb() {
 /* ───────── Phoenix ───────── */
 type Bird = { model: THREE.Group; mixer: THREE.AnimationMixer };
 
+/** Camera layer the bird lives on: drawn in its own pass after the scene, so nothing (water, walls, mist) ever covers it */
+export const PHOENIX_LAYER = 1;
+
 async function loadPhoenix(url: string): Promise<Bird> {
   const gltf = await new GLTFLoader().loadAsync(url);
   const model = gltf.scene;
@@ -156,6 +159,7 @@ async function loadPhoenix(url: string): Promise<Bird> {
   model.rotation.y = -Math.PI / 2;
   const fire = new THREE.Color('#ff8a2a');
   model.traverse((o) => {
+    o.layers.set(PHOENIX_LAYER);
     const m = o as THREE.Mesh;
     if (!m.isMesh) return;
     m.frustumCulled = false; // skinned bounds don't follow the flapping wings

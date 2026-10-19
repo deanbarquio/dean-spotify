@@ -1,6 +1,6 @@
 /**
  * Every stop in the valley: a glowing beacon per project, plus home (about)
- * at the heart of the labyrinth and contact on the outer ring. Positions are
+ * at the heart of the labyrinth. Contact lives on the page itself, not in the valley. Positions are
  * polar (ring radius r, angle a in degrees) so they sit in the maze valleys.
  */
 import { projects } from '../../data/portfolio';
@@ -30,5 +30,4 @@ export const PLACES: Place[] = [
     const s = SPOTS[p.id];
     return s ? [{ id: p.id, label: p.title, sub: p.kind, ...polar(s.r, s.a), paint: p.paint }] : [];
   }),
-  { id: 'contact', label: 'Signal', sub: 'Say hi', ...polar(63, 50), paint: '#ff5ab4' },
 ];

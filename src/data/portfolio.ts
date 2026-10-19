@@ -36,7 +36,7 @@ export const projects: Project[] = [
     year: '2026',
     at: 2026.2,
     image: '/hod-thumbnail.png',
-    url: 'https://house-of-dragons-hazel.vercel.app/',
+    url: 'https://house-of-dragons-deanbarquio.vercel.app/',
     paint: '#ff2e2e',
     summary: 'House of the Dragon tribute with a 3D dragon hero and chaptered lore.',
     detail: 'A scroll-driven tribute to the dragons of the Dance: Vhagar, Sunfyre and Caraxes, each with their own chapter.',

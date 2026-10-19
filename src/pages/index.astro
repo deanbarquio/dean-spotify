@@ -2,6 +2,7 @@
 import World from '../layouts/World.astro';
 import { PLACES } from '../lib/world/places';
 import { projects, roles, milestones, skillGroups, education } from '../data/portfolio';
+import { recommendations } from '../data/recommendations';
 
 const num = (i: number) => String(i + 1).padStart(2, '0');
 const links = [
@@ -10,14 +11,22 @@ const links = [
   { href: '/Cover Letter.pdf', label: 'Cover letter' },
 ];
 const byId = new Map(projects.map((p) => [p.id, p]));
-/** One row per place for the projects menu; `image` feeds the hover scratch */
+/** One row per place for the projects accordion; `gallery` feeds the fold's thumbnails */
 const rows = PLACES.map((pl) => {
   const p = byId.get(pl.id);
-  if (p) return { id: pl.id, title: p.title, year: p.year, kind: p.kind, image: p.image, paint: p.paint };
-  return pl.id === 'about'
-    ? { id: pl.id, title: 'Studio', year: '2021 — Now', kind: 'About Dean', image: '/profile.png', paint: pl.paint }
-    : { id: pl.id, title: 'Signal', year: 'Now', kind: 'Contact', image: undefined, paint: pl.paint };
+  if (p) {
+    const gallery = p.gallery ?? (p.image ? [p.image] : []);
+    return { id: pl.id, title: p.title, year: p.year, kind: p.kind, image: p.image, paint: p.paint, summary: p.summary, stack: p.stack, url: p.url, study: true, gallery };
+  }
+  // The only non-project place is home (about)
+  return {
+    id: pl.id, title: 'Studio', year: '2021 — Now', kind: 'About Dean', image: '/profile.png', paint: pl.paint,
+    summary: 'Interfaces where motion carries meaning: complex systems turned into products that feel calm, fast and alive.',
+    stack: skillGroups.slice(0, 2).flatMap((g) => g.items.slice(0, 3)), url: undefined, study: false, gallery: [] as string[],
+  };
 });
+const ENTER: Record<string, string> = { about: 'Visit the studio' };
+const EMAIL = 'deanbarquio@gmail.com';
 ---
 
 <World>
@@ -53,20 +62,87 @@ const rows = PLACES.map((pl) => {
     <nav class="nav" aria-label="Primary">
       <button type="button" class="nav-link" id="nav-projects" aria-controls="drawer">Projects</button>
       <button type="button" class="nav-link" data-open="about">Studio</button>
-      <button type="button" class="nav-link" data-open="contact">Contact</button>
+      <button type="button" class="nav-link" id="nav-contact" aria-controls="profile">Contact</button>
     </nav>
-    <button type="button" class="sound" id="nav-sound" aria-pressed="false" aria-label="Sound">
-      <span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-      <span class="sr" id="sound-state">off</span>
-    </button>
+    <div class="hud-tools">
+      <!-- Day / night: switchable any time, even while the light is still changing -->
+      <button type="button" class="sky-btn" id="nav-sky" aria-pressed="false" aria-label="Daylight">
+        <svg class="sky-sun" viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="10" cy="10" r="3.6" />
+          <path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7" />
+        </svg>
+        <svg class="sky-moon" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M15.6 12.6A6.6 6.6 0 0 1 7.4 4.4a6.6 6.6 0 1 0 8.2 8.2Z" />
+        </svg>
+      </button>
+      <button type="button" class="sound" id="nav-sound" aria-pressed="false" aria-label="Sound">
+        <span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="sr" id="sound-state">off</span>
+      </button>
+    </div>
   </header>
 
   <h1 class="headline">Building<br />interfaces<br />that move</h1>
 
+  <!-- Referral reviews on the overview; steps aside whenever a place, the menu or a project is open -->
+  <section class="reviews" id="reviews" aria-label="Referral reviews" aria-roledescription="carousel">
+    <p class="reviews-head">
+      <span>Referrals</span>
+      <span class="reviews-count" id="reviews-count">01 / {String(recommendations.length).padStart(2, '0')}</span>
+    </p>
+    <div class="reviews-track" aria-live="polite">
+      {recommendations.map((r, i) => (
+        <figure class="review" data-review={i} hidden={i > 0} style={`--accent:${r.accent}`}>
+          <blockquote>{r.quote[0]}</blockquote>
+          <figcaption>
+            <span class="review-avatar" aria-hidden="true">{r.initials}</span>
+            <span class="review-who">
+              <b>{r.name}</b>
+              <i>{r.title.split(' · ')[0]} · {r.date}</i>
+            </span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+    <div class="reviews-nav">
+      <button type="button" class="cap-btn" id="reviews-prev" aria-label="Previous review">←</button>
+      <button type="button" class="cap-btn" id="reviews-next" aria-label="Next review">→</button>
+    </div>
+  </section>
+
   <footer class="hud hud--foot">
-    <button type="button" class="list-btn" id="nav-list" aria-expanded="false" aria-controls="drawer" aria-label="All projects">
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h1M2 8h1M2 12h1M6 4h8M6 8h8M6 12h8" /></svg>
-    </button>
+    <div class="foot-left">
+      <button type="button" class="list-btn" id="nav-list" aria-expanded="false" aria-controls="drawer" aria-label="All projects">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h1M2 8h1M2 12h1M6 4h8M6 8h8M6 12h8" /></svg>
+      </button>
+      <!-- Who and how to reach: a pill in the foot bar that unfolds into a card. The full story stays in the Home beacon -->
+      <div class="me">
+        <button type="button" class="me-pill" id="me-pill" aria-expanded="false" aria-controls="profile">
+          <img src="/profile.png" alt="" width="28" height="28" decoding="async" />
+          <span class="me-name">Dean Barquio</span>
+          <span class="me-status"><i class="profile-dot" aria-hidden="true"></i><span>Available</span></span>
+        </button>
+        <section class="profile" id="profile" aria-label="About Dean and contact" hidden>
+          <div class="profile-id">
+            <img class="profile-photo" src="/profile.png" alt="Portrait of Dean Barquio" width="48" height="48" decoding="async" />
+            <p class="profile-who">
+              <b>Dean Barquio</b>
+              <span>{roles[0].role} · {roles[0].company}</span>
+            </p>
+          </div>
+          <p class="profile-bio">Frontend engineer crafting interfaces where motion carries meaning. Open to roles and collabs with teams that care about craft.</p>
+          <dl class="profile-facts">
+            <div><dt>Based</dt><dd>Cebu, PH · GMT+8</dd></div>
+            <div><dt>Status</dt><dd><i class="profile-dot" aria-hidden="true"></i>Available</dd></div>
+          </dl>
+          <a class="profile-mail" href={`mailto:${EMAIL}`} id="profile-mail">{EMAIL}</a>
+          <div class="profile-links">
+            {links.map((l) => <a href={l.href} target="_blank" rel="noopener noreferrer">{l.label} ↗</a>)}
+            <button type="button" class="profile-more" data-open="about">About me <span aria-hidden="true">→</span></button>
+          </div>
+        </section>
+      </div>
+    </div>
     <p class="hint" aria-hidden="true">
       <span class="hint-desk">Drag to explore · Scroll to zoom · Click a light</span>
       <span class="hint-touch">Drag to explore · Pinch to zoom · Tap a light</span>
@@ -80,23 +156,60 @@ const rows = PLACES.map((pl) => {
     <i class="bolt-flash" id="bolt-flash"></i>
   </div>
 
-  <!-- Hover preview for the projects menu: the project behind a pane of ice, mirrored below -->
-  <div class="menu-scratch" id="menu-scratch" aria-hidden="true">
-    <div class="ice-pane"><i class="ice-img"></i><i class="ice-frost"></i><i class="ice-sheen"></i></div>
-    <div class="ice-reflect"><i class="ice-img"></i></div>
-  </div>
-
-  <!-- Projects menu: full-screen list; hovering a row scratches its project into view -->
+  <!-- Projects menu: an accordion; opening a row unfolds it in place with a way into its beacon -->
   <nav class="menu" id="drawer" aria-label="All projects" hidden>
     <ol class="menu-list">
-      {rows.map((r) => (
-        <li>
-          <button type="button" class="menu-row" data-place={r.id} data-image={r.image ?? ''} style={`--paint:${r.paint}`}>
-            <span class="menu-title">{r.title}</span>
+      {rows.map((r, i) => (
+        <li class="menu-item" style={`--paint:${r.paint}`}>
+          <button
+            type="button"
+            class="menu-row"
+            id={`row-${r.id}`}
+            data-row={r.id}
+            aria-expanded="false"
+            aria-controls={`fold-${r.id}`}
+          >
+            <span class="menu-title"><span class="menu-num" aria-hidden="true">{num(i)}</span>{r.title}</span>
             <span class="menu-year">{r.year}</span>
             <span class="menu-kind">{r.kind}</span>
-            <span class="menu-go"><span aria-hidden="true">▶</span> View</span>
+            <span class="menu-go"><span class="menu-plus" aria-hidden="true"></span><span class="menu-go-label">Details</span></span>
           </button>
+          <div class="menu-fold" id={`fold-${r.id}`} role="region" aria-labelledby={`row-${r.id}`}>
+            <div class="fold">
+              <div class="fold-media">
+                <figure class="fold-shot">
+                  {r.image ? <img src={r.image} alt={`${r.title} preview`} loading="lazy" decoding="async" /> : <span class="fold-poster">{r.title}</span>}
+                  <span class="fold-glare" aria-hidden="true"></span>
+                  <span class="fold-num" aria-hidden="true">{num(i)}</span>
+                </figure>
+                {r.gallery.length > 1 && (
+                  <div class="fold-thumbs" role="group" aria-label={`${r.title} screenshots`}>
+                    {r.gallery.slice(0, 4).map((src, k) => (
+                      <button type="button" class="fold-thumb" data-shot={src} aria-pressed={k === 0 ? 'true' : 'false'} aria-label={`Screenshot ${k + 1}`} style={`--k:${k}`}>
+                        <img src={src} alt="" loading="lazy" decoding="async" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div class="fold-copy">
+                <dl class="fold-facts">
+                  <div><dt>No.</dt><dd>{num(i)} / {num(rows.length - 1)}</dd></div>
+                  <div><dt>Year</dt><dd>{r.year}</dd></div>
+                  <div><dt>Type</dt><dd>{r.kind}</dd></div>
+                </dl>
+                <p class="fold-lead">{r.summary}</p>
+                <ul class="fold-stack" aria-label="Stack">
+                  {r.stack.slice(0, 6).map((s, k) => <li style={`--k:${k}`}>{s}</li>)}
+                </ul>
+                <div class="fold-actions">
+                  <button type="button" class="action action--primary" data-place={r.id}>{ENTER[r.id] ?? 'Fly to beacon'} <span aria-hidden="true">→</span></button>
+                  {r.study && <a class="action" href={`/work/${r.id}`}>Case study</a>}
+                  {r.url && <a class="action" href={r.url} target="_blank" rel="noopener noreferrer">Live ↗</a>}
+                </div>
+              </div>
+            </div>
+          </div>
         </li>
       ))}
     </ol>
@@ -215,20 +328,5 @@ const rows = PLACES.map((pl) => {
         </section>
       );
     })}
-
-    <section data-tpl="contact">
-      <figure class="pv-hero pv-hero--poster" style="--paint:#ff5ab4"><span>Say hi</span></figure>
-      <div class="pv-intro">
-        <h2 tabindex="-1">Let's build something remarkable.</h2>
-        <div class="pv-main">
-          <p class="pv-lead">Open to roles and collabs with teams that care about craft, motion and the details.</p>
-          <a class="mail" href="mailto:deanbarquio@gmail.com">deanbarquio@gmail.com</a>
-          <dl class="pv-facts">
-            <div><dt>Based</dt><dd>Cebu, PH · GMT+8</dd></div>
-            <div><dt>Elsewhere</dt><dd>{links.map((l) => <span><a href={l.href} target="_blank" rel="noopener noreferrer">{`${l.label} ↗`}</a><br /></span>)}</dd></div>
-          </dl>
-        </div>
-      </div>
-    </section>
   </div>
 </World>

@@ -82,8 +82,8 @@ void main() {
 
 const frag = /* glsl */ `
 uniform sampler2D tHeight;
-uniform float uExtent, uWater, uFogDensity;
-uniform vec3 uDeep, uBody, uShallow, uFoam, uSkyTop, uSkyHorizon, uMoonDir, uMoonCol, uFogColor;
+uniform float uExtent, uWater, uFogDensity, uHaze, uDay;
+uniform vec3 uDeep, uBody, uShallow, uFoam, uSkyTop, uSkyHorizon, uMoonDir, uMoonCol, uFogColor, uBed, uRim;
 uniform vec3 uBeaconCol[${MAX_BEACONS}];
 varying vec3 vW;
 varying float vH;
@@ -92,6 +92,12 @@ ${wavesGlsl}
 // Fine chop on top of the geometric swell, normal-only
 float chop(vec2 p) {
   return noise(p * 0.9 + vec2(uTime * 0.3, uTime * 0.2)) * 0.6 + noise(p * 2.2 - vec2(uTime * 0.45, -uTime * 0.35)) * 0.4;
+}
+// Daylight ripples: small, fast, criss-crossing wind ruffles that break the sun into sparkles
+float ripple(vec2 p) {
+  return noise(p * 3.2 + vec2(uTime * 0.9, -uTime * 0.5)) * 0.5
+       + noise(p * 6.7 - vec2(uTime * 1.1, uTime * 0.8)) * 0.3
+       + noise(p * 13.0 + vec2(-uTime * 1.4, uTime * 1.2)) * 0.2;
 }
 void main() {
   float ground = texture2D(tHeight, vW.xz / (2.0 * uExtent) + 0.5).r;
@@ -104,6 +110,11 @@ void main() {
   float e = 0.12;
   float c0 = chop(vW.xz);
   vec2 g = slope(vW.xz) + vec2(chop(vW.xz + vec2(e, 0.0)) - c0, chop(vW.xz + vec2(0.0, e)) - c0) * 0.05 / e;
+  if (uDay > 0.0) {
+    float e2 = 0.05;
+    float r0 = ripple(vW.xz);
+    g += vec2(ripple(vW.xz + vec2(e2, 0.0)) - r0, ripple(vW.xz + vec2(0.0, e2)) - r0) * 0.035 / e2 * uDay;
+  }
   vec3 n = normalize(vec3(-g.x, 1.0, -g.y));
   vec3 V = normalize(cameraPosition - vW);
   float fres = 0.04 + 0.96 * pow(1.0 - max(dot(n, V), 0.0), 5.0);
@@ -115,12 +126,24 @@ void main() {
   // Night water: dark body, a faint luminous edge in the shallows, moonlit sheen from reflection
   vec3 body = mix(uShallow * 0.55, uBody * 0.7, smoothstep(0.05, 0.8, depth));
   body = mix(body, uDeep * 0.8, smoothstep(0.8, 2.5, depth));
-  vec3 col = mix(body, sky, fres * 0.6) + uMoonCol * glint * 0.7;
+  vec3 night = mix(body, sky, fres * 0.6) + uMoonCol * glint * 0.7;
   // Moonlit crests: the tops of the swells catch a pale rim
-  col += uFoam * smoothstep(0.55, 0.9, vH / max(uAmp, 1e-3)) * 0.12;
+  night += uFoam * smoothstep(0.55, 0.9, vH / max(uAmp, 1e-3)) * 0.12;
+
+  // Day water: what you see through it is the bed, tinted and swallowed by depth (Beer-Lambert),
+  // overlaid by a Fresnel reflection where low glances catch the surrounding rock and steeper ones the sky
+  vec3 absorb = exp(-depth * vec3(2.6, 1.15, 0.9));
+  vec3 through = uBed * absorb + uBody * (1.0 - absorb);
+  through = mix(through, uDeep, smoothstep(0.9, 2.6, depth));
+  vec3 mirror = mix(uRim, sky, smoothstep(0.03, 0.35, R.y));
+  float sunDot = max(dot(R, uMoonDir), 0.0);
+  vec3 sun = uMoonCol * (pow(sunDot, 900.0) * 9.0 + pow(sunDot, 70.0) * 0.18);
+  vec3 dayCol = mix(through, mirror, clamp(fres * 1.15, 0.0, 1.0)) + sun;
+
+  vec3 col = mix(night, dayCol, uDay);
   // Low mist breathing on the surface: broad pale patches drifting slowly
   float haze = smoothstep(0.4, 0.9, noise(vW.xz * 0.06 + vec2(uTime * 0.03, uTime * 0.02)) * 0.65 + noise(vW.xz * 0.15 - uTime * 0.04) * 0.35);
-  col = mix(col, uShallow * 0.6, haze * 0.18);
+  col = mix(col, uShallow * 0.6, haze * 0.18 * uHaze);
 
   // Beacon reflections: soft streaks stretched toward the camera, broken up by the ripples
   for (int i = 0; i < ${MAX_BEACONS}; i++) {
@@ -135,8 +158,10 @@ void main() {
 
   // Shoreline foam and a soft edge instead of a hard waterline
   float foam = smoothstep(0.35, 0.0, depth) * smoothstep(0.4, 0.8, noise(vW.xz * 1.6 + uTime * 0.3) + 0.3);
-  col = mix(col, uFoam, foam * 0.3);
-  float alpha = smoothstep(0.0, 0.18, depth) * inside;
+  // By day only a thin lapping line at the very edge, no white blotches
+  col = mix(col, uFoam, foam * mix(0.3, 0.12, uDay) * mix(1.0, smoothstep(0.12, 0.0, depth), uDay));
+  // Day: crystal-clear right at the edge, so the waterline melts into wet rock
+  float alpha = smoothstep(0.0, mix(0.18, 0.45, uDay), depth) * inside;
 
   float dist = length(cameraPosition - vW);
   col = mix(col, uFogColor, 1.0 - exp(-uFogDensity * uFogDensity * dist * dist));
@@ -176,6 +201,11 @@ export function buildWater({ beacons, moonDir, fog, sky }: Opts) {
         uMoonCol: { value: new THREE.Color('#d6e6ff') },
         uFogColor: { value: fog.color },
         uFogDensity: { value: fog.density },
+        uHaze: { value: 1 },
+        uDay: { value: 0 },
+        // Day only: the channel bed seen through the water, and the rock mirrored at low angles
+        uBed: { value: new THREE.Color('#223458') },
+        uRim: { value: new THREE.Color('#223458') },
         uBeaconPos: { value: pos },
         uBeaconCol: { value: col },
         uCount: { value: Math.min(beacons.length, MAX_BEACONS) },
@@ -186,5 +216,36 @@ export function buildWater({ beacons, moonDir, fog, sky }: Opts) {
   );
   mesh.position.y = WATER;
   mesh.renderOrder = 1;
-  return { mesh, tick: (t: number) => void (time.value = t) };
+
+  /* Day / night: every palette uniform blends between its night value and a sunlit one */
+  const u = mesh.material.uniforms;
+  const DAY: Record<string, string> = {
+    // Mountain water: green-teal and fairly dark in the body, sandy-olive bed in the shallows
+    uDeep: '#0c2a30',
+    uBody: '#1c4a4c',
+    uShallow: '#5f8a7a',
+    uFoam: '#e8eeea',
+    uBed: '#7a7354',
+    uRim: '#3e4a3c',
+    uSkyTop: '#3f7fc2',
+    uSkyHorizon: '#93bddd',
+    uMoonCol: '#fff3d8',
+  };
+  const pairs = Object.entries(DAY).map(([k, hex]) => ({ c: u[k].value as THREE.Color, night: (u[k].value as THREE.Color).clone(), day: new THREE.Color(hex) }));
+  return {
+    mesh,
+    tick: (t: number) => void (time.value = t),
+    /** k: 0 = night, 1 = day; `lightDir` is the moon or sun, whichever is up */
+    setDay(k: number, lightDir: THREE.Vector3) {
+      for (const p of pairs) p.c.lerpColors(p.night, p.day, k);
+      // Its fog is hand-rolled in the shader: keep it in step with the scene's
+      u.uFogDensity.value = fog.density;
+      // Surface mist burns off by day
+      u.uHaze.value = 1 - k;
+      u.uDay.value = k;
+      // Calm, sheltered water by day: small ripples instead of a rolling swell
+      u.uAmp.value = THREE.MathUtils.lerp(0.16, 0.06, k);
+      (u.uMoonDir.value as THREE.Vector3).copy(lightDir).normalize();
+    },
+  };
 }

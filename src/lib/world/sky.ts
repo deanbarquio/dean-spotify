@@ -21,8 +21,8 @@ export function buildStorm({ scene, hemi, fog, onThunder }: StormOpts) {
   const flash = new THREE.DirectionalLight('#cfe0ff', 0);
   flash.position.set(60, 160, -220);
   scene.add(flash);
-  const baseHemi = hemi.intensity;
-  const baseFog = fog.color.clone();
+  /** What the flashes brighten from; the day / night blend rewrites it. `calm` 1 = clear day, no storm */
+  const base = { fog: fog.color.clone(), hemi: hemi.intensity, calm: 0 };
   const litFog = new THREE.Color('#6f93c4');
 
   // Same ribbon bolts as the summon strike, cold blue-white
@@ -47,14 +47,17 @@ export function buildStorm({ scene, hemi, fog, onThunder }: StormOpts) {
   };
 
   return {
+    base,
     tick(t: number) {
-      if (t > next) strike(t);
+      // Clear skies hold the storm off (thunder included) until night returns
+      if (t > next) base.calm > 0.5 ? (next = t + 3) : strike(t);
       // Each pulse: instant rise, fast exponential fall
       let f = 0;
       for (const p of pulses) if (t >= p.at) f = Math.max(f, p.amp * Math.exp(-(t - p.at) * 14));
+      f *= 1 - base.calm;
       flash.intensity = f * 7;
-      hemi.intensity = baseHemi + f * 1.6;
-      fog.color.copy(baseFog).lerp(litFog, f * 0.55);
+      hemi.intensity = base.hemi + f * 1.6;
+      fog.color.copy(base.fog).lerp(litFog, f * 0.55);
       scene.backgroundIntensity = 1 + f * 1.3;
       bolt.alpha = f > 0.2 ? Math.min(1, f * 1.3) : 0;
     },
