@@ -13,13 +13,16 @@ const SPOTS: Record<string, { r: number; a: number }> = {
   'fire-and-blood': { r: 27, a: 330 },
   'meeting-room': { r: 27, a: 95 },
   'class-record': { r: 27, a: 35 },
+  'iron-spider': { r: 27, a: 150 },
   constrack: { r: 45, a: 160 },
   'control-panel': { r: 45, a: 15 },
   'ntv-dashboard': { r: 45, a: 255 },
   psits: { r: 45, a: 115 },
+  'vault-budget': { r: 45, a: 315 },
   'component-pantry': { r: 63, a: 135 },
   buildit: { r: 63, a: 215 },
   hikemate: { r: 63, a: 300 },
+  'psits-finance': { r: 63, a: 40 },
 };
 
 const polar = (r: number, a: number) => ({ x: r * Math.cos((a * Math.PI) / 180), z: r * Math.sin((a * Math.PI) / 180) });
