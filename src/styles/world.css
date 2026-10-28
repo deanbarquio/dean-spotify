@@ -1669,27 +1669,6 @@ body.has-menu .headline {
   text-transform: uppercase;
   color: rgba(150, 175, 210, 0.75);
 }
-.pv-rows {
-  list-style: none;
-  margin: 16px 0 0;
-  padding: 0;
-}
-.pv-rows li {
-  display: grid;
-  gap: 4px;
-  padding: 16px 0;
-  border-top: 1px solid rgba(232, 238, 248, 0.08);
-  color: rgba(232, 238, 248, 0.65);
-}
-.pv-rows strong {
-  font: 400 20px/1.2 var(--serif);
-  color: var(--fg);
-}
-.pv-meta {
-  font: 400 12px/1.4 var(--sans);
-  text-transform: uppercase;
-  color: rgba(150, 175, 210, 0.7);
-}
 .pv-features {
   list-style: none;
   margin: 16px 0 0;
@@ -1775,6 +1754,520 @@ body.has-menu .headline {
   object-position: top;
   filter: saturate(0.85) brightness(0.9);
 }
+/* ───────── About: portrait and commencement shot like film stills ───────── */
+.film-grain {
+  position: absolute;
+  inset: -50%;
+  z-index: 2;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.14;
+  mix-blend-mode: overlay;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .film-grain {
+    animation: grain 0.9s steps(6) infinite;
+  }
+}
+@keyframes grain {
+  0% { translate: 0 0; }
+  20% { translate: -6% 4%; }
+  40% { translate: 5% -7%; }
+  60% { translate: -3% 8%; }
+  80% { translate: 7% 2%; }
+  100% { translate: 0 0; }
+}
+/* Hero portrait: anamorphic letterbox, warm-on-night grade, slow push-in */
+.pv-film {
+  overflow: hidden;
+  height: min(72vh, 720px);
+}
+.pv-film img {
+  object-position: 50% 58%;
+  filter: saturate(0.85) contrast(1.12) brightness(0.72) sepia(0.12);
+  scale: 1.14;
+  transition: scale 9s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+.panel.is-open .pv-film img {
+  scale: 1.02;
+}
+/* The two black bars close in like an anamorphic frame */
+.pv-film::before {
+  z-index: 3;
+  mix-blend-mode: normal;
+  background:
+    linear-gradient(#05070d, #05070d) top / 100% 0 no-repeat,
+    linear-gradient(#05070d, #05070d) bottom / 100% 0 no-repeat,
+    radial-gradient(ellipse 70% 60% at 50% 55%, transparent 40%, rgba(5, 8, 16, 0.75));
+  transition: background-size 1.4s var(--ease) 0.2s;
+}
+.panel.is-open .pv-film::before {
+  background-size: 100% 11%, 100% 11%, 100% 100%;
+}
+.film-card {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 17%;
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: calc(100% - 2 * var(--gut));
+  text-align: center;
+  text-shadow: 0 2px 30px rgba(5, 8, 16, 0.9);
+}
+.film-card > * {
+  opacity: 0;
+  translate: 0 14px;
+  filter: blur(6px);
+  transition: opacity 1.2s var(--ease), translate 1.4s var(--ease), filter 1.2s var(--ease);
+}
+.panel.is-open .film-card > * {
+  opacity: 1;
+  translate: 0 0;
+  filter: blur(0);
+}
+.panel.is-open .film-card > :nth-child(1) { transition-delay: 0.9s; }
+.panel.is-open .film-card > :nth-child(2) { transition-delay: 1.2s; }
+.panel.is-open .film-card > :nth-child(3) { transition-delay: 1.6s; }
+.film-tc,
+.reel-tc,
+.still-tc {
+  font: 500 10px/1 var(--sans);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(232, 238, 248, 0.6);
+  font-variant-numeric: tabular-nums;
+}
+.film-name {
+  font: 400 clamp(44px, 7vw, 104px) / 0.9 var(--serif);
+  letter-spacing: -0.02em;
+}
+.film-sub {
+  font: italic 400 clamp(15px, 1.3vw, 19px) / 1 var(--serif);
+  color: rgba(232, 238, 248, 0.75);
+}
+/* ───────── Journey: tilted cards on a ruler, focused year ghosted behind ───────── */
+.pv-journey {
+  --jr-w: clamp(210px, 22vw, 270px);
+  --jr-hot: #c8553d;
+  position: relative;
+  margin: 80px 0 0;
+}
+/* Pinned while the panel scrolls through the section's runway (height set from JS) */
+.jr-pin {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100dvh;
+  padding-top: 60px;
+  overflow: hidden;
+}
+@media (max-height: 760px) {
+  .jr-hint {
+    display: none;
+  }
+}
+.jr-head {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  text-align: center;
+}
+.jr-title {
+  margin: 0;
+  font: 400 clamp(40px, 5.5vw, 80px) / 0.95 var(--serif);
+  letter-spacing: -0.02em;
+}
+.jr-stage {
+  position: relative;
+  margin-top: 40px;
+}
+/* Ghost: the focused year in huge outline type, its era line drifting beside it */
+.jr-ghost {
+  position: absolute;
+  inset: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.4em;
+  margin: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.jr-ghost-year {
+  font: 400 clamp(110px, 16vw, 240px) / 1 var(--serif);
+  letter-spacing: -0.03em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(232, 238, 248, 0.16);
+}
+.jr-ghost-era {
+  font: italic 400 clamp(16px, 1.6vw, 24px) / 1 var(--serif);
+  color: rgba(232, 238, 248, 0.34);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .jr-ghost.is-in > * {
+    animation: ghost-in 0.9s var(--ease) both;
+  }
+  .jr-ghost.is-in .jr-ghost-era {
+    animation-delay: 0.12s;
+  }
+}
+@keyframes ghost-in {
+  from { opacity: 0; translate: 40px 0; filter: blur(8px); }
+}
+.jr-track {
+  position: relative;
+  display: flex;
+  margin: 0;
+  /* Room for the first and last cards to reach the centre */
+  padding: 90px calc(50% - var(--jr-w) / 2) 20px;
+  list-style: none;
+  /* Moved only by the panel's vertical scroll, so swipes stay vertical */
+  overflow: hidden;
+  touch-action: pan-y;
+  perspective: 1400px;
+  outline: none;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.jr-track:focus-visible .jr-item.is-active .jr-card {
+  outline: 1px solid var(--fg);
+  outline-offset: 4px;
+}
+.jr-item {
+  --d: 0;
+  --ad: 0;
+  position: relative;
+  flex: 0 0 var(--jr-w);
+  display: grid;
+  justify-items: center;
+  padding: 0 14px;
+  transform-style: preserve-3d;
+  /* Cards sit behind this box in 3D (negative translateZ), so let hits fall through to them */
+  pointer-events: none;
+}
+/* The ruler: one segment per item so it runs unbroken under the whole track */
+.jr-item::before,
+.jr-item::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+.jr-item::before {
+  left: 0;
+  right: 0;
+  bottom: 44px;
+  height: 1px;
+  background: rgba(232, 238, 248, 0.18);
+}
+.jr-item::after {
+  left: 50%;
+  bottom: 38px;
+  width: 1px;
+  height: 13px;
+  background: rgba(232, 238, 248, 0.4);
+}
+.jr-card {
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 70px;
+  padding: 16px 16px 14px;
+  border: 1px solid rgba(232, 238, 248, 0.1);
+  border-radius: 10px;
+  background: linear-gradient(165deg, #1d1a24, #0e0c13 70%);
+  /* A slab edge on the right and foot, then a long cast shadow */
+  box-shadow:
+    5px 5px 0 -1px #08070b,
+    5px 5px 0 0 rgba(232, 238, 248, 0.06),
+    0 40px 60px -30px rgba(0, 0, 0, 0.8);
+  transform: rotateY(calc(var(--d) * -16deg)) translateZ(calc(var(--ad) * -70px)) scale(calc(1 - var(--ad) * 0.05));
+  opacity: calc(1 - var(--ad) * 0.18);
+  transition: background 0.5s var(--ease), border-color 0.5s var(--ease), box-shadow 0.5s var(--ease);
+  user-select: none;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.jr-item.is-active .jr-card {
+  border-color: color-mix(in srgb, var(--jr-hot) 60%, transparent);
+  /* Dark stops derive from the tint so a card's own paint carries through */
+  background: linear-gradient(165deg, color-mix(in srgb, var(--jr-hot) 85%, #fff 5%), color-mix(in srgb, var(--jr-hot) 45%, #000) 80%);
+  box-shadow:
+    5px 5px 0 -1px color-mix(in srgb, var(--jr-hot) 21%, #000),
+    5px 5px 0 0 color-mix(in srgb, var(--jr-hot) 30%, transparent),
+    0 40px 80px -30px color-mix(in srgb, var(--jr-hot) 55%, transparent);
+}
+.jr-tag {
+  margin: 0;
+  font: 500 9px/1 var(--sans);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(232, 238, 248, 0.45);
+}
+.jr-item.is-active .jr-tag {
+  color: rgba(255, 236, 228, 0.75);
+}
+.jr-name {
+  margin: 0;
+  min-height: 2.3em;
+  font: 400 17px/1.15 var(--serif);
+}
+.jr-media {
+  aspect-ratio: 4 / 3;
+  border-radius: 6px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 40%, rgba(232, 238, 248, 0.08), rgba(0, 0, 0, 0.4));
+}
+.jr-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  filter: saturate(0.85) brightness(0.85);
+  pointer-events: none;
+}
+.jr-media span {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 16px;
+  font: italic 400 15px/1.35 var(--serif);
+  text-align: center;
+  color: rgba(232, 238, 248, 0.6);
+}
+.jr-sub {
+  margin: 0;
+  font: 400 12px/1.4 var(--sans);
+  color: rgba(232, 238, 248, 0.6);
+}
+.jr-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.jr-stack li {
+  padding: 5px 7px;
+  border-radius: 3px;
+  background: rgba(232, 238, 248, 0.07);
+  font: 500 9px/1 var(--sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(232, 238, 248, 0.6);
+}
+.jr-item.is-now .jr-media span::before {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: #3ddc84;
+  box-shadow: 0 0 10px #3ddc84;
+}
+.jr-year {
+  position: absolute;
+  bottom: 0;
+  font: 400 26px/1 var(--serif);
+  color: rgba(232, 238, 248, calc(0.5 - var(--ad) * 0.12));
+  font-variant-numeric: tabular-nums;
+  transition: color 0.4s;
+}
+.jr-item.is-active .jr-year {
+  color: var(--fg);
+}
+.jr-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin-top: 30px;
+}
+.jr-dots {
+  display: flex;
+  gap: 4px;
+}
+.jr-dot {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.jr-dot::before {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 7px;
+  margin: auto;
+  background: rgba(232, 238, 248, 0.25);
+  transition: background-color 0.3s, scale 0.3s var(--ease);
+}
+.jr-dot[aria-pressed='true']::before {
+  background: var(--fg);
+  scale: 1.5;
+}
+.jr-dot:hover::before {
+  background: rgba(232, 238, 248, 0.6);
+}
+.jr-hint {
+  margin: 18px 0 0;
+  font: 500 10px/1 var(--sans);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--fg-3);
+}
+
+/* Commencement reel */
+.pv-reel {
+  width: min(1040px, calc(100% - 2 * var(--gut)));
+  margin: 140px auto 0;
+}
+.reel-head {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  text-align: center;
+}
+.reel-tc {
+  margin: 0;
+}
+.reel-title {
+  margin: 0;
+  font: 400 clamp(40px, 5.5vw, 80px) / 0.95 var(--serif);
+  letter-spacing: -0.02em;
+}
+.reel-lead {
+  margin: 0;
+  font: italic 400 clamp(16px, 1.3vw, 20px) / 1.4 var(--serif);
+  color: rgba(232, 238, 248, 0.7);
+}
+/* Two stills, offset like frames pulled from a cut */
+.reel-stills {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 28px;
+  align-items: start;
+  margin-top: 64px;
+}
+.pv-still {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: #05070d;
+  box-shadow: 0 50px 120px -50px rgba(212, 170, 90, 0.35);
+}
+.pv-still--a {
+  aspect-ratio: 4 / 5;
+}
+.pv-still--b {
+  aspect-ratio: 3 / 4;
+  margin-top: 120px;
+}
+.pv-still img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 62%;
+  /* Gold-and-night grade: the stage lights stay warm, the hall falls away */
+  filter: saturate(0.9) contrast(1.12) brightness(0.82) sepia(0.14);
+}
+.pv-still::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 75% 65% at 50% 50%, transparent 45%, rgba(5, 8, 16, 0.7)),
+    linear-gradient(180deg, transparent 60%, rgba(5, 8, 16, 0.8));
+}
+.pv-still figcaption {
+  position: absolute;
+  z-index: 3;
+  inset: auto 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 20px 22px;
+}
+.still-sub {
+  font: italic 400 clamp(15px, 1.25vw, 18px) / 1.3 var(--serif);
+  text-align: right;
+}
+/* Where supported, each still's shutter opens and the shot settles as it scrolls into view */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .pv-still {
+      animation: still-open linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+    .pv-still img {
+      animation: still-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 60%;
+    }
+    .reel-credits li {
+      animation: credit-in linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+  }
+}
+@keyframes still-open {
+  from { clip-path: inset(50% 0); }
+  to { clip-path: inset(0 0); }
+}
+@keyframes still-settle {
+  from { scale: 1.25; filter: saturate(0.5) contrast(1.2) brightness(0.35) sepia(0.3); }
+  to { scale: 1; filter: saturate(0.9) contrast(1.12) brightness(0.82) sepia(0.14); }
+}
+@keyframes credit-in {
+  from { opacity: 0; translate: 0 20px; filter: blur(4px); }
+  to { opacity: 1; translate: 0 0; filter: blur(0); }
+}
+/* Honors roll like end credits */
+.reel-credits {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  margin: 110px 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+.reel-credits li {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  font: 400 clamp(22px, 2.2vw, 34px) / 1.1 var(--serif);
+}
+.reel-credits li:first-child {
+  font-size: clamp(30px, 3.4vw, 52px);
+  color: #f0d79a;
+  text-shadow: 0 0 40px rgba(240, 200, 120, 0.35);
+}
+.reel-credits span {
+  font: 500 10px/1 var(--sans);
+  letter-spacing: 0.3em;
+  color: var(--fg-3);
+}
+
 /* Next project: a round paint blot opening onto the next world */
 .pv-next {
   display: grid;
@@ -1865,13 +2358,17 @@ body.has-menu .headline {
 }
 /* Entrance: copy rises in after the portal flash */
 .pv-intro,
-.pv-gallery {
+.pv-gallery,
+.pv-journey,
+.pv-reel {
   opacity: 0;
   translate: 0 24px;
   transition: opacity 0.8s var(--ease) 0.35s, translate 1s var(--ease) 0.35s;
 }
 .panel.is-open .pv-intro,
-.panel.is-open .pv-gallery {
+.panel.is-open .pv-gallery,
+.panel.is-open .pv-journey,
+.panel.is-open .pv-reel {
   opacity: 1;
   translate: 0 0;
 }
@@ -1906,6 +2403,33 @@ body.has-menu .headline {
   }
   .pv-hero {
     height: 52vh;
+  }
+  .pv-film {
+    height: 68vh;
+  }
+  .film-card {
+    bottom: 15%;
+  }
+  .pv-reel,
+  .pv-journey {
+    margin-top: 100px;
+  }
+  .pv-journey {
+    --jr-w: 64vw;
+  }
+  .jr-ghost-era {
+    display: none;
+  }
+  .reel-stills {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    margin-top: 44px;
+  }
+  .pv-still--b {
+    margin: 0 0 0 18%;
+  }
+  .reel-credits {
+    margin-top: 80px;
   }
   .pv-intro {
     grid-template-columns: 1fr;

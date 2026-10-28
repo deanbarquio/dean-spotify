@@ -1,0 +1,66 @@
+---
+import Studio from '../../layouts/Studio.astro';
+import { milestones, milestoneHref, projects, slug, type Milestone } from '../../data/portfolio';
+
+// Project milestones already have a /work page, so only the rest are built here
+export function getStaticPaths() {
+  return milestones
+    .map((m, i) => ({ m, next: milestones[(i + 1) % milestones.length] }))
+    .filter(({ m }) => !m.project)
+    .map(({ m, next }) => ({ params: { slug: slug(m.title) }, props: { m, next } }));
+}
+
+const { m, next } = Astro.props as { m: Milestone; next: Milestone };
+const year = m.now ? 'Now' : String(Math.floor(m.at));
+const shots = [m.image, ...(m.gallery ?? [])].filter((s): s is string => !!s);
+const related = (m.related ?? []).map((id) => projects.find((p) => p.id === id)).filter((p) => !!p);
+---
+
+<Studio title={`${m.title.toUpperCase()} — DEAN©2026`} description={m.note}>
+  <main class="case">
+    <section class="case-hero grid12">
+      <p class="case-kind mono-2" data-in><span data-scramble>{m.tag}</span></p>
+      <h1 class="case-title wide"><span data-line>{m.title}</span></h1>
+    </section>
+
+    <section class="case-body grid12">
+      <dl class="case-facts mono-2" data-in>
+        <div><dt>Year</dt><dd>{year}</dd></div>
+        <div><dt>Where</dt><dd>{m.sub}</dd></div>
+        <div><dt>Stack</dt><dd>{m.stack.join(', ')}</dd></div>
+        {related.length > 0 && (
+          <div><dt>Projects</dt><dd>{related.map((p, i) => <>{i > 0 && ', '}<a href={`/#${p.id}`} class="ul">{p.title}</a></>)}</dd></div>
+        )}
+        {m.now && (
+          <div><dt>Contact</dt><dd><a href="mailto:deanbarquio@gmail.com" class="ul">deanbarquio@gmail.com</a></dd></div>
+        )}
+      </dl>
+      <div class="case-copy">
+        <p class="statement" data-words>{m.era}</p>
+        <p class="case-detail" data-reveal>{m.note}</p>
+      </div>
+    </section>
+
+    <section class="case-gallery grid12">
+      {shots.length > 0 ? (
+        shots.map((src, i) => (
+          <figure class={`shot ${i === 0 ? 'shot--lead' : ''}`} data-reveal>
+            <img src={src} alt={`${m.title}, image ${i + 1}`} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+          </figure>
+        ))
+      ) : (
+        <figure class="shot shot--lead" data-reveal>
+          <div class="square poster" style={`--paint:${m.paint ?? '#c8553d'}`}><span class="wide">{m.title}</span></div>
+        </figure>
+      )}
+    </section>
+
+    <nav class="case-next grid12" aria-label="Next milestone">
+      <a href="/#about" class="hit mono-2"><span data-scramble>← Journey</span></a>
+      <a href={milestoneHref(next)} class="case-next-link">
+        <span class="mono-2">Next</span>
+        <span class="wide">{next.title}</span>
+      </a>
+    </nav>
+  </main>
+</Studio>

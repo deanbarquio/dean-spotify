@@ -1,7 +1,7 @@
 ---
 import World from '../layouts/World.astro';
 import { PLACES } from '../lib/world/places';
-import { projects, roles, milestones, skillGroups, education } from '../data/portfolio';
+import { projects, roles, milestones, milestoneHref, skillGroups, education } from '../data/portfolio';
 import { recommendations } from '../data/recommendations';
 
 const num = (i: number) => String(i + 1).padStart(2, '0');
@@ -20,7 +20,7 @@ const rows = PLACES.map((pl) => {
   }
   // The only non-project place is home (about)
   return {
-    id: pl.id, title: 'Studio', year: '2021 — Now', kind: 'About Dean', image: '/profile.png', paint: pl.paint,
+    id: pl.id, title: 'Studio', year: '2021 — Now', kind: 'About Dean', image: '/me/portrait.webp', paint: pl.paint,
     summary: 'Interfaces where motion carries meaning: complex systems turned into products that feel calm, fast and alive.',
     stack: skillGroups.slice(0, 2).flatMap((g) => g.items.slice(0, 3)), url: undefined, study: false, gallery: [] as string[],
   };
@@ -118,13 +118,13 @@ const EMAIL = 'deanbarquio@gmail.com';
       <!-- Who and how to reach: a pill in the foot bar that unfolds into a card. The full story stays in the Home beacon -->
       <div class="me">
         <button type="button" class="me-pill" id="me-pill" aria-expanded="false" aria-controls="profile">
-          <img src="/profile.png" alt="" width="28" height="28" decoding="async" />
+          <img src="/me/avatar.webp" alt="" width="28" height="28" decoding="async" />
           <span class="me-name">Dean Barquio</span>
           <span class="me-status"><i class="profile-dot" aria-hidden="true"></i><span>Available</span></span>
         </button>
         <section class="profile" id="profile" aria-label="About Dean and contact" hidden>
           <div class="profile-id">
-            <img class="profile-photo" src="/profile.png" alt="Portrait of Dean Barquio" width="48" height="48" decoding="async" />
+            <img class="profile-photo" src="/me/avatar.webp" alt="Portrait of Dean Barquio" width="48" height="48" decoding="async" />
             <p class="profile-who">
               <b>Dean Barquio</b>
               <span>{roles[0].role} · {roles[0].company}</span>
@@ -267,7 +267,16 @@ const EMAIL = 'deanbarquio@gmail.com';
   <!-- Project view content, one per place; cloned into the panel on open -->
   <div class="tpls" hidden>
     <section data-tpl="about">
-      <figure class="pv-hero"><img src="/profile.png" alt="Portrait of Dean Barquio" loading="lazy" /></figure>
+      <!-- Opening shot: the portrait framed as a film still, letterboxed with a title card -->
+      <figure class="pv-hero pv-film">
+        <img src="/me/portrait.webp" alt="Portrait of Dean Barquio at night, crouched by a graffiti wall" loading="lazy" decoding="async" />
+        <span class="film-grain" aria-hidden="true"></span>
+        <figcaption class="film-card" aria-hidden="true">
+          <span class="film-tc">Reel 01 · Cebu, PH · After dark</span>
+          <span class="film-name">Dean Barquio</span>
+          <span class="film-sub">A frontend story</span>
+        </figcaption>
+      </figure>
       <div class="pv-intro">
         <h2 tabindex="-1">Hi, I'm Dean.</h2>
         <div class="pv-main">
@@ -279,18 +288,76 @@ const EMAIL = 'deanbarquio@gmail.com';
             <div><dt>Toolbox</dt><dd>{skillGroups.slice(0, 3).map((g) => <span>{g.items.slice(0, 4).join(', ')}<br /></span>)}</dd></div>
           </dl>
           <p class="pv-text">Shipping production frontends at N-Compass TV by day; after hours I build cinematic web stories with Three.js and GSAP.</p>
-          <h3>Journey</h3>
-          <ol class="pv-rows">
-            {milestones.map((m) => (
-              <li>
-                <span class="pv-meta">{m.tag}</span>
-                <strong>{m.title}</strong>
-                <span>{m.sub}</span>
+        </div>
+      </div>
+
+      <!-- Journey: tilted cards riding a ruler, the focused year ghosted large behind them -->
+      <section class="pv-journey" aria-labelledby="journey-title">
+        <div class="jr-pin">
+        <header class="jr-head">
+          <p class="reel-tc">Journey · {Math.floor(milestones[0].at)} — Now</p>
+          <h3 class="jr-title" id="journey-title">The road so far</h3>
+        </header>
+        <div class="jr-stage">
+          <p class="jr-ghost" aria-hidden="true"><span class="jr-ghost-year"></span><span class="jr-ghost-era"></span></p>
+          <ol class="jr-track" tabindex="0" aria-label="Career timeline. Use the arrow keys to travel">
+            {milestones.map((m, i) => (
+              <li class:list={['jr-item', m.now && 'is-now']} style={m.paint && `--jr-hot:${m.paint}`} data-year={m.now ? 'Now' : Math.floor(m.at)} data-era={m.era}>
+                <a class="jr-card" href={milestoneHref(m)} data-place={PLACES.some((pl) => pl.id === m.project) ? m.project : undefined} aria-current={i === 0 ? 'step' : undefined}>
+                  <p class="jr-tag">{m.tag}</p>
+                  <h4 class="jr-name">{m.title}</h4>
+                  <div class="jr-media">
+                    {m.image ? <img src={m.image} alt="" loading="lazy" decoding="async" draggable="false" /> : <span>{m.era}</span>}
+                  </div>
+                  <p class="jr-sub">{m.sub}</p>
+                  <ul class="jr-stack" aria-label="Stack">
+                    {m.stack.slice(0, 3).map((s) => <li>{s}</li>)}
+                  </ul>
+                </a>
+                <span class="jr-year" aria-hidden="true">{m.now ? 'Now' : Math.floor(m.at)}</span>
               </li>
             ))}
           </ol>
         </div>
-      </div>
+        <div class="jr-nav">
+          <button type="button" class="cap-btn jr-prev" aria-label="Previous milestone">←</button>
+          <div class="jr-dots">
+            {milestones.map((m, i) => <button type="button" class="jr-dot" aria-label={`${m.tag}: ${m.title}`} aria-pressed={i === 0 ? 'true' : 'false'}></button>)}
+          </div>
+          <button type="button" class="cap-btn jr-next" aria-label="Next milestone">→</button>
+        </div>
+        <p class="jr-hint" aria-hidden="true">
+          <span class="hint-desk">Scroll or ← → to travel · Click a card to open</span>
+          <span class="hint-touch">Swipe up to travel · Tap a card to open</span>
+        </p>
+        </div>
+      </section>
+
+      <!-- Achievements: commencement told as two film stills, then the honors roll like end credits -->
+      <section class="pv-reel" aria-labelledby="reel-title">
+        <header class="reel-head">
+          <p class="reel-tc">Reel 02 · Commencement · {education.period.split(' ').pop()}</p>
+          <h3 class="reel-title" id="reel-title">Level cleared.</h3>
+          <p class="reel-lead">{education.degree}, graduated {education.honors[0]}.</p>
+        </header>
+        <div class="reel-stills">
+          <figure class="pv-still pv-still--a">
+            <img src="/me/grad-1.webp" alt="Dean in graduation gown raising his diploma" loading="lazy" decoding="async" />
+            <span class="film-grain" aria-hidden="true"></span>
+            <figcaption><span class="still-tc">Sc. 01</span><span class="still-sub">Diploma in hand.</span></figcaption>
+          </figure>
+          <figure class="pv-still pv-still--b">
+            <img src="/me/grad-2.webp" alt="Dean in graduation gown wearing his honors medal" loading="lazy" decoding="async" />
+            <span class="film-grain" aria-hidden="true"></span>
+            <figcaption><span class="still-tc">Sc. 02</span><span class="still-sub">Medal on, {education.honors[0]}.</span></figcaption>
+          </figure>
+        </div>
+        <ol class="reel-credits" aria-label="Honors">
+          {education.honors.map((h, i) => (
+            <li style={`--k:${i}`}><span>{String(i + 1).padStart(2, '0')}</span>{h}</li>
+          ))}
+        </ol>
+      </section>
     </section>
 
     {projects.map((p) => {

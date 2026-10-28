@@ -8,6 +8,7 @@ import { createWorld, type World } from './world';
 import { createSound } from './audio';
 import { PLACES } from './places';
 import { installBrushMasks } from './brush';
+import { wireJourney } from './journey';
 
 const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
 
@@ -48,6 +49,7 @@ export function boot() {
     panelCount.textContent = `${String(i + 1).padStart(2, '0')} / ${String(ids.length).padStart(2, '0')}`;
     panelBody.append(nextBlock(ids[(i + 1) % ids.length]));
     panelBody.querySelectorAll<HTMLElement>('.pv-live').forEach(wireLive);
+    panelBody.querySelectorAll<HTMLElement>('.pv-journey').forEach((j) => wireJourney(j, panelBody));
   };
   /** Live preview: load the site now, and only let it take the pointer after a click */
   const wireLive = (live: HTMLElement) => {
@@ -181,6 +183,18 @@ export function boot() {
   };
   const step = (d: number) => current && open(ids[(ids.indexOf(current) + d + ids.length) % ids.length]);
   capView.addEventListener('click', enterPortal);
+
+  /* Journey project cards: leave the panel, fly to that beacon, then dive into it */
+  panelBody.addEventListener('click', (e) => {
+    const a = (e.target as Element).closest<HTMLElement>('a[data-place]');
+    if (!a || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    const id = a.dataset.place!;
+    hideDetail(false);
+    open(id);
+    // Let the camera arrive before diving in; skip if the visitor has moved on
+    window.setTimeout(() => current === id && !detail && enterPortal(), reduced ? 0 : 1100);
+  });
 
   /* Scroll / swipe into the portal; scrolling up at the top of the sheet steps back out */
   const nudgeDive = (delta: number) => {
@@ -453,6 +467,8 @@ export function boot() {
     else if (h === 'work' || h === 'index') openDrawer();
     else if (h === 'contact') showContact();
   };
+  // In-page /#id links (replaceState in open() doesn't fire this, so no loop)
+  window.addEventListener('hashchange', route);
 
   /* Lightning seen through the night veil (menu / project view); never for reduced motion */
   const bolt = $('#bolt-flash');
@@ -488,7 +504,7 @@ export function boot() {
     let fromCase = false;
     try {
       const ref = document.referrer ? new URL(document.referrer) : null;
-      fromCase = !!ref && ref.origin === location.origin && ref.pathname.startsWith('/work/');
+      fromCase = !!ref && ref.origin === location.origin && /^\/(work|journey)\//.test(ref.pathname);
     } catch {}
     window.setTimeout(() => enter(false, fromCase), fromCase || reduced ? 0 : 400);
   };

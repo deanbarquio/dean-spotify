@@ -344,8 +344,23 @@ export type Milestone = {
   note: string;
   stack: string[];
   era: string;
+  /** Optional still for the journey card; cards without one show the era line */
+  image?: string;
+  /** Optional tint for the focused card, matched to the image */
+  paint?: string;
+  /** Project id when this milestone is a project, so the card opens that project's page */
+  project?: string;
+  /** Extra stills for the milestone's /journey page */
+  gallery?: string[];
+  /** Project ids from this chapter, linked from its /journey page */
+  related?: string[];
   now?: boolean;
 };
+
+export const slug = (s: string) => s.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+/** A project milestone opens its beacon in the valley (/#id); every other milestone gets its own /journey page */
+export const milestoneHref = (m: Milestone) => (m.project ? `/#${m.project}` : `/journey/${slug(m.title)}`);
 
 /** Career chain, oldest → newest; the last card is "now" */
 export const milestones: Milestone[] = [
@@ -366,6 +381,8 @@ export const milestones: Milestone[] = [
     note: 'Shipped a student-org portal, a worker-booking app and a hiking companion.',
     stack: ['React', 'Flutter', 'Node.js'],
     era: 'Building levels of my own, for real users.',
+    image: '/psits_website.png',
+    related: ['psits', 'buildit', 'hikemate', 'meeting-room'],
   },
   {
     at: 2025.05,
@@ -384,6 +401,8 @@ export const milestones: Milestone[] = [
     note: 'Built the internal Control Panel and Company Dashboard solo.',
     stack: ['Next.js', 'NestJS', 'Elasticsearch', 'Docker'],
     era: 'Solo runs. Search, SSR and containers.',
+    image: '/control_panel.png',
+    related: ['control-panel', 'ntv-dashboard'],
   },
   {
     at: 2025.4,
@@ -393,6 +412,8 @@ export const milestones: Milestone[] = [
     note: 'Graduated with top honors in BS Information Technology.',
     stack: ['Graduated'],
     era: 'Level cleared with a full coin count.',
+    image: '/me/grad-1.webp',
+    gallery: ['/me/grad-2.webp'],
   },
   {
     at: 2025.45,
@@ -402,6 +423,7 @@ export const milestones: Milestone[] = [
     note: 'Angular and Svelte apps with Auth0 and WebSockets. Set UI standards and mentor interns.',
     stack: ['Angular', 'Svelte', 'TypeScript', 'Auth0'],
     era: 'Production frontends, every day.',
+    related: ['component-pantry'],
   },
   {
     at: 2026.2,
@@ -411,6 +433,9 @@ export const milestones: Milestone[] = [
     note: 'Scroll-driven storytelling sites with 3D models and GSAP.',
     stack: ['Three.js', 'GSAP', 'WebGL'],
     era: 'After hours: the cinematic web.',
+    image: '/phoenix-thumbnail.png',
+    gallery: ['/hod-thumbnail.png'],
+    related: ['fenghuang', 'fire-and-blood'],
   },
   {
     at: 2026.6,
@@ -420,9 +445,58 @@ export const milestones: Milestone[] = [
     note: 'Teaching Android Kotlin and Software Testing & Quality Assurance.',
     stack: ['Android', 'Kotlin', 'QA'],
     era: 'Passing the controller to the next players.',
+    related: ['class-record'],
   },
   {
-    at: 2026.76,
+    at: 2026.7,
+    tag: '2026 · Power-up',
+    title: 'Class Record',
+    sub: 'Rosters, attendance and grades for my classes',
+    note: 'Import class lists, take roll, and compute midterm and semestral grades, with a Claude voice assistant.',
+    stack: ['SvelteKit', 'Supabase', 'Claude API'],
+    era: 'Built the tool my own classes needed.',
+    image: '/class-record-thumbnail.png',
+    paint: '#3d5af1',
+    project: 'class-record',
+  },
+  {
+    at: 2026.75,
+    tag: '2026 · Boss fight',
+    title: 'Iron Spider vs Hulk',
+    sub: 'Playable 3D arena · scripted cinematic',
+    note: 'An animation showcase that ends in a fight against an AI Hulk, models squeezed from 111 MB to 12.8 MB.',
+    stack: ['Three.js', 'GSAP', 'Astro'],
+    era: 'Then the side project fought back.',
+    image: '/iron-spider-thumbnail.png',
+    paint: '#d6162f',
+    project: 'iron-spider',
+  },
+  {
+    at: 2026.8,
+    tag: '2026 · Save point',
+    title: 'Vault Budget',
+    sub: 'Local-first budgeting PWA with household sync',
+    note: 'Works offline, syncs in real time, reads receipts, and asks Claude for advice on summaries only.',
+    stack: ['Svelte 5', 'Supabase', 'PWA'],
+    era: 'Every coin counted, even offline.',
+    image: '/vault-budget-thumbnail.png',
+    paint: '#d4a85a',
+    project: 'vault-budget',
+  },
+  {
+    at: 2026.85,
+    tag: '2026 · Full circle',
+    title: 'PSITS Finance',
+    sub: 'Ledger for the org I once kept the books for',
+    note: 'Fees, payments, expenses and printable semester statements, locked to officers with row-level security.',
+    stack: ['SvelteKit', 'PostgreSQL', 'ExcelJS'],
+    era: 'Back to PSITS, this time with code.',
+    image: '/psits-finance-thumbnail.png',
+    paint: '#f5b800',
+    project: 'psits-finance',
+  },
+  {
+    at: 2026.9,
     tag: 'Now',
     title: 'Next level loading',
     sub: 'Open to roles & collabs',
