@@ -674,28 +674,56 @@ body.has-panel .reviews {
   opacity: 0;
   transition: inset 0.35s var(--ease), opacity 0.3s;
 }
-.marker-label {
+/* Callout: a leader line draws out down-right from the ring, then the label unrolls under a hairline,
+   so the fire vortex and the phoenix's loop above the crystal stay clear */
+.marker::after {
+  content: '';
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 4px);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
+  top: 50%;
+  width: 46px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0 12px, color-mix(in srgb, var(--paint) 70%, white));
+  transform-origin: 0 50%;
+  rotate: 38deg;
+  scale: 0 1;
+  transition: scale 0.3s var(--ease);
+  pointer-events: none;
+}
+.marker-label {
+  position: absolute;
+  /* Where the leader ends: 46px at 38° from the ring's centre */
+  left: calc(50% + 36px);
+  top: calc(50% + 28px);
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  column-gap: 10px;
+  row-gap: 5px;
+  padding: 9px 0 0 2px;
   white-space: nowrap;
-  background: var(--glass);
-  border: var(--hair);
-  border-radius: 3px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  letter-spacing: 0.22em;
+  border-top: 1px solid color-mix(in srgb, var(--paint) 70%, white);
+  text-shadow: 0 1px 12px rgba(4, 7, 14, 0.95), 0 0 2px rgba(4, 7, 14, 0.8);
+  clip-path: inset(-20px 100% -20px 0);
   opacity: 0;
-  translate: -50% 6px;
-  transition: opacity 0.3s, translate 0.35s var(--ease);
+  transition: clip-path 0.45s var(--ease), opacity 0.2s;
   pointer-events: none;
 }
 .marker-num {
   color: var(--paint);
+  letter-spacing: 0.18em;
+}
+.marker-name {
+  font: 400 20px/1 var(--serif);
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--fg);
+}
+.marker-sub {
+  grid-column: 2;
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  color: var(--fg-3);
 }
 .marker:hover .marker-ring,
 .marker.is-hover .marker-ring,
@@ -709,7 +737,15 @@ body.has-panel .reviews {
 .marker.is-active .marker-label,
 .marker:focus-visible .marker-label {
   opacity: 1;
-  translate: -50% 0;
+  clip-path: inset(-20px -20px -20px 0);
+  /* Unrolls once the leader has reached it */
+  transition-delay: 0.18s;
+}
+.marker:hover::after,
+.marker.is-hover::after,
+.marker.is-active::after,
+.marker:focus-visible::after {
+  scale: 1 1;
 }
 .marker:hover,
 .marker.is-hover,

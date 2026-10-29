@@ -36,6 +36,8 @@ export type World = {
   setHover: (id: string | null) => void;
   /** Switch between night and day; blends over ~2 s unless `instant`. Safe to call at any time, mid-blend included */
   setDay: (on: boolean, instant?: boolean) => void;
+  /** The valley is only glimpsed through a veil (project view / menu): draw it at a fraction of the frame rate */
+  setBackdrop: (on: boolean) => void;
   destroy: () => void;
 };
 
@@ -486,7 +488,7 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
   };
 
   /* ───────── Intro cinematic: a montage, then the flight in ─────────
-     Shot 1  face     extreme close-up of the head, long lens, slow push
+     Shot 1  reveal   off its flank, sweeping from ahead to alongside, fully ablaze
      Shot 2  feathers dolly from the shoulder down the body to the tail plumes
      Shot 3  wings    low side angle, the full wingspan against the misty sky
      Shot 4  flight   pull back and follow it into the labyrinth, blending into
@@ -544,12 +546,10 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
     }
     let fov = FOV;
     if (shot === 0) {
-      // Face: close side profile, slightly ahead (from the front the wings and crest hide it), pushing in
+      // Reveal: off its flank at eye level, sweeping from ahead to alongside as it blazes past
       const k = smooth(0, SHOTS[1], t);
-      guardian.headPos(head);
-      // Ahead of and below the wing's sweep, so a downstroke never crosses the lens
-      rel(head, F, 2.2 - k * 0.3, 3.4 - k * 0.3, -0.7, 0.2, 0, 0.1);
-      fov = 19 - k * 5;
+      rel(P, F, 9 - k * 12, 13 - k * 2, 1.5, 1.5, 0, 0.4);
+      fov = 34 - k * 4;
     } else if (shot === 1) {
       // Feathers: dolly down the body, the look gliding from the neck to the tail plumes
       const k = smooth(SHOTS[1], SHOTS[2], t);
@@ -594,8 +594,13 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
   let last = performance.now();
   let time = 0;
   let running = true;
+  // Behind the veil the scene only needs ~20 fps; skipping frames frees the GPU for the sheet's blur and scroll
+  let backdrop = false;
+  let rallied: string | null = null;
+  let skipped = 0;
   const frame = (now: number) => {
     raf = running ? requestAnimationFrame(frame) : 0;
+    if (backdrop && ++skipped % 3) return;
     const dt = Math.min((now - last) / 1000, 1 / 20);
     last = now;
     time += dt;
@@ -651,6 +656,13 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
       el.classList.toggle('is-off', off || !entered || !!intro);
       if (!off) el.style.transform = `translate3d(${((v.x + 1) / 2) * w}px, ${((1 - v.y) / 2) * h}px, 0)`;
     });
+    // Hovering a beacon calls the phoenix down to it (not while a place is open or the intro plays)
+    const rallyId = !focusId && !intro && entered ? hoverId : null;
+    if (rallyId !== rallied) {
+      rallied = rallyId;
+      const b = rallyId ? lights.beacons.find((k) => k.id === rallyId) : undefined;
+      guardian.rally(b ? new THREE.Vector3(b.anchor.x, b.base, b.anchor.z) : null, b?.light.color);
+    }
     lights.tick(anim, camera);
     guardian.tick(anim, dt);
     guardians.tick(anim, dt);
@@ -806,6 +818,9 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
     setDay(on, instant = false) {
       dayWant = on ? 1 : 0;
       if (instant) applyDay((day = dayWant));
+    },
+    setBackdrop(on) {
+      backdrop = on;
     },
     destroy() {
       running = false;

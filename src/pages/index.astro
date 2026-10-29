@@ -37,7 +37,11 @@ const EMAIL = 'deanbarquio@gmail.com';
     {PLACES.map((p, i) => (
       <button type="button" class="marker is-off" data-marker={p.id} style={`--paint:${p.paint}`} aria-label={`${p.label}, ${p.sub}`}>
         <span class="marker-ring" aria-hidden="true"></span>
-        <span class="marker-label"><span class="marker-num">{num(i)}</span>{p.label}</span>
+        <span class="marker-label" aria-hidden="true">
+          <span class="marker-num">{num(i)}</span>
+          <span class="marker-name">{p.label}</span>
+          <span class="marker-sub">{p.sub}</span>
+        </span>
       </button>
     ))}
   </div>

@@ -51,11 +51,12 @@ export function boot() {
     panelBody.querySelectorAll<HTMLElement>('.pv-live').forEach(wireLive);
     panelBody.querySelectorAll<HTMLElement>('.pv-journey').forEach((j) => wireJourney(j, panelBody));
   };
-  /** Live preview: load the site now, and only let it take the pointer after a click */
+  /** Live preview: load the site once the sheet has faded in, and only let it take the pointer after a click */
   const wireLive = (live: HTMLElement) => {
     const frame = live.querySelector('iframe')!;
     frame.addEventListener('load', () => live.classList.add('is-loaded'), { once: true });
-    frame.src = frame.dataset.src!;
+    // Booting a whole site mid-transition stalls the fade; skip if the visitor already left or stepped on
+    window.setTimeout(() => detail && frame.isConnected && (frame.src = frame.dataset.src!), reduced ? 0 : 650);
     live.querySelector('.pv-live-cover')!.addEventListener('click', () => {
       live.classList.add('is-live');
       frame.tabIndex = 0;
@@ -116,6 +117,7 @@ export function boot() {
     fillPanel(current);
     panel.hidden = false;
     document.body.classList.add('has-panel');
+    world?.setBackdrop(true);
     requestAnimationFrame(() => panel.classList.add('is-open'));
     panelBody.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
   };
@@ -123,6 +125,7 @@ export function boot() {
     if (!detail) return;
     detail = false;
     document.body.classList.remove('has-panel');
+    world?.setBackdrop(false);
     panel.classList.remove('is-open');
     window.setTimeout(() => {
       if (detail) return;
@@ -251,6 +254,7 @@ export function boot() {
     setMe(false);
     drawer.hidden = false;
     document.body.classList.add('has-menu');
+    world?.setBackdrop(true);
     requestAnimationFrame(() => drawer.classList.add('is-open'));
     listBtns.forEach((b) => b.setAttribute('aria-expanded', 'true'));
     drawer.querySelector<HTMLElement>('.menu-row')?.focus({ preventScroll: true });
@@ -259,6 +263,7 @@ export function boot() {
     if (drawer.hidden) return;
     drawer.classList.remove('is-open');
     document.body.classList.remove('has-menu');
+    world?.setBackdrop(false);
     // Fold everything once the menu has faded, so it reopens as a clean list
     window.setTimeout(() => !drawer.classList.contains('is-open') && ((drawer.hidden = true), foldAll()), reduced ? 0 : 400);
     listBtns.forEach((b) => b.setAttribute('aria-expanded', 'false'));

@@ -9,7 +9,7 @@
  */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { noiseGlsl } from './terrain';
+import { heightAt, noiseGlsl } from './terrain';
 
 export const ORB_R = 7;
 export const ORB_LIFT = 13; // orb centre above the beacon
@@ -146,6 +146,99 @@ function buildOrb() {
   return { group, shell, beam, light, portal, portalU, color, u: shared };
 }
 
+/* ───────── Fire whirl: the vortex the phoenix whips up around a hovered beacon ───────── */
+const WHIRL_H = 16;
+const EMBERS = 380;
+/**
+ * Embers riding a helix: each one climbs on its own clock, the spiral tightening near the crystal
+ * and loosening as it rises, swirling faster down low. White-hot at the source, cooling to orange,
+ * then to the beacon's colour before it burns out.
+ */
+const emberVert = /* glsl */ `
+attribute float aSeed;
+uniform float uTime, uShow, uScale;
+varying vec3 vColor;
+varying float vA;
+uniform vec3 uColor;
+void main() {
+  float s1 = fract(aSeed * 13.17), s2 = fract(aSeed * 71.3), s3 = fract(aSeed * 5.91);
+  float h = fract(uTime * (0.32 + s1 * 0.3) + aSeed);
+  float y = h * ${WHIRL_H.toFixed(1)} * (0.75 + s2 * 0.35);
+  // Tight at the base, opening out; a few strays fly wide
+  float r = mix(0.8, 6.0, pow(h, 0.75)) * (0.7 + s3 * 0.6) + step(0.93, s2) * h * 4.0;
+  float ang = aSeed * 6.2831853 * 7.0 + uTime * (5.5 - h * 3.0) + h * 5.0;
+  vec3 p = vec3(cos(ang) * r, y + sin(uTime * 3.0 + aSeed * 40.0) * 0.4, sin(ang) * r);
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float size = (0.18 + s3 * 0.32) * (1.25 - h * 0.7);
+  gl_PointSize = size * uScale / -mv.z * uShow;
+  vec3 hot = vec3(1.0, 0.9, 0.62);
+  vec3 fire = vec3(1.0, 0.42, 0.08);
+  vColor = mix(mix(hot, fire, smoothstep(0.0, 0.35, h)), uColor, smoothstep(0.45, 0.95, h));
+  // Flicker out and in as they climb
+  float flick = 0.65 + 0.35 * sin(uTime * 17.0 + aSeed * 90.0);
+  vA = smoothstep(0.0, 0.08, h) * (1.0 - smoothstep(0.6, 1.0, h)) * flick * uShow;
+}`;
+const emberFrag = /* glsl */ `
+varying vec3 vColor;
+varying float vA;
+void main() {
+  float d = length(gl_PointCoord - 0.5);
+  if (d > 0.5) discard;
+  float a = smoothstep(0.5, 0.0, d);
+  a *= a * vA;
+  gl_FragColor = vec4(vColor * 1.25 * a, a);
+}`;
+/** Shockwaves rolling out across the ground from the crystal */
+const shockFrag = /* glsl */ `
+uniform vec3 uColor;
+uniform float uTime, uShow;
+varying vec2 vUv;
+${noiseGlsl}
+void main() {
+  vec2 c = vUv - 0.5;
+  float r = length(c) * 2.0;
+  if (r > 1.0) discard;
+  // Ragged flame edge, shared by every wave (one noise lookup per pixel)
+  float rag = (noise(vec2(atan(c.y, c.x) * 4.0, uTime * 2.0)) - 0.5) * 0.08;
+  float a = 0.0;
+  for (int i = 0; i < 3; i++) {
+    float ph = fract(uTime * 0.9 + float(i) / 3.0);
+    a += smoothstep(0.07, 0.0, abs(r - ph - rag)) * (1.0 - ph) * (1.0 - ph);
+  }
+  a *= smoothstep(1.0, 0.85, r) * uShow * 0.55;
+  vec3 col = mix(vec3(1.0, 0.5, 0.12), uColor, 0.4) * 1.4;
+  gl_FragColor = vec4(col * a, a);
+}`;
+const shockVert = /* glsl */ `
+varying vec2 vUv;
+void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+
+function buildWhirl() {
+  const u = { uColor: { value: new THREE.Color() }, uTime: { value: 0 }, uShow: { value: 0 }, uScale: { value: 300 } };
+  const group = new THREE.Group();
+  const seeds = new Float32Array(EMBERS);
+  for (let i = 0; i < EMBERS; i++) seeds[i] = Math.random();
+  const geo = new THREE.BufferGeometry();
+  // Positions come from the shader; a placeholder attribute keeps three happy
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(EMBERS * 3), 3));
+  geo.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
+  const embers = new THREE.Points(
+    geo,
+    new THREE.ShaderMaterial({ vertexShader: emberVert, fragmentShader: emberFrag, uniforms: u, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })
+  );
+  embers.frustumCulled = false;
+  embers.renderOrder = 4;
+  const shock = new THREE.Mesh(
+    new THREE.PlaneGeometry(24, 24).rotateX(-Math.PI / 2).translate(0, 0.3, 0),
+    new THREE.ShaderMaterial({ vertexShader: shockVert, fragmentShader: shockFrag, uniforms: u, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })
+  );
+  shock.renderOrder = 4;
+  group.add(shock, embers);
+  group.visible = false;
+  return { group, u };
+}
+
 /* ───────── Phoenix ───────── */
 type Bird = { model: THREE.Group; mixer: THREE.AnimationMixer };
 
@@ -198,7 +291,9 @@ const lungeCurve = (k: number) => Math.pow(Math.sin(Math.PI * k), 1.5) - 0.18 * 
 
 export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, camera, warm }: GuardianOpts) {
   const orb = buildOrb();
-  scene.add(orb.group, orb.light);
+  const whirl = buildWhirl();
+  scene.add(orb.group, orb.light, whirl.group);
+  const drawSize = new THREE.Vector2();
   // Root and its fire light join the scene up front: the light count never changes later,
   // so no material in the scene has to recompile when the model arrives
   const root = new THREE.Group();
@@ -241,6 +336,8 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
   let hoverWant = 0;
 
   let target: THREE.Vector3 | null = null; // focused beacon base
+  let rally: THREE.Vector3 | null = null; // hovered beacon base: circle it fast, whipping up the whirl
+  let rallyGlow = 0;
   let dive = 0;
   let portalImage: string | null = null;
   // ImageBitmapLoader decodes off the main thread (TextureLoader decodes on it, stalling a frame)
@@ -273,6 +370,8 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
   const bank = new THREE.Vector3();
   const push = new THREE.Vector3();
   const disp = new THREE.Vector3().copy(pos); // shown position
+  const aim = new THREE.Object3D();
+  let roll = 0;
 
   return {
     /** Point the orb (and the phoenix) at a beacon, or release with null; `image` fills the portal */
@@ -307,9 +406,19 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
     /** Show the orb (fully transparent) for the world's warm-up render; returns the undo */
     prewarm() {
       orb.group.visible = true;
+      whirl.group.visible = true;
       return () => {
         orb.group.visible = show > 0.01;
+        whirl.group.visible = whirl.u.uShow.value > 0.01;
       };
+    },
+    /** A beacon is hovered: swoop down and circle it fast, unleashing a whirl of fire; null to let it go */
+    rally(base: THREE.Vector3 | null, color?: THREE.Color) {
+      rally = base ? base.clone() : null;
+      if (base) {
+        whirl.group.position.copy(base);
+        if (color) whirl.u.uColor.value.copy(color);
+      }
     },
     /** Where the phoenix is right now (the guardians track it) */
     birdPos: () => disp,
@@ -356,6 +465,15 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
       orb.light.intensity = 260 * show;
       orb.shell.scale.setScalar(0.6 + show * 0.4);
       orb.shell.rotation.y = t * 0.15;
+      /* Whirl: spins up once the phoenix has arrived, and dies down when it leaves */
+      const rallying = !!rally && !target && !intro && !!bird;
+      const whirlWant = rallying && pos.distanceTo(want) < 12 ? 1 : 0;
+      whirl.u.uShow.value += (whirlWant - whirl.u.uShow.value) * (1 - Math.exp(-dt * (whirlWant ? 4 : 2.5)));
+      whirl.u.uTime.value = t;
+      whirl.group.visible = whirl.u.uShow.value > 0.01;
+      // Ember size in world units → pixels: drawing-buffer height / (2 tan(fov / 2))
+      if (whirl.group.visible) whirl.u.uScale.value = (renderer.getDrawingBufferSize(drawSize).y * camera.projectionMatrix.elements[5]) / 2;
+      rallyGlow += ((rallying ? 1 : 0) - rallyGlow) * (1 - Math.exp(-dt * 4));
 
       if (!bird) return;
       bird.mixer.update(reducedMotion ? 0 : dt);
@@ -366,6 +484,13 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
           // Widens and climbs while the camera dives, so it never crosses the lens
           const r = 15 + dive * 14;
           return out.set(target.x + Math.cos(a) * r, target.y + ORB_LIFT + 3 + dive * 14 + Math.sin(s * 1.1) * 2, target.z + Math.sin(a) * r);
+        }
+        if (rally && !intro) {
+          // Unleashing: a fast loop around the vortex, held clear of the walls (it's drawn over everything,
+          // so a wing dipping into stone would paint across it)
+          const a = s * 1.7;
+          out.set(rally.x + Math.cos(a) * 11, 0, rally.z + Math.sin(a) * 11);
+          return (out.y = Math.max(rally.y + 12 + Math.sin(s * 2.2) * 1.5, heightAt(out.x, out.z) + 7)), out;
         }
         // Guard duty: a lazy figure-eight kept inside the labyrinth's outer wall (r ≈ 72)
         const a = s * 0.11;
@@ -382,7 +507,7 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
         if (intro.t >= intro.dur) intro = null;
       } else {
         // Ease toward the path so switching between patrol and orbit is a swoop, not a jump
-        pos.lerp(want, 1 - Math.exp(-dt * (target ? 1.4 : 0.8)));
+        pos.lerp(want, 1 - Math.exp(-dt * (target ? 1.4 : rally ? 3.2 : 0.8)));
       }
       // Knock-back from the guardians, dying away over about a second
       pos.addScaledVector(push, dt);
@@ -401,20 +526,30 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
       prev.copy(disp);
       if (vel.lengthSq() > 1e-6) {
         vel.normalize();
-        root.lookAt(look.copy(disp).add(vel).lerp(ahead, provoked > 0 ? 0 : 0.1));
-        // Bank into turns
+        // Bank into turns, eased so a tight loop leans steadily instead of flicking side to side
         const turn = bank.copy(vel).cross(look.subVectors(ahead, disp).normalize()).y;
-        root.rotateZ(THREE.MathUtils.clamp(-turn * 2, -0.6, 0.6));
+        roll += (THREE.MathUtils.clamp(-turn * 2, -0.6, 0.6) - roll) * (1 - Math.exp(-dt * 4));
+        // Aim a stand-in, then turn the bird toward it: the heading follows smoothly rather than snapping each frame
+        aim.position.copy(disp);
+        aim.lookAt(look.copy(disp).add(vel).lerp(ahead, provoked > 0 ? 0 : 0.1));
+        aim.rotateZ(roll);
+        root.quaternion.slerp(aim.quaternion, intro ? 1 : 1 - Math.exp(-dt * 9));
       }
-      // Fire: flares while provoked or hovered, and burns brighter in its close-up
+      // Fire: flares while provoked or hovered
       hoverGlow += (hoverWant - hoverGlow) * (1 - Math.exp(-dt * 8));
       const rage = provoked > 0 ? Math.sin(Math.PI * Math.min(1, provoked / PROVOKE)) : 0;
-      const hero = intro ? 1 - intro.t / intro.dur : 0;
-      // Cooler up close in the intro: at arm's length the wings would bloom out the frame
-      const heat = 1 + rage * 2.5 + hoverGlow * 0.8 - hero * 0.5;
+      let heat = 1 + rage * 2.5 + hoverGlow * 0.8 + rallyGlow * (0.5 + Math.sin(t * 11) * 0.15);
+      let lightK = 1;
+      if (intro) {
+        // Ablaze from the first frame: a pulsing roar through the reveal, then a steady burn
+        const u = intro.t / intro.dur;
+        const roar = 1 - THREE.MathUtils.smoothstep(u, 0.2, 0.32);
+        heat = 1 + roar * (0.45 + Math.sin(t * 6) * 0.15);
+        // The feather dolly passes within a few metres: dim the light so the camera isn't sitting in its glow
+        lightK = 1 - THREE.MathUtils.smoothstep(u, 0.22, 0.26) * (1 - THREE.MathUtils.smoothstep(u, 0.45, 0.5)) * 0.6;
+      }
       glows.forEach((m) => (m.emissiveIntensity = 1.6 * heat));
-      // Dimmer light in the close-up: at a few metres the camera would sit inside its glow
-      fireLight.intensity = (90 + Math.sin(t * 9) * 12) * heat * (1 - hero * 0.6);
+      fireLight.intensity = (90 + Math.sin(t * 9) * 12) * heat * lightK;
     },
   };
 }
