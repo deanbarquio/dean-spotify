@@ -4,7 +4,7 @@
  * (cloned from hidden server-rendered sections), the places drawer, sound
  * toggle, keyboard and #hash deep links.
  */
-import { createWorld, YAW, type World } from './world';
+import { createWorld, type World } from './world';
 import { createSound } from './audio';
 import { PLACES, ELEMENT_NAME, ELEMENTS } from './places';
 import { installBrushMasks } from './brush';
@@ -32,7 +32,8 @@ export function boot() {
   let current: string | null = null;
   let opener: HTMLElement | null = null;
   /** Guided tour state; the tour itself is wired further down */
-  const tour = { on: false, i: 0, t: 0, paused: false, held: false, raf: 0, last: 0 };
+  // fly: ms left of the phoenix's flight to this stop (the credits wait for it to land)
+  const tour = { on: false, i: 0, t: 0, paused: false, held: false, raf: 0, last: 0, fly: 0 };
 
   /* ───────── Focus: caption over the scene, detail panel on request ───────── */
   const caption = $('#caption');
@@ -398,7 +399,7 @@ export function boot() {
   });
 
   /* ───────── Hero: rotating word, way in, and the index that lights its beacon ───────── */
-  // Every element that stands for a beacon: hero chips, featured rows, minimap dots (several per beacon)
+  // Every element that stands for a beacon: hero chips, featured rows (several per beacon)
   const beaconEls = [...document.querySelectorAll<HTMLElement>('[data-beacon]')];
   const forBeacons = (fn: (el: HTMLElement, id: string) => void) => beaconEls.forEach((el) => fn(el, el.dataset.beacon!));
   /** One beacon lit from the HUD side: index chip, marker label, glow in the valley */
@@ -424,8 +425,7 @@ export function boot() {
   } catch {}
   const showLit = () => {
     forBeacons((el, k) => el.classList.toggle('is-lit', lit.has(k)));
-    litCount.textContent = String(lit.size).padStart(2, '0');
-    if (lit.size === ids.length) litBox.textContent = 'Valley cleared ✦';
+    litCount.textContent = String(lit.size).padStart(2, '0');    if (lit.size === ids.length) litBox.textContent = 'Valley cleared ✦';
     world?.setVisited(lit);
   };
   function markVisited(id: string) {
@@ -629,6 +629,10 @@ export function boot() {
     const s = stops[tour.i];
     const next = stops[tour.i + 1];
     open(s.id);
+    // The phoenix flies there first, showing off a trick; the credits wait until it lands
+    tour.fly = (world?.flyTo(tour.i) ?? 0) * 1000;
+    $('#tour-flight-to').textContent = s.title;
+    $('#tour-flight-n').textContent = `${String(tour.i + 1).padStart(2, '0')} / ${String(stops.length).padStart(2, '0')}`;
     world?.setElement(s.element === 'spirit' ? null : s.element);
     const chapter = String(tour.i + 1).padStart(2, '0');
     $('#tour-n').textContent = chapter;
@@ -683,18 +687,31 @@ export function boot() {
         if (!tour.on || stops[tour.i].id !== s.id) return;
         screen.classList.add('is-loading');
         frame.src = s.url!;
-      }, reduced ? 0 : 900);
+      }, reduced ? 0 : tour.fly + 900);
     }
-    // Restart the entrance: window swings in, credits rise
-    tourEl.classList.remove('is-cut');
+    tourEl.classList.toggle('is-flying', tour.fly > 0);
+    if (tour.fly > 0) tourEl.classList.remove('is-cut');
+    else land();
+    fitFrame();
+  };
+  /** The phoenix is down (or there was no flight): window swings in, credits rise */
+  const land = () => {
+    tour.fly = 0;
+    tourEl.classList.remove('is-flying', 'is-cut');
     void tourEl.offsetWidth;
     tourEl.classList.add('is-cut');
-    fitFrame();
   };
   const tourTick = (now: number) => {
     if (!tour.on) return;
     const dt = Math.min(now - tour.last, 100);
     tour.last = now;
+    // In flight: the stop's clock waits for the landing (the flight itself can't be paused)
+    if (tour.fly > 0) {
+      tour.fly -= dt;
+      if (tour.fly <= 0) land();
+      tour.raf = requestAnimationFrame(tourTick);
+      return;
+    }
     // Paused by hand, or held while the visitor reads the window or the credits
     if (!tour.paused && !tour.held && !document.hidden) tour.t += dt;
     const ms = stopMs();
@@ -746,7 +763,8 @@ export function boot() {
     clearInterval(slideTimer);
     unloadFrame();
     document.body.classList.remove('is-tour');
-    tourEl.classList.remove('is-cut', 'is-paused');
+    tour.fly = 0;
+    tourEl.classList.remove('is-cut', 'is-paused', 'is-flying');
     tourEl.hidden = true;
     world?.setDrift(false);
     if (!stay) {
@@ -821,27 +839,6 @@ export function boot() {
     },
     { passive: true }
   );
-
-  /* ───────── Minimap: the spiral from above, turned so "up" is where the camera faces ───────── */
-  {
-    const sy = Math.sin(YAW);
-    const cy = Math.cos(YAW);
-    $('#map-rot').setAttribute('transform', `matrix(${cy} ${sy} ${-sy} ${cy} 0 0)`);
-    document.querySelectorAll<HTMLElement>('.map-dot').forEach((d) => {
-      const x = Number(d.dataset.x);
-      const z = Number(d.dataset.z);
-      d.style.left = `${50 + ((cy * x - sy * z) / 180) * 100}%`;
-      d.style.top = `${50 + ((sy * x + cy * z) / 180) * 100}%`;
-    });
-  }
-  const mapView = document.getElementById('map-view');
-  const yawDeg = (-YAW * 180) / Math.PI;
-  let mapLast = '';
-  /** Called every frame with the camera's target: moves the view marker (only when it actually moved) */
-  const updateMap = (x: number, z: number, dist: number) => {
-    const t = `translate(${x.toFixed(1)} ${z.toFixed(1)}) rotate(${yawDeg.toFixed(2)}) scale(${Math.min(1.6, Math.max(0.35, dist / 150)).toFixed(2)})`;
-    if (t !== mapLast && mapView) mapView.setAttribute('transform', (mapLast = t));
-  };
 
   const setSound = (on: boolean) => {
     sound.setOn(on);
@@ -1033,9 +1030,8 @@ export function boot() {
             if (id) sound.blip('hover');
           },
           // Headline steps aside once the visitor dives into the valley
-          onMove: (x, z, dist) => {
+          onMove: (_x, _z, dist) => {
             document.body.classList.toggle('is-close', dist < 80);
-            updateMap(x, z, dist);
           },
           onQuality: (level) => document.body.classList.toggle('is-lowq', level === 'low'),
           guardianTags: new Map(

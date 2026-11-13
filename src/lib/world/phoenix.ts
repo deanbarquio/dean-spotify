@@ -285,6 +285,21 @@ type GuardianOpts = {
 /** Intro flight: from far out in the mist beyond the labyrinth, sweeping in to join its patrol */
 const INTRO_FROM = new THREE.Vector3(-34, 74, -150);
 const INTRO_VIA = new THREE.Vector3(22, 58, -85);
+/**
+ * Tour flights: from wherever it is to the next beacon's orb, showing off on the way.
+ *   roll       a barrel roll round the line of flight
+ *   loop       a full vertical loop
+ *   corkscrew  two wide spiralling turns, banked hard
+ *   dive       a climb into a stall, then a plunge that pulls out over the orb
+ */
+export const TRICKS = ['roll', 'loop', 'corkscrew', 'dive'] as const;
+export type Trick = (typeof TRICKS)[number];
+/** 0 → 1 → 0 across the middle of the flight, where the trick is flown */
+const trickWindow = (u: number) => THREE.MathUtils.smoothstep(u, 0.22, 0.38) * (1 - THREE.MathUtils.smoothstep(u, 0.66, 0.8));
+/** Trick progress 0 → 1 inside its window */
+const trickPhase = (u: number) => THREE.MathUtils.clamp((u - 0.3) / 0.42, 0, 1);
+const easeInOut = (x: number) => x * x * (3 - 2 * x);
+
 /** Provoked: windup, lunge, recover */
 const PROVOKE = 1.8;
 const lungeCurve = (k: number) => Math.pow(Math.sin(Math.PI * k), 1.5) - 0.18 * Math.sin(2 * Math.PI * Math.min(k * 2, 1));
@@ -372,6 +387,20 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
   const disp = new THREE.Vector3().copy(pos); // shown position
   const aim = new THREE.Object3D();
   let roll = 0;
+  // Tour flight: a scripted curve from `from` over `via` into the orbit, with a trick flown in the middle
+  let flight: { t: number; dur: number; trick: Trick; from: THREE.Vector3; via: THREE.Vector3 } | null = null;
+  let trickRoll = 0;
+  let trickHeat = 0;
+  const pathT = new THREE.Vector3();
+  const pathS = new THREE.Vector3();
+  const pathU = new THREE.Vector3();
+  const loopUp = new THREE.Vector3();
+  const WORLD_UP = new THREE.Vector3(0, 1, 0);
+  /** Point on the flight's base curve at u (quadratic Bézier into the moving orbit point `end`) */
+  const curve = (u: number, end: THREE.Vector3, out: THREE.Vector3) => {
+    const k = 1 - u;
+    return out.copy(flight!.from).multiplyScalar(k * k).addScaledVector(flight!.via, 2 * k * u).addScaledVector(end, u * u);
+  };
 
   return {
     /** Point the orb (and the phoenix) at a beacon, or release with null; `image` fills the portal */
@@ -440,6 +469,23 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
     endIntro() {
       intro = null;
     },
+    /**
+     * Tour: fly to the focused orb over `dur` seconds, flying `trick` on the way.
+     * Call after focus(): the flight ends exactly on the orbit, so it carries straight on circling.
+     */
+    fly(trick: Trick, dur: number) {
+      if (!bird || !target) return false;
+      const from = disp.clone();
+      const to = new THREE.Vector3(target.x, target.y + ORB_LIFT + 3, target.z);
+      const span = from.distanceTo(to);
+      // Arc over the valley: higher for long hops, far higher for the dive (it needs height to fall from)
+      const via = from.clone().lerp(to, 0.5);
+      via.y = Math.max(from.y, to.y) + 10 + span * 0.12 + (trick === 'dive' ? 34 : 0);
+      flight = { t: 0, dur, trick, from, via };
+      provoked = 0;
+      return true;
+    },
+    flying: () => !!flight,
     /** Visitor clicked it: rear, flare, then lunge at `at` and swing back */
     provoke(at: THREE.Vector3) {
       if (provoked > 0) return false;
@@ -497,6 +543,11 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
         return out.set(Math.sin(a) * 50, 32 + Math.sin(s * 0.3) * 5, Math.sin(a * 2) * 32 - 6);
       };
       at(t, want);
+      // Focus released mid-flight (tour ended): drop the trick and rejoin the patrol
+      if (flight && !target) {
+        flight = null;
+        trickRoll = trickHeat = 0;
+      }
       if (intro) {
         // Scripted: a long curve from the mist into the patrol path, followed exactly (the camera chases it)
         intro.t = Math.min(intro.dur, intro.t + dt);
@@ -505,6 +556,55 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
         const k = 1 - e;
         pos.copy(INTRO_FROM).multiplyScalar(k * k).addScaledVector(INTRO_VIA, 2 * k * e).addScaledVector(want, e * e);
         if (intro.t >= intro.dur) intro = null;
+      } else if (flight && target) {
+        flight.t = Math.min(flight.dur, flight.t + dt);
+        const u = easeInOut(flight.t / flight.dur);
+        curve(u, want, pos);
+        // Local frame of the line of flight: forward, side, up
+        curve(Math.min(1, u + 0.01), want, pathT).sub(pos);
+        if (pathT.lengthSq() < 1e-6) pathT.set(0, 0, 1);
+        pathT.normalize();
+        pathS.crossVectors(pathT, WORLD_UP);
+        if (pathS.lengthSq() < 1e-6) pathS.set(1, 0, 0);
+        pathS.normalize();
+        pathU.crossVectors(pathS, pathT).normalize();
+        const w = trickWindow(u);
+        const ph = trickPhase(u);
+        const ang = Math.PI * 2 * easeInOut(ph);
+        trickRoll = 0;
+        loopUp.copy(WORLD_UP);
+        switch (flight.trick) {
+          case 'roll':
+            // Rolls once round the line, drifting round a small tube so the roll reads from outside
+            pos.addScaledVector(pathS, (Math.cos(ang) - 1) * 2.2 * w).addScaledVector(pathU, Math.sin(ang) * 2.2 * w);
+            trickRoll = ang * w;
+            break;
+          case 'loop': {
+            // A full loop: wide enough that over the top it runs back against the forward travel
+            const R = 14 * w;
+            pos.addScaledVector(pathT, Math.sin(ang) * R).addScaledVector(pathU, (1 - Math.cos(ang)) * R);
+            // Belly toward the loop's centre the whole way round (lookAt's up)
+            loopUp.copy(pathU).multiplyScalar(Math.cos(ang)).addScaledVector(pathT, -Math.sin(ang)).normalize();
+            if (w < 0.5) loopUp.lerp(WORLD_UP, 1 - w * 2).normalize();
+            break;
+          }
+          case 'corkscrew': {
+            // Two wide turns round the line, banked hard into the spiral
+            const a2 = ang * 2;
+            pos.addScaledVector(pathS, Math.sin(a2) * 7 * w).addScaledVector(pathU, (1 - Math.cos(a2)) * 4 * w);
+            trickRoll = -0.9 * w;
+            break;
+          }
+          case 'dive':
+            // Over the top of the climb, a half roll into the plunge, rolled level again as it pulls out
+            trickRoll = Math.sin(Math.PI * ph) * Math.PI * w;
+            break;
+        }
+        trickHeat = w;
+        if (flight.t >= flight.dur) {
+          flight = null;
+          trickHeat = 0;
+        }
       } else {
         // Ease toward the path so switching between patrol and orbit is a swoop, not a jump
         pos.lerp(want, 1 - Math.exp(-dt * (target ? 1.4 : rally ? 3.2 : 0.8)));
@@ -531,25 +631,31 @@ export function buildGuardian(scene: THREE.Scene, { reducedMotion, renderer, cam
         roll += (THREE.MathUtils.clamp(-turn * 2, -0.6, 0.6) - roll) * (1 - Math.exp(-dt * 4));
         // Aim a stand-in, then turn the bird toward it: the heading follows smoothly rather than snapping each frame
         aim.position.copy(disp);
-        aim.lookAt(look.copy(disp).add(vel).lerp(ahead, provoked > 0 ? 0 : 0.1));
-        aim.rotateZ(roll);
-        root.quaternion.slerp(aim.quaternion, intro ? 1 : 1 - Math.exp(-dt * 9));
+        aim.up.copy(flight ? loopUp : WORLD_UP);
+        aim.lookAt(look.copy(disp).add(vel).lerp(ahead, provoked > 0 || flight ? 0 : 0.1));
+        aim.rotateZ(roll + trickRoll);
+        // Tricks need a quick heading, or the loop and roll smear out
+        root.quaternion.slerp(aim.quaternion, intro ? 1 : 1 - Math.exp(-dt * (flight ? 16 : 9)));
       }
       // Fire: flares while provoked or hovered
       hoverGlow += (hoverWant - hoverGlow) * (1 - Math.exp(-dt * 8));
       const rage = provoked > 0 ? Math.sin(Math.PI * Math.min(1, provoked / PROVOKE)) : 0;
-      let heat = 1 + rage * 2.5 + hoverGlow * 0.8 + rallyGlow * (0.5 + Math.sin(t * 11) * 0.15);
+      // Burns a little hotter through a trick
+      let heat = 1 + rage * 2.5 + hoverGlow * 0.8 + rallyGlow * (0.5 + Math.sin(t * 11) * 0.15) + trickHeat * 0.35;
       let lightK = 1;
       if (intro) {
-        // Ablaze from the first frame: a pulsing roar through the reveal, then a steady burn
+        // A low ember glow through the close shots, a soft swell on the reveal, then a steady burn
         const u = intro.t / intro.dur;
         const roar = 1 - THREE.MathUtils.smoothstep(u, 0.2, 0.32);
-        heat = 1 + roar * (0.45 + Math.sin(t * 6) * 0.15);
+        heat = 1 + roar * (0.15 + Math.sin(t * 6) * 0.05);
         // The feather dolly passes within a few metres: dim the light so the camera isn't sitting in its glow
         lightK = 1 - THREE.MathUtils.smoothstep(u, 0.22, 0.26) * (1 - THREE.MathUtils.smoothstep(u, 0.45, 0.5)) * 0.6;
       }
-      glows.forEach((m) => (m.emissiveIntensity = 1.6 * heat));
-      fireLight.intensity = (90 + Math.sin(t * 9) * 12) * heat * lightK;
+      // Close to the lens the fire is held back (bloom would blow it out to white); from afar it burns full
+      const near = THREE.MathUtils.smoothstep(camera.position.distanceTo(disp), 8, 55);
+      const lens = THREE.MathUtils.lerp(0.4, 1, near);
+      glows.forEach((m) => (m.emissiveIntensity = 1.6 * heat * lens));
+      fireLight.intensity = (90 + Math.sin(t * 9) * 12) * heat * lightK * THREE.MathUtils.lerp(0.35, 1, near);
     },
   };
 }

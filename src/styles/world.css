@@ -3553,7 +3553,6 @@ body:has(.gate:not([hidden])) .letterbox i {
 /* No WebGL: dark sky, the places drawer does the work */
 .no-world .markers,
 .no-world .hint,
-.no-world .minimap,
 .no-world .hero-tour {
   display: none;
 }
@@ -3582,7 +3581,7 @@ body.is-tour .letterbox i {
   translate: 0 0;
   transition-duration: 1.1s;
 }
-body.is-tour :is(.hud, .headline, .markers, .reviews, .caption, .minimap, .hint, .gtag) {
+body.is-tour :is(.hud, .headline, .markers, .reviews, .caption, .hint, .gtag) {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
@@ -4175,6 +4174,93 @@ body.is-tour :is(.hud, .headline, .markers, .reviews, .caption, .minimap, .hint,
 .tour.is-cut .tour-tc {
   animation: tour-fade 0.9s var(--ease) 0.2s backwards;
 }
+/* ───────── In flight: the phoenix has the frame. Credits and window step out, letterbox bars close in,
+   a lower third names where it's headed ───────── */
+.tour::before {
+  transition: opacity 0.8s var(--ease);
+}
+.tour-stage,
+.tour-card,
+.tour-ghost {
+  transition: opacity 0.6s var(--ease), visibility 0.6s;
+}
+.tour.is-flying :is(.tour-stage, .tour-card, .tour-ghost) {
+  opacity: 0;
+  visibility: hidden;
+}
+.tour.is-flying::before {
+  opacity: 0;
+}
+.tour::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(#000, #000) top / 100% 9vh no-repeat,
+    linear-gradient(#000, #000) bottom / 100% 9vh no-repeat;
+  opacity: 0;
+  scale: 1 1.25;
+  transition: opacity 0.7s var(--ease), scale 0.9s var(--ease);
+}
+.tour.is-flying::after {
+  opacity: 0.9;
+  scale: 1 1;
+}
+.tour-flight {
+  position: absolute;
+  left: 50%;
+  bottom: calc(9vh + 28px);
+  translate: -50% 12px;
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 2px 20px rgba(3, 6, 12, 0.9);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.6s var(--ease), translate 0.8s var(--ease), visibility 0.6s;
+}
+.tour.is-flying .tour-flight {
+  opacity: 1;
+  visibility: visible;
+  translate: -50% 0;
+  transition-delay: 0.6s;
+}
+.tour-flight-n,
+.tour-flight-label {
+  font: 500 9px/1 var(--sans);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.tour-flight-n {
+  color: var(--el, var(--fg-2));
+}
+.tour-flight-to {
+  font: 400 clamp(28px, 3.2vw, 46px) / 1 var(--serif);
+  letter-spacing: -0.01em;
+}
+/* A hairline under the name, drawn across the flight */
+.tour-flight-to::after {
+  content: '';
+  display: block;
+  height: 1px;
+  margin-top: 12px;
+  background: linear-gradient(90deg, transparent, var(--el, var(--fg)), transparent);
+  transform-origin: left;
+  scale: 0 1;
+}
+.tour.is-flying .tour-flight-to::after {
+  animation: tour-route 4.4s linear 0.6s forwards;
+}
+@keyframes tour-route {
+  to { scale: 1 1; }
+}
 @keyframes tour-swing {
   from { opacity: 0; transform: translateX(80px) rotateY(-26deg) rotateX(4deg); }
 }
@@ -4231,104 +4317,6 @@ body.is-tour :is(.hud, .headline, .markers, .reviews, .caption, .minimap, .hint,
     font-size: 8.5px;
   }
 }
-/* ───────── Minimap: the spiral from above ───────── */
-.minimap {
-  position: fixed;
-  z-index: 15;
-  right: var(--gut);
-  top: calc(max(28px, env(safe-area-inset-top)) + 70px);
-  width: 148px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(5, 10, 20, 0.5), rgba(5, 10, 20, 0.25) 60%, transparent 72%);
-  transition: opacity 0.6s var(--ease), visibility 0.6s;
-}
-.minimap svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-.map-ring {
-  fill: none;
-  stroke: rgba(232, 238, 248, 0.32);
-  stroke-width: 2.4;
-  stroke-linecap: round;
-}
-.map-view path {
-  fill: rgba(232, 238, 248, 0.14);
-}
-.map-view circle {
-  fill: var(--fg);
-}
-.map-dots {
-  position: absolute;
-  inset: 0;
-}
-.map-dot {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  translate: -50% -50%;
-}
-.map-dot i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--paint);
-  box-shadow: 0 0 6px var(--paint);
-  transition: scale 0.25s var(--ease), box-shadow 0.25s;
-}
-.map-dot:is(:hover, :focus-visible, .is-hover) i {
-  scale: 1.8;
-  box-shadow: 0 0 10px var(--paint), 0 0 18px var(--paint);
-}
-/* The element on stage pulses on the map too */
-.map-dot.is-el i {
-  animation: map-pulse 1.6s ease-in-out infinite;
-}
-@keyframes map-pulse {
-  50% { scale: 1.5; }
-}
-.map-dot.is-lit i {
-  outline: 1px solid var(--paint);
-  outline-offset: 2px;
-}
-.map-label {
-  position: absolute;
-  left: 50%;
-  top: -4px;
-  translate: -50% 0;
-  font: 500 8px/1 var(--sans);
-  letter-spacing: 0.2em;
-  color: var(--fg-3);
-}
-body.is-day .minimap {
-  background: radial-gradient(circle, rgba(238, 244, 248, 0.7), rgba(238, 244, 248, 0.3) 60%, transparent 72%);
-}
-body.is-day .map-ring {
-  stroke: rgba(14, 28, 46, 0.4);
-}
-body.is-day .map-view path {
-  fill: rgba(14, 28, 46, 0.14);
-}
-body.is-day .map-view circle {
-  fill: #0e1c2e;
-}
-body:not(.is-in) .minimap,
-body.is-intro .minimap,
-body.has-menu .minimap,
-body.has-panel .minimap {
-  opacity: 0;
-  visibility: hidden;
-}
-@media (max-width: 760px), (max-height: 640px) {
-  .minimap {
-    display: none;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

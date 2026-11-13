@@ -19,7 +19,7 @@ import { buildTrees, buildMist } from './nature';
 import { buildWater } from './water';
 import { buildDetails } from './details';
 import { buildStorm, buildBirds } from './sky';
-import { buildGuardian, ORB_LIFT, PHOENIX_LAYER } from './phoenix';
+import { buildGuardian, ORB_LIFT, PHOENIX_LAYER, TRICKS } from './phoenix';
 import { buildGuardians, GUARDIAN_AT, type GuardianId } from './guardians';
 
 export type World = {
@@ -40,6 +40,12 @@ export type World = {
   setElement: (el: string | null) => void;
   /** Cinematic sway: while a place is framed the camera drifts slowly round it (guided tour) */
   setDrift: (on: boolean) => void;
+  /**
+   * Tour: the phoenix flies to the focused beacon, flying a trick on the way, the camera chasing it
+   * through a few angles before settling on the orb. Call after focus(). Returns the flight's length
+   * in seconds, or 0 when it can't fly (no bird yet, reduced motion).
+   */
+  flyTo: (n: number) => number;
   /** Low drops smoke plumes, half the sparks and caps the pixel ratio at 1 */
   setQuality: (level: 'high' | 'low') => void;
   quality: () => 'high' | 'low';
@@ -615,6 +621,63 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
     if (t >= INTRO) endIntro();
   }
 
+  /* ───────── Tour flight: the camera rides along while the phoenix flies to the next beacon ─────────
+     chase    behind and above, the valley rushing up ahead of it
+     trick    swung out wide and low beside it, slowly orbiting so the trick reads in profile
+     reveal   out ahead, looking back as it bears down on the orb
+     settle   eased back into the rig, which has been gliding to the beacon's framing all along
+     The camera chases its shot target (rather than snapping to it), so every change of angle is a swoop. */
+  const FLY_DUR = 5.2;
+  // `warm`: began while another flight was still on screen, so there's no blend in from the rig
+  let fcam: { t: number; dur: number; pos: THREE.Vector3; look: THREE.Vector3; fh: THREE.Vector3; warm: boolean } | null = null;
+  const endFlight = () => {
+    if (!fcam) return;
+    fcam = null;
+    camera.fov = FOV;
+    camera.updateProjectionMatrix();
+  };
+  const fTmp = new THREE.Vector3();
+  const fSide = new THREE.Vector3();
+  const UP = new THREE.Vector3(0, 1, 0);
+  function flightCamera(dt: number) {
+    if (!fcam) return;
+    fcam.t += dt;
+    const u = Math.min(1, fcam.t / fcam.dur);
+    const P = guardian.birdPos();
+    const V = guardian.birdDir();
+    // A steady, level heading: the bird's own heading turns over in a loop, the camera mustn't
+    fTmp.set(V.x, 0, V.z);
+    if (fTmp.lengthSq() > 0.0025) fcam.fh.lerp(fTmp.normalize(), 1 - Math.exp(-dt * 2.5)).normalize();
+    const F = fcam.fh;
+    fSide.crossVectors(F, UP).normalize();
+    let fov = FOV;
+    if (u < 0.28) {
+      cPos.copy(P).addScaledVector(F, -12).addScaledVector(fSide, 2.5).addScaledVector(UP, 4);
+      cLook.copy(P).addScaledVector(F, 8);
+      fov = 44;
+    } else if (u < 0.68) {
+      const th = THREE.MathUtils.lerp(-0.5, 0.75, (u - 0.28) / 0.4);
+      cPos.copy(P).addScaledVector(fSide, Math.cos(th) * 17).addScaledVector(F, Math.sin(th) * 17).addScaledVector(UP, -1.5);
+      cLook.copy(P).addScaledVector(UP, 2);
+      fov = 34;
+    } else {
+      cPos.copy(P).addScaledVector(F, 15).addScaledVector(fSide, -7).addScaledVector(UP, 5);
+      cLook.copy(P);
+      fov = 38;
+    }
+    cPos.y = Math.max(cPos.y, heightAt(cPos.x, cPos.z) + 5);
+    fcam.pos.lerp(cPos, 1 - Math.exp(-dt * 4));
+    fcam.look.lerp(cLook, 1 - Math.exp(-dt * 6));
+    // In from the rig, and back out to it as it lands
+    const b = (fcam.warm ? 1 : smooth(0, 0.1, u)) * (1 - smooth(0.8, 1, u));
+    camera.position.lerp(fcam.pos, b);
+    camera.lookAt(rigLook.set(cur.x, cur.y, cur.z).lerp(fcam.look, b));
+    camera.fov = THREE.MathUtils.lerp(FOV, fov, b);
+    camera.updateProjectionMatrix();
+    camera.updateMatrixWorld();
+    if (u >= 1) endFlight();
+  }
+
   /* Frame */
   const v = new THREE.Vector3();
   let raf = 0;
@@ -719,6 +782,7 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
       else if (pendingIntro <= 0) pendingIntro = 0; // phoenix still loading: skip the intro
     }
     if (intro) introCamera(dt);
+    else if (fcam) flightCamera(dt);
     // Guardian name tags: shown while a beacon is open
     if (opts.guardianTags) {
       // Hide every tag, then show only the guardians that are out
@@ -825,6 +889,7 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
     },
     setDive,
     overview() {
+      endFlight();
       focusId = null;
       vel.x = vel.z = 0;
       guardian.focus(null);
@@ -833,6 +898,7 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
       home();
     },
     release() {
+      endFlight();
       focusId = null;
       guardian.focus(null);
       guardians.focus(null);
@@ -870,6 +936,20 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
     },
     setDrift(on) {
       drift = on;
+      // Leaving the tour mid-flight: hand the camera straight back to the rig
+      if (!on) endFlight();
+    },
+    flyTo(n) {
+      if (opts.reducedMotion || intro || !focusId || !guardian.hasBird()) return 0;
+      if (!guardian.fly(TRICKS[((n % TRICKS.length) + TRICKS.length) % TRICKS.length], FLY_DUR)) return 0;
+      const P = guardian.birdPos();
+      const fh = new THREE.Vector3(cur.x - P.x, 0, cur.z - P.z);
+      if (fh.lengthSq() < 1e-4) fh.set(0, 0, -1);
+      // Start from wherever the camera is (mid-flight included), so a skip never jumps
+      fcam = fcam
+        ? { ...fcam, t: 0, dur: FLY_DUR, warm: true }
+        : { t: 0, dur: FLY_DUR, pos: camera.position.clone(), look: new THREE.Vector3(cur.x, cur.y, cur.z), fh: fh.normalize(), warm: false };
+      return FLY_DUR;
     },
     setQuality(level) {
       applyQuality(level === 'low');

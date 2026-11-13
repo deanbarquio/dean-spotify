@@ -1,7 +1,6 @@
 ---
 import World from '../layouts/World.astro';
 import { PLACES, ELEMENT_NAME, ELEMENTS } from '../lib/world/places';
-import { RINGS, WALLS } from '../lib/world/terrain';
 import { projects, roles, milestones, milestoneHref, skillGroups, education } from '../data/portfolio';
 import { recommendations } from '../data/recommendations';
 
@@ -366,6 +365,12 @@ const elementCount =Object.fromEntries(ELEMENTS.map((e) => [e.id, PLACES.filter(
       <span class="tour-el" id="tour-el"></span>
     </header>
     <p class="tour-paused" aria-hidden="true"><span>❚❚</span> Paused</p>
+    <!-- While the phoenix flies to the next stop: a lower third naming where it's headed -->
+    <p class="tour-flight" aria-live="polite">
+      <span class="tour-flight-n" id="tour-flight-n">01 / 01</span>
+      <span class="tour-flight-label">En route to</span>
+      <b class="tour-flight-to" id="tour-flight-to"></b>
+    </p>
     <!-- Chapter number, huge and hollow, behind the credits -->
     <span class="tour-ghost" id="tour-ghost" aria-hidden="true">01</span>
 
@@ -422,38 +427,6 @@ const elementCount =Object.fromEntries(ELEMENTS.map((e) => [e.id, PLACES.filter(
     </div>
   </section>
   <script type="application/json" id="tour-data" set:html={tourJson}></script>
-
-  <!-- Minimap: the spiral from above; dots fly to their beacon, the marker is where the camera looks -->
-  <nav class="minimap" id="minimap" aria-label="Valley map">
-    <svg viewBox="-90 -90 180 180" aria-hidden="true">
-      <g id="map-rot">
-        {RINGS.map((r) => {
-          // Each ring drawn as arcs between its openings (half-gap = 7 / r radians, as in the terrain)
-          const half = 7 / r.r;
-          const gaps = r.gaps.map((g) => (g * Math.PI) / 180).sort((a, b) => a - b);
-          return gaps.map((g, k) => {
-            const a0 = g + half;
-            const a1 = (k + 1 < gaps.length ? gaps[k + 1] : gaps[0] + Math.PI * 2) - half;
-            const large = a1 - a0 > Math.PI ? 1 : 0;
-            const p = (a: number) => `${(r.r * Math.cos(a)).toFixed(2)} ${(r.r * Math.sin(a)).toFixed(2)}`;
-            return <path class="map-ring" d={`M${p(a0)} A${r.r} ${r.r} 0 ${large} 1 ${p(a1)}`} />;
-          });
-        })}
-        {WALLS.map((wl) => {
-          const a = (wl.a * Math.PI) / 180;
-          return <path class="map-ring" d={`M${(wl.r0 * Math.cos(a)).toFixed(2)} ${(wl.r0 * Math.sin(a)).toFixed(2)} L${(wl.r1 * Math.cos(a)).toFixed(2)} ${(wl.r1 * Math.sin(a)).toFixed(2)}`} />;
-        })}
-        <g class="map-view" id="map-view"><path d="M0 0 L-9 -22 A24 24 0 0 1 9 -22 Z" /><circle r="2.6" /></g>
-      </g>
-    </svg>
-    <div class="map-dots" id="map-dots">
-      {PLACES.map((p, i) => (
-        <button type="button" class="map-dot" data-beacon={p.id} data-x={p.x} data-z={p.z} data-el={p.element} style={`--paint:${p.paint}`} aria-label={`${num(i)} ${p.label}`}>
-          <i aria-hidden="true"></i>
-        </button>
-      ))}
-    </div>
-  </nav>
 
   <div class="gate" id="gate">
     <i class="fog" aria-hidden="true"></i>
