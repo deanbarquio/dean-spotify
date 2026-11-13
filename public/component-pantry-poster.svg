@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" font-family="Inter, Segoe UI, system-ui, sans-serif">
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="20%" r="95%">
+      <stop offset="0" stop-color="#2a1d78"/>
+      <stop offset="0.55" stop-color="#140d3d"/>
+      <stop offset="1" stop-color="#0a0720"/>
+    </radialGradient>
+    <linearGradient id="bar" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#5b3dff"/>
+      <stop offset="1" stop-color="#9d8bff"/>
+    </linearGradient>
+    <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7c63ff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#7c63ff" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#ffffff" fill-opacity="0.06"/>
+    </pattern>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <rect width="1600" height="1000" fill="url(#dots)"/>
+
+  <!-- Title -->
+  <text x="96" y="132" fill="#b9adff" font-size="20" letter-spacing="6" font-weight="600">IN-HOUSE ANGULAR UI LIBRARY</text>
+  <text x="92" y="214" fill="#ffffff" font-size="78" font-weight="700" letter-spacing="-1.5">Component Pantry</text>
+  <text x="96" y="262" fill="#cfc7ff" fill-opacity="0.75" font-size="24">50+ shared components · design tokens · Verdaccio registry</text>
+
+  <!-- Buttons card -->
+  <g transform="translate(96 320)">
+    <rect width="440" height="250" rx="18" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="28" y="44" fill="#b9adff" font-size="15" letter-spacing="3" font-weight="600">BUTTONS</text>
+    <rect x="28" y="70" width="170" height="52" rx="10" fill="#5b3dff"/>
+    <text x="113" y="103" fill="#fff" font-size="18" font-weight="600" text-anchor="middle">Primary</text>
+    <rect x="214" y="70" width="170" height="52" rx="10" fill="none" stroke="#9d8bff" stroke-width="2"/>
+    <text x="299" y="103" fill="#d9d2ff" font-size="18" font-weight="600" text-anchor="middle">Secondary</text>
+    <rect x="28" y="140" width="120" height="44" rx="22" fill="#10e09a" fill-opacity="0.16" stroke="#10e09a" stroke-opacity="0.6"/>
+    <text x="88" y="168" fill="#7ff2c6" font-size="15" font-weight="600" text-anchor="middle">Success</text>
+    <rect x="160" y="140" width="110" height="44" rx="22" fill="#ff5a4a" fill-opacity="0.16" stroke="#ff5a4a" stroke-opacity="0.6"/>
+    <text x="215" y="168" fill="#ffaaa1" font-size="15" font-weight="600" text-anchor="middle">Danger</text>
+    <rect x="282" y="140" width="102" height="44" rx="22" fill="#ffffff" fill-opacity="0.08"/>
+    <text x="333" y="168" fill="#ffffff" fill-opacity="0.5" font-size="15" font-weight="600" text-anchor="middle">Ghost</text>
+    <!-- toggle -->
+    <rect x="28" y="204" width="64" height="30" rx="15" fill="#5b3dff"/>
+    <circle cx="77" cy="219" r="11" fill="#fff"/>
+    <rect x="108" y="204" width="64" height="30" rx="15" fill="#ffffff" fill-opacity="0.14"/>
+    <circle cx="123" cy="219" r="11" fill="#fff" fill-opacity="0.8"/>
+    <rect x="190" y="205" width="28" height="28" rx="6" fill="#5b3dff"/>
+    <path d="M197 219l5 5 10-11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="230" y="205" width="28" height="28" rx="6" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/>
+  </g>
+
+  <!-- Form card -->
+  <g transform="translate(96 600)">
+    <rect width="440" height="300" rx="18" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="28" y="44" fill="#b9adff" font-size="15" letter-spacing="3" font-weight="600">FORM CONTROLS</text>
+    <text x="28" y="84" fill="#ffffff" fill-opacity="0.7" font-size="15">Email</text>
+    <rect x="28" y="96" width="384" height="52" rx="10" fill="#0a0720" fill-opacity="0.55" stroke="#9d8bff" stroke-width="2"/>
+    <text x="48" y="129" fill="#ffffff" font-size="17">you@company.com</text>
+    <rect x="216" y="112" width="2" height="22" fill="#9d8bff"/>
+    <text x="28" y="182" fill="#ffffff" fill-opacity="0.7" font-size="15">Region</text>
+    <rect x="28" y="194" width="384" height="52" rx="10" fill="#0a0720" fill-opacity="0.55" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="48" y="227" fill="#ffffff" fill-opacity="0.85" font-size="17">Asia Pacific</text>
+    <path d="M384 216l-8 8-8-8" fill="none" stroke="#cfc7ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="28" y="262" width="230" height="6" rx="3" fill="#ffffff" fill-opacity="0.12"/>
+    <rect x="28" y="262" width="150" height="6" rx="3" fill="#5b3dff"/>
+    <circle cx="178" cy="265" r="11" fill="#fff" stroke="#5b3dff" stroke-width="3"/>
+  </g>
+
+  <!-- Chart card -->
+  <g transform="translate(572 320)">
+    <rect width="500" height="330" rx="18" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="28" y="44" fill="#b9adff" font-size="15" letter-spacing="3" font-weight="600">CHARTS</text>
+    <text x="472" y="44" fill="#7ff2c6" font-size="15" font-weight="600" text-anchor="end">▲ 40% faster builds</text>
+    <g stroke="#ffffff" stroke-opacity="0.08">
+      <line x1="28" y1="110" x2="472" y2="110"/>
+      <line x1="28" y1="170" x2="472" y2="170"/>
+      <line x1="28" y1="230" x2="472" y2="230"/>
+      <line x1="28" y1="290" x2="472" y2="290"/>
+    </g>
+    <path d="M28 250 C90 230 120 200 170 205 S260 150 310 160 S400 100 472 86 L472 290 L28 290 Z" fill="url(#area)"/>
+    <path d="M28 250 C90 230 120 200 170 205 S260 150 310 160 S400 100 472 86" fill="none" stroke="#9d8bff" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="310" cy="160" r="8" fill="#fff" stroke="#5b3dff" stroke-width="4"/>
+    <rect x="262" y="104" width="96" height="36" rx="8" fill="#ffffff"/>
+    <text x="310" y="128" fill="#140d3d" font-size="16" font-weight="700" text-anchor="middle">1,284</text>
+  </g>
+
+  <!-- Bars card -->
+  <g transform="translate(572 680)">
+    <rect width="500" height="220" rx="18" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="28" y="44" fill="#b9adff" font-size="15" letter-spacing="3" font-weight="600">KPI TILES</text>
+    <g fill="url(#bar)">
+      <rect x="40" y="120" width="36" height="72" rx="6"/>
+      <rect x="96" y="96" width="36" height="96" rx="6"/>
+      <rect x="152" y="140" width="36" height="52" rx="6"/>
+      <rect x="208" y="78" width="36" height="114" rx="6"/>
+      <rect x="264" y="104" width="36" height="88" rx="6"/>
+    </g>
+    <text x="340" y="112" fill="#ffffff" font-size="44" font-weight="700">50+</text>
+    <text x="342" y="146" fill="#cfc7ff" fill-opacity="0.75" font-size="16">components</text>
+    <text x="342" y="176" fill="#cfc7ff" fill-opacity="0.75" font-size="16">shared by teams</text>
+  </g>
+
+  <!-- Table card -->
+  <g transform="translate(1108 320)">
+    <rect width="396" height="380" rx="18" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="28" y="44" fill="#b9adff" font-size="15" letter-spacing="3" font-weight="600">DATA TABLE</text>
+    <rect x="20" y="66" width="356" height="44" rx="8" fill="#ffffff" fill-opacity="0.08"/>
+    <text x="40" y="94" fill="#ffffff" fill-opacity="0.6" font-size="14" font-weight="600" letter-spacing="1.5">NAME</text>
+    <text x="230" y="94" fill="#ffffff" fill-opacity="0.6" font-size="14" font-weight="600" letter-spacing="1.5">STATUS</text>
+    <g font-size="16" fill="#ffffff">
+      <text x="40" y="150">mat-chart</text>
+      <text x="40" y="206">np-table</text>
+      <text x="40" y="262">np-datepicker</text>
+      <text x="40" y="318">np-tokens</text>
+    </g>
+    <g stroke="#ffffff" stroke-opacity="0.08">
+      <line x1="20" y1="170" x2="376" y2="170"/>
+      <line x1="20" y1="226" x2="376" y2="226"/>
+      <line x1="20" y1="282" x2="376" y2="282"/>
+    </g>
+    <g font-size="13" font-weight="600" text-anchor="middle">
+      <rect x="228" y="130" width="92" height="28" rx="14" fill="#10e09a" fill-opacity="0.18"/><text x="274" y="149" fill="#7ff2c6">Stable</text>
+      <rect x="228" y="186" width="92" height="28" rx="14" fill="#10e09a" fill-opacity="0.18"/><text x="274" y="205" fill="#7ff2c6">Stable</text>
+      <rect x="228" y="242" width="92" height="28" rx="14" fill="#ffb800" fill-opacity="0.18"/><text x="274" y="261" fill="#ffd66b">Beta</text>
+      <rect x="228" y="298" width="92" height="28" rx="14" fill="#10e09a" fill-opacity="0.18"/><text x="274" y="317" fill="#7ff2c6">Stable</text>
+    </g>
+  </g>
+
+  <!-- Tokens card -->
+  <g transform="translate(1108 730)">
+    <rect width="396" height="170" rx="18" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="28" y="44" fill="#b9adff" font-size="15" letter-spacing="3" font-weight="600">DESIGN TOKENS</text>
+    <rect x="28" y="70" width="56" height="56" rx="12" fill="#5b3dff"/>
+    <rect x="96" y="70" width="56" height="56" rx="12" fill="#9d8bff"/>
+    <rect x="164" y="70" width="56" height="56" rx="12" fill="#10e09a"/>
+    <rect x="232" y="70" width="56" height="56" rx="12" fill="#ffb800"/>
+    <rect x="300" y="70" width="56" height="56" rx="12" fill="#ff5a4a"/>
+    <text x="28" y="152" fill="#ffffff" fill-opacity="0.55" font-size="13" font-family="ui-monospace, Consolas, monospace">--np-primary  --np-accent  --np-success</text>
+  </g>
+</svg>

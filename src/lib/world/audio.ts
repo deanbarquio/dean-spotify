@@ -9,6 +9,8 @@ export type Sound = {
   blip: (kind: 'hover' | 'open' | 'close') => void;
   thunder: (strength: number) => void;
   screech: () => void;
+  /** A short voice for an element: crackle, trickle, rumble or gust */
+  element: (el: string) => void;
 };
 
 const hz = (midi: number) => 440 * 2 ** ((midi - 69) / 12);
@@ -205,6 +207,65 @@ export function createSound(): Sound {
       ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
       n.connect(hp).connect(ng).connect(fx);
       [o, vib, n].forEach((s) => (s.start(t), s.stop(t + 0.9)));
+    },
+    element(el) {
+      if (!on || !ctx) return;
+      const c = ctx;
+      const t = c.currentTime;
+      /** Noise through a filter with a gain envelope */
+      const hiss = (type: BiquadFilterType, freq: number, q: number, at: number, peak: number, attack: number, dur: number, rate = 1) => {
+        const src = c.createBufferSource();
+        src.buffer = noiseBuf;
+        src.loop = true;
+        src.playbackRate.value = rate;
+        const f = c.createBiquadFilter();
+        f.type = type;
+        f.frequency.value = freq;
+        f.Q.value = q;
+        const g = c.createGain();
+        g.gain.setValueAtTime(0, at);
+        g.gain.linearRampToValueAtTime(peak, at + attack);
+        g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+        src.connect(f).connect(g).connect(master);
+        src.start(at, Math.random());
+        src.stop(at + dur + 0.05);
+        return f;
+      };
+      if (el === 'fire') {
+        // Crackle: a soft roar under a scatter of tiny high pops
+        hiss('lowpass', 500, 0.5, t, 0.06, 0.15, 1.2);
+        for (let i = 0; i < 14; i++) hiss('highpass', 2400 + Math.random() * 3000, 1, t + Math.random() * 1, 0.05 + Math.random() * 0.07, 0.002, 0.03 + Math.random() * 0.05);
+      } else if (el === 'water') {
+        // Trickle: a narrow band of running noise and a few rising bubbles
+        const f = hiss('bandpass', 1300, 2.5, t, 0.05, 0.2, 1.3);
+        f.frequency.setValueAtTime(900, t);
+        f.frequency.linearRampToValueAtTime(1700, t + 1.2);
+        for (let i = 0; i < 5; i++) {
+          const at = t + 0.1 + Math.random() * 0.9;
+          const o = c.createOscillator();
+          const g = c.createGain();
+          o.type = 'sine';
+          const base = 380 + Math.random() * 500;
+          o.frequency.setValueAtTime(base, at);
+          o.frequency.exponentialRampToValueAtTime(base * 2.2, at + 0.08);
+          g.gain.setValueAtTime(0, at);
+          g.gain.linearRampToValueAtTime(0.045, at + 0.01);
+          g.gain.exponentialRampToValueAtTime(0.0001, at + 0.12);
+          o.connect(g).connect(fx);
+          o.start(at);
+          o.stop(at + 0.15);
+        }
+      } else if (el === 'earth') {
+        // Rumble: deep, slow noise and a felt thump
+        hiss('lowpass', 140, 0.7, t, 0.22, 0.2, 1.6, 0.5);
+        tone(52, t, 0.9, 0.12, 'sine');
+      } else {
+        // Gust: a band of noise sweeping up and back down
+        const f = hiss('bandpass', 400, 1.2, t, 0.08, 0.35, 1.4);
+        f.frequency.setValueAtTime(350, t);
+        f.frequency.exponentialRampToValueAtTime(1800, t + 0.55);
+        f.frequency.exponentialRampToValueAtTime(500, t + 1.3);
+      }
     },
     blip(kind) {
       if (!on || !ctx) return;

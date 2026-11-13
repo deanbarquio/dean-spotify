@@ -1,6 +1,7 @@
 ---
 import World from '../layouts/World.astro';
-import { PLACES } from '../lib/world/places';
+import { PLACES, ELEMENT_NAME, ELEMENTS } from '../lib/world/places';
+import { RINGS, WALLS } from '../lib/world/terrain';
 import { projects, roles, milestones, milestoneHref, skillGroups, education } from '../data/portfolio';
 import { recommendations } from '../data/recommendations';
 
@@ -16,17 +17,53 @@ const rows = PLACES.map((pl) => {
   const p = byId.get(pl.id);
   if (p) {
     const gallery = p.gallery ?? (p.image ? [p.image] : []);
-    return { id: pl.id, title: p.title, year: p.year, kind: p.kind, image: p.image, paint: p.paint, summary: p.summary, stack: p.stack, url: p.url, study: true, gallery };
+    return { id: pl.id, title: p.title, year: p.year, kind: p.kind, image: p.image, paint: p.paint, summary: p.summary, stack: p.stack, url: p.url, study: true, gallery, featured: !!p.featured };
   }
   // The only non-project place is home (about)
   return {
     id: pl.id, title: 'Studio', year: '2021 — Now', kind: 'About Dean', image: '/me/portrait.webp', paint: pl.paint,
     summary: 'Interfaces where motion carries meaning: complex systems turned into products that feel calm, fast and alive.',
-    stack: skillGroups.slice(0, 2).flatMap((g) => g.items.slice(0, 3)), url: undefined, study: false, gallery: [] as string[],
+    stack: skillGroups.slice(0, 2).flatMap((g) => g.items.slice(0, 3)), url: undefined, study: false, gallery: [] as string[], featured: false,
   };
 });
 const ENTER: Record<string, string> = { about: 'Visit the studio' };
 const EMAIL = 'deanbarquio@gmail.com';
+const projectCount = PLACES.filter((p) => p.id !== 'about').length;
+const since = Math.floor(milestones[0].at);
+/** Index keeps each place's beacon number, whatever group it lands in */
+const indexed = PLACES.map((p, i) => ({ p, i }));
+/** Tour: featured first, then newest to oldest; Home closes the reel */
+const tourStops = [
+  ...PLACES.filter((p) => p.id !== 'about').sort((a, b) => Number(!!b.featured) - Number(!!a.featured) || (byId.get(b.id)?.at ?? 0) - (byId.get(a.id)?.at ?? 0)),
+  PLACES.find((p) => p.id === 'about')!,
+].map((p) => {
+  const pr = byId.get(p.id);
+  const meta = ELEMENTS.find((e) => e.id === p.element);
+  return {
+    id: p.id,
+    n: num(PLACES.indexOf(p)),
+    title: pr?.title ?? 'Studio',
+    kind: pr?.kind ?? 'About Dean',
+    year: pr?.year ?? '2021 — Now',
+    summary: pr?.summary ?? 'Interfaces where motion carries meaning: complex systems turned into products that feel calm, fast and alive.',
+    stack: (pr?.stack ?? skillGroups.slice(0, 2).flatMap((g) => g.items.slice(0, 3))).slice(0, 5),
+    image: pr?.image ?? '/me/portrait.webp',
+    // Live site loads in the tour's browser window; without one, its screens cross-fade there
+    url: pr?.url ?? null,
+    shots: pr ? (pr.gallery ?? (pr.image ? [pr.image] : [])) : ['/me/portrait.webp', '/me/grad-1.webp', '/me/grad-2.webp'],
+    features: (pr?.features ?? [...roles.filter((r) => r.current).map((r) => `${r.role} · ${r.company}`), `${education.honors[0]} · ${education.degree}`]).slice(0, 3),
+    highlights: pr?.highlights ?? [],
+    glyph: meta?.glyph ?? 'M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4',
+    element: p.element,
+    elementName: ELEMENT_NAME[p.element],
+    color: meta?.color ?? p.paint,
+    paint: p.paint,
+    featured: !!p.featured,
+  };
+});
+// Inline JSON: escape `<` so nothing in the data can close the script tag
+const tourJson = JSON.stringify(tourStops).replace(/</g, '\\u003c');
+const elementCount =Object.fromEntries(ELEMENTS.map((e) => [e.id, PLACES.filter((p) => p.element === e.id).length])) as Record<string, number>;
 ---
 
 <World>
@@ -40,7 +77,7 @@ const EMAIL = 'deanbarquio@gmail.com';
         <span class="marker-label" aria-hidden="true">
           <span class="marker-num">{num(i)}</span>
           <span class="marker-name">{p.label}</span>
-          <span class="marker-sub">{p.sub}</span>
+          <span class="marker-sub">{p.sub} · {ELEMENT_NAME[p.element]}</span>
         </span>
       </button>
     ))}
@@ -86,7 +123,67 @@ const EMAIL = 'deanbarquio@gmail.com';
     </div>
   </header>
 
-  <h1 class="headline">Building<br />interfaces<br />that move</h1>
+  <!-- Overview hero: who, what, where to start; the index lights its beacon in the valley on hover -->
+  <section class="headline" aria-labelledby="headline-title">
+    <p class="eyebrow hero-eyebrow">
+      <span>Cebu, PH</span><i aria-hidden="true"></i><span>{projectCount} projects</span><i aria-hidden="true"></i><span>{since} — Now</span>
+    </p>
+    <h1 class="headline-title" id="headline-title">
+      Building<br />interfaces<br />that <span class="hero-word-box"><span class="hero-word-sizer" aria-hidden="true">{ELEMENTS.map((e) => <span>{e.word}</span>)}</span><span class="hero-word" id="hero-word" data-el="air">move</span></span><span class="sr">, flow, endure and ignite</span>
+    </h1>
+    <p class="hero-sub">Frontend engineer turning complex systems into products that feel calm, fast and alive.</p>
+    <!-- Element legend: each lights its beacons in the valley and lends the headline its word -->
+    <div class="hero-elements" role="group" aria-label="Projects by element">
+      {ELEMENTS.map((e) => (
+        <button type="button" class="hero-el" data-element={e.id} style={`--el:${e.color}`} aria-label={`${ELEMENT_NAME[e.id]}: ${elementCount[e.id]} projects`}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d={e.glyph} /></svg>
+          <span class="hero-el-name">{ELEMENT_NAME[e.id]}</span>
+          <span class="hero-el-n" aria-hidden="true">{String(elementCount[e.id]).padStart(2, '0')}</span>
+        </button>
+      ))}
+    </div>
+    <div class="hero-actions">
+      <button type="button" class="action action--primary" id="hero-explore">Explore the valley <span aria-hidden="true">→</span></button>
+      <button type="button" class="hero-link hero-tour" id="hero-tour"><span class="hero-tour-dot" aria-hidden="true"></span>Take the tour</button>
+    </div>
+    <nav class="hero-index" aria-label="Beacons in the valley">
+      <p class="hero-index-head">
+        <span aria-hidden="true">Featured</span>
+        <span class="hero-lit" id="hero-lit" aria-live="polite">Beacons lit <b id="hero-lit-n">00</b> / {num(PLACES.length - 1)}</span>
+      </p>
+      <ul class="hero-featured">
+        {indexed.filter(({ p }) => p.featured).map(({ p, i }) => {
+          const img = byId.get(p.id)?.image;
+          const meta = ELEMENTS.find((e) => e.id === p.element);
+          return (
+            <li>
+              <button type="button" class="quest" data-beacon={p.id} data-el={p.element} style={`--paint:${p.paint};--el:${meta?.color ?? p.paint}`}>
+                <span class="quest-num" aria-hidden="true">{num(i)}</span>
+                <span class="quest-name">{p.label}</span>
+                <span class="quest-kind">{p.sub}</span>
+                {meta && <svg class="quest-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d={meta.glyph} /></svg>}
+                <!-- Preview surfaces beside the row on hover only -->
+                <span class="quest-peek" aria-hidden="true">
+                  {img ? <img src={img} alt="" loading="lazy" decoding="async" /> : <span class="quest-poster">{p.label}</span>}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <button type="button" class="hero-link hero-all" id="hero-projects" aria-controls="drawer">All {projectCount} projects <span aria-hidden="true">↗</span></button>
+      <p class="hero-index-head" aria-hidden="true">In the valley</p>
+      <ul>
+        {indexed.filter(({ p }) => !p.featured).map(({ p, i }) => (
+          <li>
+            <button type="button" data-beacon={p.id} style={`--paint:${p.paint}`}>
+              <i aria-hidden="true"></i><span class="hero-index-num" aria-hidden="true">{num(i)}</span>{p.label}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </section>
 
   <!-- Referral reviews on the overview; steps aside whenever a place, the menu or a project is open -->
   <section class="reviews" id="reviews" aria-label="Referral reviews" aria-roledescription="carousel">
@@ -173,7 +270,7 @@ const EMAIL = 'deanbarquio@gmail.com';
             aria-expanded="false"
             aria-controls={`fold-${r.id}`}
           >
-            <span class="menu-title"><span class="menu-num" aria-hidden="true">{num(i)}</span>{r.title}</span>
+            <span class="menu-title"><span class="menu-num" aria-hidden="true">{num(i)}</span>{r.title}{r.featured && <span class="menu-feat">Featured</span>}</span>
             <span class="menu-year">{r.year}</span>
             <span class="menu-kind">{r.kind}</span>
             <span class="menu-go"><span class="menu-plus" aria-hidden="true"></span><span class="menu-go-label">Details</span></span>
@@ -257,14 +354,132 @@ const EMAIL = 'deanbarquio@gmail.com';
     </div>
   </article>
 
-  <div class="gate" id="gate">
-    <div class="gate-inner">
-      <p class="eyebrow">Dean Barquio · Frontend &amp; creative engineer</p>
-      <p class="gate-title">A valley of things<br />I've built</p>
-      <div class="gate-load" aria-hidden="true">
-        <span class="gate-track"><i id="gate-bar"></i></span>
-        <span id="gate-pct">Shaping the valley…</span>
+  <!-- Loading gate: a title card before reel one; its letterbox hands over to the phoenix intro -->
+  <!-- Guided tour: letterboxed, the camera sways round each beacon while its film still and credits roll -->
+  <section class="tour" id="tour" aria-label="Guided tour of projects" aria-roledescription="slideshow" hidden>
+    <header class="tour-head">
+      <span class="tour-reel">Tour · <b id="tour-n">01</b> / {num(tourStops.length - 1)}</span>
+      <span class="tour-hint" aria-hidden="true">
+        <span class="hint-desk">Scroll or ← → to move · Click to pause · Esc to exit</span>
+        <span class="hint-touch">Swipe to move · Tap to pause</span>
+      </span>
+      <span class="tour-el" id="tour-el"></span>
+    </header>
+    <p class="tour-paused" aria-hidden="true"><span>❚❚</span> Paused</p>
+    <!-- Chapter number, huge and hollow, behind the credits -->
+    <span class="tour-ghost" id="tour-ghost" aria-hidden="true">01</span>
+
+    <!-- The project itself: its live site in a browser window (or its screens, cross-fading) -->
+    <figure class="tour-stage" id="tour-stage">
+      <span class="tour-glow" aria-hidden="true"></span>
+      <div class="tour-window">
+        <div class="tour-bar">
+          <span class="tour-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="tour-url" id="tour-url"></span>
+          <span class="tour-live" id="tour-live"><i aria-hidden="true"></i><span id="tour-live-label">Live</span></span>
+        </div>
+        <div class="tour-screen" id="tour-screen">
+          <img class="tour-shot" id="tour-img" alt="" decoding="async" />
+          <img class="tour-shot tour-shot--b" id="tour-img-b" alt="" decoding="async" />
+          <iframe id="tour-frame" title="Live project" tabindex="-1" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms"></iframe>
+          <span class="tour-loading" id="tour-loading" aria-hidden="true"><i></i>Connecting to the live site</span>
+          <button type="button" class="tour-interact" id="tour-interact">Try it live <span aria-hidden="true">↗</span></button>
+          <button type="button" class="tour-back" id="tour-back">← Back to the tour</button>
+        </div>
       </div>
+      <figcaption class="tour-tc" id="tour-tc"></figcaption>
+    </figure>
+
+    <div class="tour-card" aria-live="polite">
+      <p class="tour-kind">
+        <svg class="tour-glyph" viewBox="0 0 24 24" aria-hidden="true"><path id="tour-glyph" d="" /></svg>
+        <span id="tour-kind"></span>
+      </p>
+      <h2 class="tour-title"><span id="tour-title"></span></h2>
+      <dl class="tour-meta">
+        <div><dt>Year</dt><dd id="tour-year"></dd></div>
+        <div><dt>Type</dt><dd id="tour-type"></dd></div>
+        <div><dt>Element</dt><dd id="tour-elname"></dd></div>
+      </dl>
+      <p class="tour-sum" id="tour-sum"></p>
+      <ol class="tour-feats" id="tour-feats" aria-label="Highlights"></ol>
+      <ul class="tour-stack" id="tour-stack" aria-label="Stack"></ul>
+    </div>
+
+    <div class="tour-controls">
+      <button type="button" class="tour-btn" id="tour-prev" aria-label="Previous project">←</button>
+      <button type="button" class="tour-btn" id="tour-pause" aria-pressed="false">Pause</button>
+      <button type="button" class="tour-btn" id="tour-next" aria-label="Next project">→</button>
+      <p class="tour-upnext" id="tour-upnext"></p>
+      <button type="button" class="tour-btn tour-btn--view" id="tour-view">Open project</button>
+      <button type="button" class="tour-btn" id="tour-exit">End tour <span aria-hidden="true">✕</span></button>
+    </div>
+    <!-- Chapters: one segment per stop; the current one fills, any one can be jumped to -->
+    <div class="tour-progress" id="tour-progress" role="group" aria-label="Tour chapters">
+      {tourStops.map((s) => (
+        <button type="button" class="tour-seg" aria-label={`Go to ${s.title}`}><i></i></button>
+      ))}
+    </div>
+  </section>
+  <script type="application/json" id="tour-data" set:html={tourJson}></script>
+
+  <!-- Minimap: the spiral from above; dots fly to their beacon, the marker is where the camera looks -->
+  <nav class="minimap" id="minimap" aria-label="Valley map">
+    <svg viewBox="-90 -90 180 180" aria-hidden="true">
+      <g id="map-rot">
+        {RINGS.map((r) => {
+          // Each ring drawn as arcs between its openings (half-gap = 7 / r radians, as in the terrain)
+          const half = 7 / r.r;
+          const gaps = r.gaps.map((g) => (g * Math.PI) / 180).sort((a, b) => a - b);
+          return gaps.map((g, k) => {
+            const a0 = g + half;
+            const a1 = (k + 1 < gaps.length ? gaps[k + 1] : gaps[0] + Math.PI * 2) - half;
+            const large = a1 - a0 > Math.PI ? 1 : 0;
+            const p = (a: number) => `${(r.r * Math.cos(a)).toFixed(2)} ${(r.r * Math.sin(a)).toFixed(2)}`;
+            return <path class="map-ring" d={`M${p(a0)} A${r.r} ${r.r} 0 ${large} 1 ${p(a1)}`} />;
+          });
+        })}
+        {WALLS.map((wl) => {
+          const a = (wl.a * Math.PI) / 180;
+          return <path class="map-ring" d={`M${(wl.r0 * Math.cos(a)).toFixed(2)} ${(wl.r0 * Math.sin(a)).toFixed(2)} L${(wl.r1 * Math.cos(a)).toFixed(2)} ${(wl.r1 * Math.sin(a)).toFixed(2)}`} />;
+        })}
+        <g class="map-view" id="map-view"><path d="M0 0 L-9 -22 A24 24 0 0 1 9 -22 Z" /><circle r="2.6" /></g>
+      </g>
+    </svg>
+    <div class="map-dots" id="map-dots">
+      {PLACES.map((p, i) => (
+        <button type="button" class="map-dot" data-beacon={p.id} data-x={p.x} data-z={p.z} data-el={p.element} style={`--paint:${p.paint}`} aria-label={`${num(i)} ${p.label}`}>
+          <i aria-hidden="true"></i>
+        </button>
+      ))}
+    </div>
+  </nav>
+
+  <div class="gate" id="gate">
+    <i class="fog" aria-hidden="true"></i>
+    <i class="fog fog--b" aria-hidden="true"></i>
+    <div class="gate-bars" aria-hidden="true">
+      <i><span>Reel 00 · Overworld</span><span>Cebu, PH · After dark</span></i>
+      <i><span id="gate-pct">Shaping the valley…</span><span class="gate-num"><b id="gate-num">00</b> / 100</span></i>
+    </div>
+    <div class="gate-inner">
+      <svg class="gate-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <path pathLength="1" d="M20 4a16 16 0 1 1-15.2 11" />
+        <path pathLength="1" d="M20 10a10 10 0 1 1-9.5 7" />
+        <path pathLength="1" d="M20 16a4 4 0 1 1-3.8 2.8" />
+        <path pathLength="1" d="M8 34 20 12l12 22" />
+      </svg>
+      <p class="eyebrow gate-eyebrow">Dean Barquio · Frontend &amp; creative engineer</p>
+      <p class="gate-title">
+        <span class="gate-line"><span>A valley of things</span></span>
+        <span class="gate-line"><span>I've built</span></span>
+      </p>
+      <!-- The skyline draws itself as the island builds; the beacon on the peak lights when it's ready -->
+      <svg class="gate-ridge" id="gate-ridge" viewBox="0 0 600 64" fill="none" aria-hidden="true">
+        <path class="gate-ridge-base" d="M0 56 60 49l50 4 58-22 36 10 46-27 40 21 42-9 48 18 50-8 48 12 60-6 62 8" />
+        <path class="gate-ridge-draw" id="gate-bar" pathLength="1" d="M0 56 60 49l50 4 58-22 36 10 46-27 40 21 42-9 48 18 50-8 48 12 60-6 62 8" />
+        <circle class="gate-beacon" cx="250" cy="14" r="3" />
+      </svg>
     </div>
   </div>
 

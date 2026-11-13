@@ -1,3 +1,5 @@
+export type Element = 'fire' | 'water' | 'earth' | 'air';
+
 export type Project = {
   id: string;
   title: string;
@@ -15,11 +17,18 @@ export type Project = {
   /** Key features, shown as a list in the beacon's project view */
   features: string[];
   stack: string[];
+  /** Element the beacon embodies in the valley: shape, plume and particles */
+  element: Element;
+  /** Pinned first in the hero index, taller beacon in the valley */
+  featured?: boolean;
+  /** Headline numbers for the case study */
+  highlights?: { value: string; label: string }[];
 };
 
 export const projects: Project[] = [
   {
     id: 'fenghuang',
+    element: 'fire',
     title: 'Fenghuang',
     kind: 'Live SPA',
     year: '2026',
@@ -39,10 +48,12 @@ export const projects: Project[] = [
   },
   {
     id: 'class-record',
+    element: 'earth',
     title: 'Class Record',
     kind: 'Web App',
     year: '2026',
     at: 2026.7,
+    image: '/class-record-thumbnail.png',
     url: 'https://class-record-five.vercel.app/',
     paint: '#10e09a',
     summary: 'A class record for teachers: rosters, attendance and grades in one place.',
@@ -60,6 +71,7 @@ export const projects: Project[] = [
   },
   {
     id: 'fire-and-blood',
+    element: 'fire',
     title: 'Fire & Blood',
     kind: 'Live SPA',
     year: '2026',
@@ -78,10 +90,12 @@ export const projects: Project[] = [
   },
   {
     id: 'iron-spider',
+    element: 'fire',
     title: 'Iron Spider vs Hulk',
     kind: 'Live SPA',
     year: '2026',
     at: 2026.75,
+    image: '/iron-spider-thumbnail.png',
     url: 'https://spiderman-hulk.vercel.app',
     paint: '#e8192c',
     summary: 'A 3D Iron Spider showcase that ends in a playable fight against the Hulk.',
@@ -95,13 +109,20 @@ export const projects: Project[] = [
       'GLB models compressed with gltf-transform and WebP textures',
     ],
     stack: ['Astro', 'Three.js', 'GSAP', 'TypeScript', 'glTF-Transform', 'Vercel'],
+    highlights: [
+      { value: '111 → 12.8 MB', label: 'Hulk model, optimised for the web' },
+      { value: '200+', label: 'Animation clips across both models' },
+      { value: '50 s', label: 'Scripted cinematic' },
+    ],
   },
   {
     id: 'vault-budget',
+    element: 'air',
     title: 'Vault Budget',
     kind: 'PWA',
     year: '2026',
     at: 2026.8,
+    image: '/vault-budget-thumbnail.png',
     url: 'https://vault-budget-two.vercel.app/',
     paint: '#8b5cf6',
     summary: 'Local-first budgeting, wallet and net-worth app with household sync.',
@@ -120,11 +141,14 @@ export const projects: Project[] = [
   },
   {
     id: 'psits-finance',
+    element: 'water',
     title: 'PSITS Finance',
     kind: 'Web App',
     year: '2026',
     at: 2026.85,
+    image: '/psits-finance-thumbnail.png',
     url: 'https://psits-finance.vercel.app/',
+    featured: true,
     paint: '#2fd4ff',
     summary: 'Finance ledger for a student org: fees, payments, expenses and statements.',
     detail: 'Built for PSITS officers. It tracks fee collections per semester and payments per student, produces daily collection reports, and keeps a running cash book. Each semester ends in a printable financial statement. Every report exports to Excel, and Postgres row-level security keeps the data officer-only.',
@@ -142,6 +166,7 @@ export const projects: Project[] = [
   },
   {
     id: 'constrack',
+    element: 'earth',
     title: 'Constrack',
     kind: 'Full-Stack App',
     year: '2025',
@@ -149,6 +174,7 @@ export const projects: Project[] = [
     image: '/constrack-web.png',
     gallery: ['/constrack-web.png', '/constrack-mobile.png'],
     url: 'https://constrack-web-ui.vercel.app/',
+    featured: true,
     paint: '#f6a800',
     summary: 'Cross-platform project management for construction tracking.',
     detail: 'React frontend with a NestJS API. Real-time updates, AI-assisted task generation, milestone tracking, manpower costing and Firebase on Google Cloud.',
@@ -163,6 +189,7 @@ export const projects: Project[] = [
   },
   {
     id: 'control-panel',
+    element: 'water',
     title: 'Control Panel',
     kind: 'Internal Tool',
     year: '2025',
@@ -182,10 +209,13 @@ export const projects: Project[] = [
   },
   {
     id: 'component-pantry',
+    element: 'air',
     title: 'Component Pantry',
     kind: 'UI Library',
     year: '2025',
     at: 2025.6,
+    // Illustrated poster (the library is internal, so no public screenshot)
+    image: '/component-pantry-poster.svg',
     paint: '#5b3dff',
     summary: 'In-house Angular component library shared across teams.',
     detail: '50+ Angular components (charts, form controls, data tables, design tokens) published to an internal Verdaccio registry. Cut frontend dev time by roughly 40%.',
@@ -196,9 +226,14 @@ export const projects: Project[] = [
       'Cut frontend dev time by roughly 40%',
     ],
     stack: ['Angular', 'Verdaccio', 'TailwindCSS', 'ApexCharts'],
+    highlights: [
+      { value: '50+', label: 'Shared Angular components' },
+      { value: '~40%', label: 'Less frontend dev time' },
+    ],
   },
   {
     id: 'psits',
+    element: 'water',
     title: 'PSITS Portal',
     kind: 'Web Portal',
     year: '2024',
@@ -218,6 +253,7 @@ export const projects: Project[] = [
   },
   {
     id: 'hikemate',
+    element: 'earth',
     title: 'Hikemate',
     kind: 'Mobile App',
     year: '2024',
@@ -237,6 +273,7 @@ export const projects: Project[] = [
   },
   {
     id: 'buildit',
+    element: 'earth',
     title: 'BuildIT',
     kind: 'Mobile App',
     year: '2024',
@@ -256,6 +293,7 @@ export const projects: Project[] = [
   },
   {
     id: 'meeting-room',
+    element: 'air',
     title: 'Room Booker',
     kind: 'Scheduler',
     year: '2024',
@@ -275,21 +313,31 @@ export const projects: Project[] = [
     stack: ['React', 'Express', 'SQLite', 'TailwindCSS'],
   },
   {
-    id: 'ntv-dashboard',
-    title: 'NTV Dashboard',
-    kind: 'HR System',
-    year: '2025',
-    at: 2025.8,
-    paint: '#10e09a',
-    summary: 'HR tracking for inventory and manpower with live updates.',
-    detail: 'NestJS backend, Next.js frontend and Prisma ORM. Employee records, inventory movements and automated reports.',
-    features: [
-      'Employee records',
-      'Inventory movement tracking',
-      'Live updates',
-      'Automated reports',
+    id: 'character-showcase',
+    element: 'fire',
+    title: 'Sovereigns',
+    kind: 'Character Showcase',
+    year: '2026',
+    at: 2026.85,
+    image: '/sovereign-thumbnail.png',
+    url: 'https://character-showcase.vercel.app/',
+    featured: true,
+    highlights: [
+      { value: '6', label: 'Rigged characters' },
+      { value: '4', label: 'Lighting presets' },
+      { value: '3', label: 'View modes' },
     ],
-    stack: ['NestJS', 'Next.js', 'Prisma', 'MySQL'],
+    paint: '#ff7a45',
+    summary: 'A 3D character showcase: six sovereigns on one stage, each with a dossier, lore and a temper.',
+    detail: 'Sett, Kineza, Ren, Serephina, Stella and Lust, staged as an interactive court. Drag to orbit, turn a character, provoke them with a click, or catch their gaze with the cursor. A studio panel then hands the stage over to the visitor.',
+    features: [
+      'Six rigged 3D characters, each with a dossier of stats, lore and a quote',
+      'Characters react: drag to turn, click to provoke, follow the cursor with their gaze',
+      'Tale of the tape comparing live model data: height, triangles, vertices, bones, materials, textures',
+      'Studio with lighting presets (Studio, Cinema, Eclipse, Ember) and Original, Clay and Wire view modes',
+      'Animation playback with speed control and Turntable, Gaze follow and Photo camera modes',
+    ],
+    stack: ['Astro', 'Three.js', 'GSAP', 'Lenis', 'Vercel'],
   },
 ];
 
@@ -402,7 +450,7 @@ export const milestones: Milestone[] = [
     stack: ['Next.js', 'NestJS', 'Elasticsearch', 'Docker'],
     era: 'Solo runs. Search, SSR and containers.',
     image: '/control_panel.png',
-    related: ['control-panel', 'ntv-dashboard'],
+    related: ['control-panel'],
   },
   {
     at: 2025.4,

@@ -1108,6 +1108,188 @@ html.is-loading .case-title {
   line-height: 1.55;
   color: var(--l2);
 }
+/* Element: the glyph in the element's colour and its word wearing the element, as in the valley */
+.case-el {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+.case-el svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: var(--el);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.case-el-word {
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.case-el[data-el='fire'] .case-el-word {
+  background-image: linear-gradient(0deg, #d42a00, #ff7a1a 40%, #ffbf4a 75%, #ffe6a8);
+  background-size: 100% 220%;
+  animation: case-fire 0.9s ease-in-out infinite alternate;
+}
+.case-el[data-el='water'] .case-el-word {
+  background-image: linear-gradient(100deg, #0a5d97, #2fa6dd 30%, #9fe6ff 46%, #2fa6dd 62%, #0a5d97);
+  background-size: 200% 100%;
+  animation: case-flow 2.6s linear infinite;
+}
+.case-el[data-el='earth'] .case-el-word {
+  background-image: linear-gradient(175deg, #b89a5e, #7ea33f 45%, #5b4630);
+}
+.case-el[data-el='air'] .case-el-word {
+  background-image: linear-gradient(90deg, #5f86ad 0%, #5f86ad 30%, #cfe3f6 46%, #5f86ad 62%, #5f86ad 100%);
+  background-size: 220% 100%;
+  animation: case-gust 2.2s ease-in-out infinite;
+}
+@keyframes case-fire { from { background-position: 50% 10%; } to { background-position: 50% 90%; } }
+@keyframes case-flow { to { background-position: 200% 0; } }
+@keyframes case-gust { from { background-position: 110% 0; } to { background-position: -110% 0; } }
+/* An element-coloured rule under the title */
+.case-title::after {
+  content: '';
+  display: block;
+  width: 72px;
+  height: 3px;
+  margin-top: 0.12em;
+  background: linear-gradient(90deg, var(--el), color-mix(in srgb, var(--el) 20%, transparent));
+}
+.case-feat {
+  display: inline-block;
+  margin-left: 12px;
+  padding: 3px 7px;
+  border: 1px solid var(--paint);
+  border-radius: 2px;
+  color: var(--l1);
+  font-size: 11px;
+}
+.case-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.case-stack li {
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+.case-label {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0 var(--cell);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--l2);
+}
+/* Headline numbers: big, wide, one per column */
+.case-numbers {
+  row-gap: 0;
+  padding-bottom: var(--py);
+}
+.case-number {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  padding: 24px var(--cell);
+  border-top: 1px solid var(--line);
+}
+.case-number .wide {
+  font-size: clamp(36px, 6svw, 84px);
+  color: var(--l1);
+}
+.case-number .wide::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 3px;
+  margin-bottom: 18px;
+  background: var(--el, var(--paint));
+}
+.case-number .mono-2 {
+  font-size: 12px;
+  color: var(--l2);
+}
+.case-features {
+  row-gap: 18px;
+  padding-bottom: var(--py);
+}
+.case-feature-list {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.case-feature-list li {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 12px;
+  padding: 16px var(--cell);
+  border-top: 1px solid var(--line);
+  font-family: var(--sans);
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--l1);
+}
+.case-feature-list .mono-2 {
+  padding-top: 4px;
+  font-size: 12px;
+  color: var(--l2);
+}
+.case-live {
+  row-gap: 18px;
+  padding-bottom: var(--py);
+}
+.case-live-frame {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0 var(--cell);
+}
+.case-live-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  font-size: 12px;
+  color: var(--l2);
+}
+.case-live-bar span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.case-live-frame iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--line);
+  background: var(--l4);
+}
+@media (min-width: 64rem) {
+  .case-number {
+    grid-column: span 4;
+  }
+  .case-label {
+    grid-column: 1 / span 4;
+  }
+  .case-feature-list,
+  .case-live-frame {
+    grid-column: 5 / span 8;
+  }
+  .case-feature-list li {
+    font-size: 22px;
+  }
+}
 .case-gallery {
   gap: 16px;
   padding-bottom: var(--py);
@@ -1183,6 +1365,9 @@ html.is-loading .case-title {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .case-el-word {
+    animation: none !important;
+  }
   .statement .w,
   .manifesto-words span {
     opacity: 1;

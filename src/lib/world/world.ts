@@ -34,6 +34,15 @@ export type World = {
   nudge: (right: number, forward: number) => void;
   zoom: (factor: number) => void;
   setHover: (id: string | null) => void;
+  /** Places the visitor has opened: their beacons keep a soft glow */
+  setVisited: (ids: Iterable<string>) => void;
+  /** Stir every beacon of one element (Home answers to all of them); null settles them */
+  setElement: (el: string | null) => void;
+  /** Cinematic sway: while a place is framed the camera drifts slowly round it (guided tour) */
+  setDrift: (on: boolean) => void;
+  /** Low drops smoke plumes, half the sparks and caps the pixel ratio at 1 */
+  setQuality: (level: 'high' | 'low') => void;
+  quality: () => 'high' | 'low';
   /** Switch between night and day; blends over ~2 s unless `instant`. Safe to call at any time, mid-blend included */
   setDay: (on: boolean, instant?: boolean) => void;
   /** The valley is only glimpsed through a veil (project view / menu): draw it at a fraction of the frame rate */
@@ -52,6 +61,8 @@ type Opts = {
   /** The visitor provoked the phoenix */
   onPhoenix?: () => void;
   onPhoenixHover?: () => void;
+  /** Quality changed, by hand or because the frame rate sagged */
+  onQuality?: (level: 'high' | 'low') => void;
   /** Intro cinematic started (true) / finished or skipped (false) */
   onIntro?: (playing: boolean) => void;
   /** A hard cut between intro shots (the page dips through black) */
@@ -63,7 +74,8 @@ type Opts = {
   guardianTags?: Map<GuardianId, HTMLElement>;
 };
 
-const YAW = 0.18;
+/** The camera's resting heading; the minimap turns by it so "up" matches the view */
+export const YAW = 0.18;
 /** Overview: raised, looking down across the whole labyrinth */
 const HOME_PITCH = 0.56;
 const LOOK_Y = 2;
@@ -321,10 +333,23 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
     }
   };
 
+  /* Quality: low on weak hardware from the start, or when the frame rate sags for a few seconds */
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  let lowQ = (nav.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4;
+  let drift = false;
+  let driftT = 0;
+  const applyQuality = (low: boolean) => {
+    lowQ = low;
+    lights.setLow(low);
+    resize();
+    opts.onQuality?.(low ? 'low' : 'high');
+  };
+  if (lowQ) lights.setLow(true);
+
   const resize = () => {
     w = window.innerWidth;
     h = window.innerHeight;
-    const dpr = Math.min(small ? 1.5 : 1.75, window.devicePixelRatio || 1);
+    const dpr = lowQ ? 1 : Math.min(small ? 1.5 : 1.75, window.devicePixelRatio || 1);
     renderer.setPixelRatio(dpr);
     renderer.setSize(w, h, false);
     composer.setPixelRatio(dpr);
@@ -438,7 +463,9 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
       aim(e.clientX, e.clientY);
       guardians.setPointer(pointerAt.copy(ray.ray.direction).multiplyScalar(cur.dist * 0.85).add(ray.ray.origin));
     }
-    if (e.pointerType === 'mouse') {
+    // Over a beacon's own label or the hero index, that element owns the hover (set via setHover)
+    const owned = e.target instanceof Element && e.target.closest('[data-marker], [data-beacon], [data-element]');
+    if (e.pointerType === 'mouse' && !owned) {
       const g = pickGuardian(e.clientX, e.clientY);
       if (g !== guardHover) {
         guardHover = g;
@@ -598,6 +625,9 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
   let backdrop = false;
   let rallied: string | null = null;
   let skipped = 0;
+  let fpsAvg = 16;
+  let fpsLast = performance.now();
+  let fpsFrames = 0;
   const frame = (now: number) => {
     raf = running ? requestAnimationFrame(frame) : 0;
     if (backdrop && ++skipped % 3) return;
@@ -607,6 +637,18 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
     const anim = opts.reducedMotion ? 0 : time;
 
     if (!entered && !opts.reducedMotion) want.yaw += dt * 0.05;
+    // Tour: a slow sway round the framed beacon, like a crane shot
+    if (drift && focusId && !opts.reducedMotion) {
+      driftT += dt;
+      want.yaw = YAW + Math.sin(driftT * 0.22) * 0.32;
+    }
+    // Frame-rate watch: ~4 s averaging under ~28 fps on the overview drops to low quality, once
+    if (!lowQ && entered && !intro && !backdrop) {
+      // Clamp each sample so a hitch (or a tab coming back) can't fake a slow device
+      fpsAvg = fpsAvg * 0.985 + Math.min(now - fpsLast, 80) * 0.015;
+      if (++fpsFrames > 240 && fpsAvg > 36) applyQuality(true);
+    }
+    fpsLast = now;
     // Glide after a flick
     if (!drag && (vel.x || vel.z)) {
       const decay = Math.exp(-dt * 4);
@@ -815,6 +857,24 @@ export function createWorld(canvas: HTMLCanvasElement, opts: Opts): World {
     setHover(id) {
       hoverId = id;
     },
+    setVisited(ids) {
+      const on = new Set(ids);
+      lights.beacons.forEach((b) => (b.litWant = on.has(b.id) ? 1 : 0));
+    },
+    setElement(el) {
+      lights.beacons.forEach((b) => {
+        const mine = !!el && (b.element === el || b.element === 'spirit');
+        b.elWant = mine ? 1 : 0;
+        b.dimWant = el && !mine ? 1 : 0;
+      });
+    },
+    setDrift(on) {
+      drift = on;
+    },
+    setQuality(level) {
+      applyQuality(level === 'low');
+    },
+    quality: () => (lowQ ? 'low' : 'high'),
     setDay(on, instant = false) {
       dayWant = on ? 1 : 0;
       if (instant) applyDay((day = dayWant));

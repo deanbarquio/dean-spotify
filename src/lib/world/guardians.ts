@@ -384,22 +384,34 @@ export function buildGuardians(scene: THREE.Scene, phoenix: Phoenix, { reducedMo
       if (wanted === g.id && pending?.id !== g.id) rise(g.id);
       return g;
     });
-  loadGuardian('turtle', '/aetherwing_turtle.glb', 18, true)
-    .then((g) => {
-      g.actions['Flying_Turtle|Loop']?.play();
-      return ready(g);
-    })
-    .catch((err) => console.warn('Turtle failed to load', err));
-  loadGuardian('dragon', '/prowler_dragon.glb', 13, false)
-    .then((g) => {
-      const land = g.actions['Landing'];
-      if (land) {
-        land.setLoop(THREE.LoopOnce, 1);
-        land.clampWhenFinished = true;
-      }
-      return ready(g);
-    })
-    .catch((err) => console.warn('Dragon failed to load', err));
+  /**
+   * The guardians (~3.6 MB) only appear once a place is open, so they don't compete with the page and the
+   * phoenix intro on first load: fetched once the page has settled, or the moment a place opens, whichever is first.
+   */
+  let loadsStarted = false;
+  const startLoads = () => {
+    if (loadsStarted) return;
+    loadsStarted = true;
+    loadGuardian('turtle', '/aetherwing_turtle.glb', 18, true)
+      .then((g) => {
+        g.actions['Flying_Turtle|Loop']?.play();
+        return ready(g);
+      })
+      .catch((err) => console.warn('Turtle failed to load', err));
+    loadGuardian('dragon', '/prowler_dragon.glb', 13, false)
+      .then((g) => {
+        const land = g.actions['Landing'];
+        if (land) {
+          land.setLoop(THREE.LoopOnce, 1);
+          land.clampWhenFinished = true;
+        }
+        return ready(g);
+      })
+      .catch((err) => console.warn('Dragon failed to load', err));
+  };
+  const idle: (cb: () => void) => void =
+    'requestIdleCallback' in window ? (cb) => window.requestIdleCallback(cb, { timeout: 4000 }) : (cb) => window.setTimeout(cb, 1);
+  window.setTimeout(() => idle(startLoads), 7000);
 
   /* ───────── Focus view geometry ───────── */
   let wanted: GuardianId | null = null; // guardian of the open beacon
@@ -539,6 +551,7 @@ export function buildGuardians(scene: THREE.Scene, phoenix: Phoenix, { reducedMo
      * `color` is the beacon's paint; `viewYaw` is the camera's yaw on the focus view.
      */
     focus(base: THREE.Vector3 | null, color?: THREE.Color, viewYaw = 0, who: GuardianId | null = null) {
+      if (base) startLoads();
       if (color) paint.copy(color);
       const next = base ? who : null;
       pending = null;

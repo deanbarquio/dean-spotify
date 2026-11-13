@@ -56,7 +56,7 @@ const deg = Math.PI / 180;
 const angDist = (a: number, b: number) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
 
 /* ───────── Labyrinth ───────── */
-const RINGS = [
+export const RINGS = [
   // Wall footprint ≈ 2.4 w, ring spacing 18: walls and channels come out roughly equal in width
   { r: 9, h: 6, w: 2.6, gaps: [90] },
   { r: 18, h: 9, w: 3.4, gaps: [270] },
@@ -64,7 +64,7 @@ const RINGS = [
   { r: 54, h: 12, w: 4.2, gaps: [130, 330] },
   { r: 72, h: 13, w: 4.4, gaps: [20, 250] },
 ];
-const WALLS = [
+export const WALLS = [
   { a: 150, r0: 18, r1: 36, h: 8, w: 3 },
   { a: 80, r0: 36, r1: 54, h: 9, w: 3.2 },
   { a: 290, r0: 36, r1: 54, h: 9, w: 3.2 },

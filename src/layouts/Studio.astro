@@ -4,11 +4,16 @@ import Frame from '../components/studio/Frame.astro';
 interface Props {
   title?: string;
   description?: string;
+  /** Share card image, a path under public/ */
+  image?: string;
 }
 const {
   title = 'DEAN©2026',
   description = 'Dean Barquio — Frontend Developer & Creative Engineer © 2026. Angular, Svelte, Three.js and GSAP from Cebu, PH.',
+  image = '/profile.png',
 } = Astro.props;
+// Scrapers need absolute URLs: set `site` in astro.config.mjs
+const abs = (p: string) => (Astro.site ? new URL(p, Astro.site).href : p);
 ---
 <!doctype html>
 <html lang="en" class="is-loading">
@@ -18,6 +23,13 @@ const {
     <meta name="description" content={description} />
     <meta name="theme-color" content="#bfdcf0" />
     <title>{title}</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Dean Barquio" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={abs(image)} />
+    {Astro.site && <meta property="og:url" content={abs(Astro.url.pathname)} />}
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

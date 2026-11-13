@@ -4,9 +4,9 @@
  * (cloned from hidden server-rendered sections), the places drawer, sound
  * toggle, keyboard and #hash deep links.
  */
-import { createWorld, type World } from './world';
+import { createWorld, YAW, type World } from './world';
 import { createSound } from './audio';
-import { PLACES } from './places';
+import { PLACES, ELEMENT_NAME, ELEMENTS } from './places';
 import { installBrushMasks } from './brush';
 import { wireJourney } from './journey';
 
@@ -31,6 +31,8 @@ export function boot() {
   let world: World | null = null;
   let current: string | null = null;
   let opener: HTMLElement | null = null;
+  /** Guided tour state; the tour itself is wired further down */
+  const tour = { on: false, i: 0, t: 0, paused: false, held: false, raf: 0, last: 0 };
 
   /* ───────── Focus: caption over the scene, detail panel on request ───────── */
   const caption = $('#caption');
@@ -149,7 +151,7 @@ export function boot() {
     closeDrawer();
     setMe(false);
     current = id;
-    capSub.textContent = place.sub;
+    capSub.textContent = `${place.sub} · ${ELEMENT_NAME[place.element]}`;
     capTitle.textContent = place.label;
     capView.textContent = VIEW[id] ?? 'View project';
     caption.style.setProperty('--paint', place.paint);
@@ -160,11 +162,14 @@ export function boot() {
     requestAnimationFrame(() => caption.classList.add('is-open'));
     if (detail) fillPanel(id);
     markers.forEach((el, k) => el.classList.toggle('is-active', k === id));
+    markVisited(id);
     cancelAnimationFrame(diveAnim);
     world?.focus(id, portalImage(id));
     // Stepping prev / next from inside a portal lands you inside the next one
     setDive(detail ? 1 : 0);
     sound.blip('open');
+    // Arriving at a beacon: its element answers (crackle, trickle, rumble, gust)
+    sound.element(place.element);
     history.replaceState(null, '', `#${id}`);
     if (!detail) capView.focus({ preventScroll: true });
   };
@@ -216,6 +221,8 @@ export function boot() {
   window.addEventListener(
     'wheel',
     (e) => {
+      // The tour layer handles its own scroll and swipe
+      if (tour.on) return;
       if (!current || !drawer.hidden || (detail && panelBody.scrollTop > 0)) return;
       // Normalise line / page deltas; one notch ≈ 8% of the dive
       const px = e.deltaMode === 1 ? e.deltaY * 32 : e.deltaMode === 2 ? e.deltaY * h() : e.deltaY;
@@ -229,6 +236,8 @@ export function boot() {
   window.addEventListener(
     'touchmove',
     (e) => {
+      // The tour layer handles its own scroll and swipe
+      if (tour.on) return;
       if (touchY === null || !current || !drawer.hidden || e.touches.length > 1) return;
       const y = e.touches[0].clientY;
       // Swipe up = forward, like scrolling down
@@ -387,6 +396,453 @@ export function boot() {
     el.addEventListener('pointerenter', () => (world?.setHover(id), sound.blip('hover')));
     el.addEventListener('pointerleave', () => world?.setHover(null));
   });
+
+  /* ───────── Hero: rotating word, way in, and the index that lights its beacon ───────── */
+  // Every element that stands for a beacon: hero chips, featured rows, minimap dots (several per beacon)
+  const beaconEls = [...document.querySelectorAll<HTMLElement>('[data-beacon]')];
+  const forBeacons = (fn: (el: HTMLElement, id: string) => void) => beaconEls.forEach((el) => fn(el, el.dataset.beacon!));
+  /** One beacon lit from the HUD side: index chip, marker label, glow in the valley */
+  const hoverBeacon = (id: string | null) => {
+    world?.setHover(id);
+    markers.forEach((el, k) => el.classList.toggle('is-hover', k === id));
+    forBeacons((el, k) => el.classList.toggle('is-hover', k === id));
+  };
+  forBeacons((el, id) => {
+    el.addEventListener('click', () => open(id, el));
+    el.addEventListener('pointerenter', () => (hoverBeacon(id), sound.blip('hover')));
+    el.addEventListener('pointerleave', () => hoverBeacon(null));
+    el.addEventListener('focus', () => hoverBeacon(id));
+    el.addEventListener('blur', () => hoverBeacon(null));
+  });
+  /* Beacons lit: every place opened stays lit on this device, counted in the hero index */
+  const LIT_KEY = 'valley-lit';
+  const litCount = $('#hero-lit-n');
+  const litBox = $('#hero-lit');
+  let lit = new Set<string>();
+  try {
+    lit = new Set((JSON.parse(localStorage.getItem(LIT_KEY) ?? '[]') as string[]).filter((id) => ids.includes(id)));
+  } catch {}
+  const showLit = () => {
+    forBeacons((el, k) => el.classList.toggle('is-lit', lit.has(k)));
+    litCount.textContent = String(lit.size).padStart(2, '0');
+    if (lit.size === ids.length) litBox.textContent = 'Valley cleared ✦';
+    world?.setVisited(lit);
+  };
+  function markVisited(id: string) {
+    if (lit.has(id)) return;
+    lit.add(id);
+    try {
+      localStorage.setItem(LIT_KEY, JSON.stringify([...lit]));
+    } catch {}
+    showLit();
+    if (lit.size === ids.length) litBox.classList.add('is-cleared');
+  }
+  showLit();
+
+  /**
+   * Fit the hero above the foot bar: measure, and while it would overlap, step back the next
+   * least-important part (valley chips → subline → featured list → element row). Re-run on resize.
+   */
+  const hero = document.querySelector<HTMLElement>('.headline');
+  const footGuard = document.querySelector<HTMLElement>('.foot-left');
+  const fitHero = () => {
+    if (!hero || !footGuard) return;
+    for (let k = 1; k <= 4; k++) hero.classList.remove(`fit-${k}`);
+    // Phones lay the hero out from the bottom; their own rules handle it
+    if (matchMedia('(max-width: 760px)').matches) return;
+    const limit = footGuard.getBoundingClientRect().top - 24;
+    for (let k = 1; k <= 4 && hero.getBoundingClientRect().bottom > limit; k++) hero.classList.add(`fit-${k}`);
+  };
+  let fitRaf = 0;
+  window.addEventListener('resize', () => (cancelAnimationFrame(fitRaf), (fitRaf = requestAnimationFrame(fitHero))));
+  fitHero();
+  // Web fonts change line heights once they land
+  void document.fonts?.ready.then(fitHero);
+
+  // Starts at the first featured project's beacon: the valley is the work
+  const firstStop = PLACES.find((p) => p.featured)?.id ?? ids[1] ?? ids[0];
+  $('#hero-explore').addEventListener('click', (e) => open(firstStop, e.currentTarget as HTMLElement));
+  const heroProjects = $<HTMLButtonElement>('#hero-projects');
+  heroProjects.addEventListener('click', () => openDrawer(heroProjects));
+
+  /**
+   * Swap the hero's last word: the old one lifts away into a blur, the new one settles up out of it.
+   * Only real words are ever on screen. A new swap cancels the last; a hidden tab just gets the word.
+   */
+  const heroWord = $('#hero-word');
+  let swapOut: Animation | null = null;
+  let swapIn: Animation | null = null;
+  const decode = (to: string) => {
+    swapOut?.cancel();
+    swapIn?.cancel();
+    if (document.hidden || reduced || !heroWord.animate) return void (heroWord.textContent = to);
+    swapOut = heroWord.animate(
+      [
+        { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0)' },
+        { opacity: 0, filter: 'blur(8px)', transform: 'translateY(-0.16em)' },
+      ],
+      { duration: 280, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' }
+    );
+    swapOut.onfinish = () => {
+      heroWord.textContent = to;
+      swapOut?.cancel();
+      swapIn = heroWord.animate(
+        [
+          { opacity: 0, filter: 'blur(8px)', transform: 'translateY(0.2em)' },
+          { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0)' },
+        ],
+        { duration: 520, easing: 'cubic-bezier(.2,.8,.2,1)' }
+      );
+    };
+  };
+  // Leaving or returning to the tab: drop any half-done swap and show the real word
+  document.addEventListener('visibilitychange', () => {
+    swapOut?.cancel();
+    swapIn?.cancel();
+    if (heroWord.dataset.text) heroWord.textContent = heroWord.dataset.text;
+  });
+  /* Elements: the headline's word belongs to one element at a time, and that element's beacons stir in the valley */
+  const elButtons = [...document.querySelectorAll<HTMLElement>('[data-element]')];
+  let elTurn = 0;
+  let elHold: string | null = null;
+  const showElement = (id: string, animate = !reduced) => {
+    const e = ELEMENTS.find((k) => k.id === id);
+    if (!e) return;
+    heroWord.dataset.el = id;
+    if (heroWord.dataset.text !== e.word) {
+      heroWord.dataset.text = e.word;
+      animate ? decode(e.word) : (heroWord.textContent = e.word);
+    }
+    elButtons.forEach((b) => b.classList.toggle('is-on', b.dataset.element === id));
+    forBeacons((el, k) => el.classList.toggle('is-el', PLACES.find((p) => p.id === k)?.element === id));
+    world?.setElement(id);
+  };
+  const overviewShown = () =>
+    !document.hidden && document.body.classList.contains('is-in') && !document.body.matches('.has-focus, .has-menu, .has-panel, .is-intro, .is-close');
+  elButtons.forEach((b) => {
+    const id = b.dataset.element!;
+    const hold = () => ((elHold = id), showElement(id), sound.element(id));
+    const free = () => {
+      elHold = null;
+      showElement(ELEMENTS[elTurn].id);
+    };
+    b.addEventListener('pointerenter', hold);
+    // Keyboard focus only: the browser re-focusing a clicked button when the tab comes back shouldn't hold the word
+    b.addEventListener('focus', () => b.matches(':focus-visible') && hold());
+    b.addEventListener('pointerleave', () => elHold === id && free());
+    b.addEventListener('blur', () => elHold === id && free());
+    // Click: fly to the element's beacons in turn, featured first; each click moves on to the next
+    const round = PLACES.filter((p) => p.element === id).sort((a, c) => Number(!!c.featured) - Number(!!a.featured));
+    let stop = 0;
+    b.addEventListener('click', () => {
+      if (!round.length) return;
+      const to = round[stop % round.length];
+      stop++;
+      open(to.id, b);
+    });
+  });
+  // Leaving the overview settles the valley; coming back resumes the current element
+  const settleElements = () => {
+    // The tour sets its own element per stop
+    if (tour.on) return;
+    world?.setElement(overviewShown() ? elHold ?? ELEMENTS[elTurn].id : null);
+  };
+  new MutationObserver(settleElements).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  showElement(ELEMENTS[0].id, false);
+  if (!reduced) {
+    window.setInterval(() => {
+      if (!overviewShown() || elHold) return;
+      elTurn = (elTurn + 1) % ELEMENTS.length;
+      showElement(ELEMENTS[elTurn].id);
+    }, 3600);
+  }
+
+  /* ───────── Guided tour: letterboxed, one beacon after another ─────────
+     Each stop: the camera flies in and slowly pushes toward the portal while swaying round it;
+     the project's live site loads in a browser window beside its credits (or its screens cross-fade there). */
+  type Stop = {
+    id: string; n: string; title: string; kind: string; year: string; summary: string; stack: string[]; image: string;
+    url: string | null; shots: string[]; features: string[]; highlights: { value: string; label: string }[]; glyph: string;
+    element: string; elementName: string; color: string; paint: string; featured: boolean;
+  };
+  const stops = JSON.parse($('#tour-data').textContent || '[]') as Stop[];
+  const tourEl = $('#tour');
+  const tourPause = $<HTMLButtonElement>('#tour-pause');
+  const segs = [...document.querySelectorAll<HTMLElement>('.tour-seg')];
+  const segFill = segs.map((s) => s.firstElementChild as HTMLElement);
+  const screen = $('#tour-screen');
+  const shotA = $<HTMLImageElement>('#tour-img');
+  const shotB = $<HTMLImageElement>('#tour-img-b');
+  const frame = $<HTMLIFrameElement>('#tour-frame');
+  /** A stop with a live site plays longer: there's more to watch */
+  const stopMs = () => (stops[tour.i]?.url && screen.classList.contains('is-loaded') ? 12000 : 8000);
+  /** Camera push toward the portal over a stop, after the flight in has landed */
+  const TOUR_DIVE = 0.34;
+  /** Live sites only where there's headroom: not on phones, reduced data or the low-quality valley */
+  const liveOk = () =>
+    !matchMedia('(max-width: 760px)').matches &&
+    !(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData &&
+    world?.quality() !== 'low';
+  let frameTimer = 0;
+  let slideTimer = 0;
+  /** Fit the 1440×900 desktop render into the window, whatever its size */
+  const fitFrame = () => screen.style.setProperty('--s', String(screen.clientWidth / 1440));
+  new ResizeObserver(fitFrame).observe(screen);
+  const unloadFrame = () => {
+    clearTimeout(frameTimer);
+    if (frame.getAttribute('src') !== 'about:blank') frame.src = 'about:blank';
+    screen.classList.remove('is-loaded', 'is-loading', 'is-live');
+  };
+  frame.addEventListener('load', () => {
+    if (frame.src !== 'about:blank' && screen.classList.contains('is-loading')) {
+      screen.classList.remove('is-loading');
+      screen.classList.add('is-loaded');
+    }
+  });
+  /** Screens cross-fading between two stacked images (projects without a live site) */
+  const slideshow = (shots: string[]) => {
+    clearInterval(slideTimer);
+    shotA.src = shots[0] ?? '';
+    shotB.src = '';
+    screen.classList.remove('is-b');
+    if (shots.length < 2 || reduced) return;
+    let k = 0;
+    slideTimer = window.setInterval(() => {
+      if (tour.paused || tour.held) return;
+      k = (k + 1) % shots.length;
+      const showB = !screen.classList.contains('is-b');
+      (showB ? shotB : shotA).src = shots[k];
+      screen.classList.toggle('is-b', showB);
+    }, 2600);
+  };
+  const listItems = (ul: HTMLElement, items: string[]) =>
+    ul.replaceChildren(
+      ...items.map((t) => {
+        const li = document.createElement('li');
+        li.textContent = t;
+        return li;
+      })
+    );
+  const showStop = (i: number) => {
+    tour.i = (i + stops.length) % stops.length;
+    tour.t = 0;
+    const s = stops[tour.i];
+    const next = stops[tour.i + 1];
+    open(s.id);
+    world?.setElement(s.element === 'spirit' ? null : s.element);
+    const chapter = String(tour.i + 1).padStart(2, '0');
+    $('#tour-n').textContent = chapter;
+    $('#tour-ghost').textContent = chapter;
+    $('#tour-el').textContent = `${s.elementName}${s.featured ? ' · Featured' : ''}`;
+    $('#tour-glyph').setAttribute('d', s.glyph);
+    $('#tour-kind').textContent = `${s.n} · ${s.kind}`;
+    $('#tour-title').textContent = s.title;
+    $('#tour-year').textContent = s.year;
+    $('#tour-type').textContent = s.kind;
+    $('#tour-elname').textContent = s.elementName;
+    $('#tour-sum').textContent = s.summary;
+    // Headline numbers when the project has them, otherwise its top features
+    const feats = $('#tour-feats');
+    if (s.highlights.length) {
+      feats.classList.add('is-numbers');
+      feats.replaceChildren(
+        ...s.highlights.slice(0, 3).map((h) => {
+          const li = document.createElement('li');
+          const b = document.createElement('b');
+          b.textContent = h.value;
+          li.append(b, document.createTextNode(h.label));
+          return li;
+        })
+      );
+    } else {
+      feats.classList.remove('is-numbers');
+      listItems(feats, s.features);
+    }
+    listItems($('#tour-stack'), s.stack);
+    $('#tour-upnext').textContent = next ? `Up next — ${next.title}` : 'Last stop — back to the valley';
+    tourEl.style.setProperty('--paint', s.paint);
+    tourEl.style.setProperty('--el', s.color);
+    // Chapters: earlier ones full, later ones empty, this one fills as it plays
+    segFill.forEach((f, k) => f.style.setProperty('--fill', k < tour.i ? '100%' : '0%'));
+    segs.forEach((sg, k) => sg.toggleAttribute('aria-current', k === tour.i));
+
+    // The window: the live site if there is one (its screenshot holds the frame until it arrives)
+    if (screen.classList.contains('is-live')) setLive(false);
+    unloadFrame();
+    slideshow(s.shots.length ? s.shots : [s.image]);
+    const live = !!s.url && liveOk();
+    screen.classList.toggle('has-live', live);
+    $('#tour-url').textContent = s.url ? s.url.replace(/^https?:\/\/|\/$/g, '') : `${s.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.local`;
+    $('#tour-live-label').textContent = s.url ? 'Live' : s.shots.length > 1 ? `${s.shots.length} screens` : 'Preview';
+    $('#tour-live').classList.toggle('is-on', !!s.url);
+    $('#tour-tc').textContent = s.url ? 'Running live — the real site, not a recording' : 'Screens from the project';
+    frame.title = `${s.title} live site`;
+    if (live) {
+      // Load after the camera has landed, so the flight stays smooth
+      frameTimer = window.setTimeout(() => {
+        if (!tour.on || stops[tour.i].id !== s.id) return;
+        screen.classList.add('is-loading');
+        frame.src = s.url!;
+      }, reduced ? 0 : 900);
+    }
+    // Restart the entrance: window swings in, credits rise
+    tourEl.classList.remove('is-cut');
+    void tourEl.offsetWidth;
+    tourEl.classList.add('is-cut');
+    fitFrame();
+  };
+  const tourTick = (now: number) => {
+    if (!tour.on) return;
+    const dt = Math.min(now - tour.last, 100);
+    tour.last = now;
+    // Paused by hand, or held while the visitor reads the window or the credits
+    if (!tour.paused && !tour.held && !document.hidden) tour.t += dt;
+    const ms = stopMs();
+    const k = Math.min(1, tour.t / ms);
+    segFill[tour.i].style.setProperty('--fill', `${(k * 100).toFixed(2)}%`);
+    // Push in once the flight has landed (~1.4 s), easing toward the portal until the cut
+    if (!detail && !reduced) {
+      const p = Math.min(1, Math.max(0, (tour.t - 1400) / (ms - 2000)));
+      setDive(TOUR_DIVE * p * p * (3 - 2 * p));
+    }
+    if (tour.t >= ms) {
+      if (tour.i === stops.length - 1) return void endTour();
+      showStop(tour.i + 1);
+    }
+    tour.raf = requestAnimationFrame(tourTick);
+  };
+  const setPaused = (on: boolean) => {
+    tour.paused = on;
+    tourPause.setAttribute('aria-pressed', String(on));
+    tourPause.textContent = on ? 'Play' : 'Pause';
+    tourEl.classList.toggle('is-paused', on && !screen.classList.contains('is-live'));
+  };
+  const tourStep = (d: number) => {
+    if (d > 0 && tour.i === stops.length - 1) return;
+    if (d < 0 && tour.i === 0) return;
+    showStop(tour.i + d);
+  };
+  const startTour = () => {
+    if (!world || tour.on) return;
+    closeDrawer();
+    setMe(false);
+    if (detail) hideDetail(false);
+    tour.on = true;
+    tour.held = false;
+    setPaused(false);
+    document.body.classList.add('is-tour');
+    tourEl.hidden = false;
+    world.setDrift(true);
+    tour.last = performance.now();
+    showStop(0);
+    tour.raf = requestAnimationFrame(tourTick);
+    $<HTMLButtonElement>('#tour-pause').focus({ preventScroll: true });
+  };
+  /** `stay`: keep the current place framed (Open project); otherwise back to the overview */
+  function endTour(stay = false) {
+    if (!tour.on) return;
+    tour.on = false;
+    cancelAnimationFrame(tour.raf);
+    clearInterval(slideTimer);
+    unloadFrame();
+    document.body.classList.remove('is-tour');
+    tourEl.classList.remove('is-cut', 'is-paused');
+    tourEl.hidden = true;
+    world?.setDrift(false);
+    if (!stay) {
+      close();
+      world?.overview();
+      $<HTMLButtonElement>('#hero-tour').focus({ preventScroll: true });
+    }
+    settleElements();
+  }
+  /* Try it live: the site takes the pointer and the tour waits; Back hands it back */
+  const setLive = (on: boolean) => {
+    screen.classList.toggle('is-live', on);
+    tourEl.classList.toggle('is-interacting', on);
+    frame.tabIndex = on ? 0 : -1;
+    setPaused(on);
+    if (on) frame.focus();
+  };
+  $('#tour-interact').addEventListener('click', () => setLive(true));
+  $('#tour-back').addEventListener('click', () => setLive(false));
+  $('#hero-tour').addEventListener('click', startTour);
+  $('#tour-exit').addEventListener('click', () => endTour());
+  $('#tour-next').addEventListener('click', () => (tour.i === stops.length - 1 ? endTour() : showStop(tour.i + 1)));
+  $('#tour-prev').addEventListener('click', () => tourStep(-1));
+  tourPause.addEventListener('click', () => (screen.classList.contains('is-live') ? setLive(false) : setPaused(!tour.paused)));
+  $('#tour-view').addEventListener('click', () => {
+    endTour(true);
+    enterPortal();
+  });
+  segs.forEach((sg, k) => sg.addEventListener('click', () => showStop(k)));
+
+  /* The tour layer takes every input, so nothing stray reaches the valley and ends it:
+     a click on open space pauses / plays, a scroll or swipe steps one stop, only End tour or Esc leave */
+  tourEl.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('button, a, .tour-card, .tour-stage')) return;
+    if (screen.classList.contains('is-live')) return void setLive(false);
+    setPaused(!tour.paused);
+  });
+  // Reading: holding the pointer over the window or the credits holds the clock
+  document.querySelectorAll<HTMLElement>('.tour-card, .tour-stage').forEach((el) => {
+    el.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && (tour.held = true));
+    el.addEventListener('pointerleave', () => (tour.held = false));
+  });  let wheelSum = 0;
+  let wheelLock = 0;
+  tourEl.addEventListener(
+    'wheel',
+    (e) => {
+      e.preventDefault();
+      const now = performance.now();
+      // One flick, one stop: gather the gesture, then ignore the trackpad's tail for a moment
+      if (now < wheelLock) return;
+      wheelSum += Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      if (Math.abs(wheelSum) < 60) return;
+      tourStep(wheelSum > 0 ? 1 : -1);
+      wheelSum = 0;
+      wheelLock = now + 900;
+    },
+    { passive: false }
+  );
+  let swipe: { x: number; y: number } | null = null;
+  tourEl.addEventListener('touchstart', (e) => (swipe = { x: e.touches[0].clientX, y: e.touches[0].clientY }), { passive: true });
+  tourEl.addEventListener(
+    'touchend',
+    (e) => {
+      if (!swipe) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - swipe.x;
+      const dy = t.clientY - swipe.y;
+      swipe = null;
+      // Left or up goes forward, right or down goes back; short drags count as taps
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 50) return;
+      tourStep(Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : -1) : dy < 0 ? 1 : -1);
+    },
+    { passive: true }
+  );
+
+  /* ───────── Minimap: the spiral from above, turned so "up" is where the camera faces ───────── */
+  {
+    const sy = Math.sin(YAW);
+    const cy = Math.cos(YAW);
+    $('#map-rot').setAttribute('transform', `matrix(${cy} ${sy} ${-sy} ${cy} 0 0)`);
+    document.querySelectorAll<HTMLElement>('.map-dot').forEach((d) => {
+      const x = Number(d.dataset.x);
+      const z = Number(d.dataset.z);
+      d.style.left = `${50 + ((cy * x - sy * z) / 180) * 100}%`;
+      d.style.top = `${50 + ((sy * x + cy * z) / 180) * 100}%`;
+    });
+  }
+  const mapView = document.getElementById('map-view');
+  const yawDeg = (-YAW * 180) / Math.PI;
+  let mapLast = '';
+  /** Called every frame with the camera's target: moves the view marker (only when it actually moved) */
+  const updateMap = (x: number, z: number, dist: number) => {
+    const t = `translate(${x.toFixed(1)} ${z.toFixed(1)}) rotate(${yawDeg.toFixed(2)}) scale(${Math.min(1.6, Math.max(0.35, dist / 150)).toFixed(2)})`;
+    if (t !== mapLast && mapView) mapView.setAttribute('transform', (mapLast = t));
+  };
+
   const setSound = (on: boolean) => {
     sound.setOn(on);
     soundBtn.setAttribute('aria-pressed', String(on));
@@ -448,6 +904,15 @@ export function boot() {
 
   window.addEventListener('keydown', (e) => {
     if (world?.playingIntro()) return void skip();
+    // Tour keys: ← → step, Space pauses, Escape ends; everything else is ignored while it rolls
+    if (tour.on) {
+      // Esc first hands a live site back to the tour, then ends the tour
+      if (e.key === 'Escape') tourEl.classList.contains('is-interacting') ? $('#tour-back').click() : endTour();
+      else if (e.key === 'ArrowRight') (e.preventDefault(), tour.i === stops.length - 1 ? endTour() : showStop(tour.i + 1));
+      else if (e.key === 'ArrowLeft') (e.preventDefault(), tourStep(-1));
+      else if (e.key === ' ' && !(e.target as Element).closest('button')) (e.preventDefault(), setPaused(!tour.paused));
+      return;
+    }
     // Escape peels one layer at a time: drawer → detail panel → focused place
     if (e.key === 'Escape') {
       if (meOpen) return void (setMe(false), mePill.focus({ preventScroll: true }));
@@ -498,23 +963,39 @@ export function boot() {
   };
   const bar = $('#gate-bar');
   const pct = $('#gate-pct');
+  const num = $('#gate-num');
+  /** Progress eases toward `target` and creeps toward `ceil` meanwhile, so the ridge never stalls */
+  const load = { shown: 0, target: 0.12, ceil: 0.45 };
+  const drawLoad = () => {
+    if (gate.hidden) return;
+    load.target = Math.min(Math.max(load.target, load.target + (load.ceil - load.target) * 0.004), 1);
+    load.shown += (load.target - load.shown) * (reduced ? 1 : 0.07);
+    bar.style.strokeDashoffset = String(1 - load.shown);
+    num.textContent = String(Math.round(load.shown * 100)).padStart(2, '0');
+    requestAnimationFrame(drawLoad);
+  };
+  drawLoad();
   /**
    * Loaded: the loading screen dissolves straight into the phoenix intro, no click needed.
    * Sound starts off (browsers block audio until the visitor interacts); the HUD toggle turns it on.
    */
   const ready = () => {
-    bar.style.transform = 'scaleX(1)';
-    pct.textContent = '';
+    load.target = load.ceil = 1;
+    gate.classList.add('is-ready');
+    pct.textContent = 'Above the mist';
     // Only a hop back from a case study skips the intro; any fresh load plays it
     let fromCase = false;
     try {
       const ref = document.referrer ? new URL(document.referrer) : null;
       fromCase = !!ref && ref.origin === location.origin && /^\/(work|journey)\//.test(ref.pathname);
     } catch {}
-    window.setTimeout(() => enter(false, fromCase), fromCase || reduced ? 0 : 400);
+    // A beat for the ridge to finish and the beacon to light
+    window.setTimeout(() => enter(false, fromCase), fromCase || reduced ? 0 : 900);
   };
   /** Hold the loading screen until the phoenix has landed in memory, so the intro can always play */
   const readyWhenPhoenix = () => {
+    load.target = Math.max(load.target, 0.6);
+    load.ceil = 0.94;
     pct.textContent = 'Summoning the phoenix…';
     const t0 = performance.now();
     const wait = () => {
@@ -547,10 +1028,16 @@ export function boot() {
           onPhoenixHover: () => sound.blip('hover'),
           onHover: (id) => {
             markers.forEach((el, k) => el.classList.toggle('is-hover', k === id));
+            // Hovering a light in the valley lights its name in the hero index too
+            forBeacons((el, k) => el.classList.toggle('is-hover', k === id));
             if (id) sound.blip('hover');
           },
           // Headline steps aside once the visitor dives into the valley
-          onMove: (_x, _z, dist) => document.body.classList.toggle('is-close', dist < 80),
+          onMove: (x, z, dist) => {
+            document.body.classList.toggle('is-close', dist < 80);
+            updateMap(x, z, dist);
+          },
+          onQuality: (level) => document.body.classList.toggle('is-lowq', level === 'low'),
           guardianTags: new Map(
             [...document.querySelectorAll<HTMLElement>('[data-guardian]')].map((el) => [el.dataset.guardian as 'turtle' | 'dragon', el])
           ),
@@ -566,6 +1053,7 @@ export function boot() {
         });
         // Open on whichever sky the visitor left it at
         world.setDay(isDay, true);
+        world.setVisited(lit);
       } catch (err) {
         // No WebGL: the drawer becomes the way around
         console.warn('Overworld unavailable', err);

@@ -1,6 +1,7 @@
 ---
 import Studio from '../../layouts/Studio.astro';
 import { projects, type Project } from '../../data/portfolio';
+import { ELEMENTS, ELEMENT_NAME } from '../../lib/world/places';
 
 export function getStaticPaths() {
   return projects.map((p, i) => ({ params: { id: p.id }, props: { p, next: projects[(i + 1) % projects.length] } }));
@@ -8,12 +9,21 @@ export function getStaticPaths() {
 
 const { p, next } = Astro.props as { p: Project; next: Project };
 const shots = p.gallery ?? (p.image ? [p.image] : []);
+const el = ELEMENTS.find((e) => e.id === p.element)!;
 ---
 
-<Studio title={`${p.title.toUpperCase()} — DEAN©2026`} description={p.summary}>
-  <main class="case">
+<Studio title={`${p.title.toUpperCase()} — DEAN©2026`} description={p.summary} image={p.image?.endsWith('.svg') ? undefined : p.image}>
+  <main class="case" style={`--el:${el.color}`} data-el={p.element}>
     <section class="case-hero grid12">
-      <p class="case-kind mono-2" data-in><span data-scramble>{p.kind}</span> · {p.year}</p>
+      <p class="case-kind mono-2" data-in>
+        <span data-scramble>{p.kind}</span> · {p.year}
+        <!-- The project's element, as in the valley: its glyph and word -->
+        <span class="case-el" data-el={p.element}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d={el.glyph} /></svg>
+          <span class="case-el-word">{ELEMENT_NAME[p.element]}</span>
+        </span>
+        {p.featured && <span class="case-feat" style={`--paint:${p.paint}`}>Featured</span>}
+      </p>
       <h1 class="case-title wide"><span data-line>{p.title}</span></h1>
     </section>
 
@@ -21,7 +31,7 @@ const shots = p.gallery ?? (p.image ? [p.image] : []);
       <dl class="case-facts mono-2" data-in>
         <div><dt>Year</dt><dd>{p.year}</dd></div>
         <div><dt>Type</dt><dd>{p.kind}</dd></div>
-        <div><dt>Stack</dt><dd>{p.stack.join(', ')}</dd></div>
+        <div><dt>Stack</dt><dd><ul class="case-stack" aria-label="Stack">{p.stack.map((s) => <li>{s}</li>)}</ul></dd></div>
         {p.url && (
           <div><dt>Live</dt><dd><a href={p.url} target="_blank" rel="noopener noreferrer" class="ul">Visit site ↗</a></dd></div>
         )}
@@ -31,6 +41,45 @@ const shots = p.gallery ?? (p.image ? [p.image] : []);
         <p class="case-detail" data-reveal>{p.detail}</p>
       </div>
     </section>
+
+    {p.highlights && (
+      <section class="case-numbers grid12" aria-label="Highlights" style={`--paint:${p.paint}`}>
+        {p.highlights.map((h) => (
+          <div class="case-number" data-reveal>
+            <span class="wide">{h.value}</span>
+            <span class="mono-2">{h.label}</span>
+          </div>
+        ))}
+      </section>
+    )}
+
+    <section class="case-features grid12" aria-labelledby="features-title">
+      <h2 class="case-label mono-2" id="features-title">What it does</h2>
+      <ol class="case-feature-list">
+        {p.features.map((f, i) => (
+          <li data-reveal><span class="mono-2">{String(i + 1).padStart(2, '0')}</span>{f}</li>
+        ))}
+      </ol>
+    </section>
+
+    {p.url && (
+      <section class="case-live grid12" aria-labelledby="live-title">
+        <h2 class="case-label mono-2" id="live-title">Live preview</h2>
+        <figure class="case-live-frame" data-reveal>
+          <div class="case-live-bar mono-2">
+            <span>{p.url.replace(/^https?:\/\/|\/$/g, '')}</span>
+            <a href={p.url} target="_blank" rel="noopener noreferrer" class="ul">Open ↗</a>
+          </div>
+          <iframe
+            src={p.url}
+            title={`${p.title} live preview`}
+            loading="lazy"
+            referrerpolicy="no-referrer"
+            sandbox="allow-scripts allow-same-origin allow-pointer-lock"
+          ></iframe>
+        </figure>
+      </section>
+    )}
 
     {shots.length > 0 ? (
       <section class="case-gallery grid12">

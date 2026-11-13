@@ -2,7 +2,7 @@
 // Work.astro — asymmetric 12-col grid of square tiles; each opens its case page
 import { projects } from '../../data/portfolio';
 
-const order = ['fenghuang', 'fire-and-blood', 'constrack', 'control-panel', 'hikemate', 'psits', 'buildit', 'meeting-room', 'component-pantry', 'ntv-dashboard'];
+const order = ['fenghuang', 'fire-and-blood', 'constrack', 'control-panel', 'hikemate', 'psits', 'buildit', 'meeting-room', 'component-pantry', 'character-showcase'];
 const list = order.map((id) => projects.find((p) => p.id === id)!).filter(Boolean);
 ---
 
